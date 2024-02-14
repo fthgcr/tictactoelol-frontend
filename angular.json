@@ -27,6 +27,7 @@
             "outputPath": "dist/tic-tac-toe-lol-front-end",
             "index": "src/index.html",
             "browser": "src/main.ts",
+            "allowedCommonJsDependencies": ["sockjs-client"],
             "polyfills": [
               "zone.js"
             ],
@@ -34,7 +35,8 @@
             "inlineStyleLanguage": "scss",
             "assets": [
               "src/favicon.ico",
-              "src/assets"
+              "src/assets",
+              "src/assets/photos"
             ],
             "styles": [
               "@angular/material/prebuilt-themes/indigo-pink.css",
