@@ -1,0 +1,22 @@
+<form class="example-form">
+  <mat-form-field class="example-full-width">
+    <mat-label>Champions</mat-label>
+    <input matInput
+           aria-label="Champions"
+           [matAutocomplete]="auto"
+           [formControl]="stateCtrl"
+           [placeholder]="'Type a Champion'"
+           formControlName="stateCtrl" #myInput>
+    <mat-autocomplete #auto="matAutocomplete" (optionSelected)='clickSelect($event.option.value)'>
+      @for (state of filteredStates | async; track state) {
+        <mat-option [value]="state.name">
+          <img alt="" class="example-option-img" [src]="state.png" height="25">
+          <span>{{state.name}}</span> 
+          <!-- <small>Population: {{state.population}}</small> -->
+        </mat-option>
+      }
+    </mat-autocomplete>
+  </mat-form-field>
+
+  <!-- <button mat-flat-button color="primary">Primary</button> -->
+</form>

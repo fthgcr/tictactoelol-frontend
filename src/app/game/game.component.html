@@ -1,0 +1,59 @@
+<body>
+  <a href="/" id="homeButtonLink"><mat-icon style="transform: scale(1.5); color: black;">arrow_back_ios</mat-icon></a>
+  
+      <button mat-icon-button color="primary" class="icon-buttons" (click)="clipBoard('Game ID Copied to Clipboard !')" style="right: 80px;">
+        <mat-icon class="icon-display">share</mat-icon>
+      </button>
+      <button mat-icon-button color="primary" class="icon-buttons" (click)="openInfoPage()" style="right: 20px;">
+        <mat-icon class="icon-display">info</mat-icon>
+      </button>
+
+       <div *ngIf="!isTurn || !this.gameModel.secondPlayer" class="spinner">
+        <div class="loading__bar"></div> <br>
+        <h4>Waiting for opponent</h4>
+      </div> 
+
+      <div class="timer-countdown" *ngIf="isTurn && this.gameModel.secondPlayer">
+        <div class="frame">
+          <div class="container">
+            <div class="box-4">
+              <div class="loader-4" >
+                <p style="font-weight: bold;" *ngIf="timer > 0">{{timer}}</p>
+                <p style="font-weight: bold;" *ngIf="timer < 1">0</p>
+                <div class="dbl-spin-1"></div>
+                <div class="dbl-spin-2"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+     <div class="board">
+        <div class="dropBox"></div>
+        <div class="dropBox header"><p><span style="font-size: 1rem; color: black;">{{splitRule(rules[0], true)}}</span><br><br><span>{{splitRule(rules[0], false)}}</span></p></div>
+        <div class="dropBox header"><p><span style="font-size: 1rem; color: black;">{{splitRule(rules[1], true)}}</span><br><br><span>{{splitRule(rules[1], false)}}</span></p></div>
+        <div class="dropBox header"><p><span style="font-size: 1rem; color: black;">{{splitRule(rules[2], true)}}</span><br><br><span>{{splitRule(rules[2], false)}}</span></p></div>
+        <div class="dropBox header"><p><span style="font-size: 1rem; color: black;">{{splitRule(rules[3], true)}}</span><br><br><span>{{splitRule(rules[3], false)}}</span></p></div>
+        <div class="dropBox" (click)="gameAreaClick(0)"><img src={{this.images[0].source}} [ngStyle]="this.images[0].style"></div>
+        <div class="dropBox" (click)="gameAreaClick(1)"><img src={{this.images[1].source}} [ngStyle]="this.images[1].style"></div>
+        <div class="dropBox" (click)="gameAreaClick(2)"><img src={{this.images[2].source}} [ngStyle]="this.images[2].style"></div>
+        <div class="dropBox header"><p><span style="font-size: 1rem; color: black;">{{splitRule(rules[4], true)}}</span><br><br><span>{{splitRule(rules[4], false)}}</span></p></div>
+        <div class="dropBox" (click)="gameAreaClick(3)"><img src={{this.images[3].source}} [ngStyle]="this.images[3].style"></div>
+        <div class="dropBox" (click)="gameAreaClick(4)"><img src={{this.images[4].source}} [ngStyle]="this.images[4].style"></div>
+        <div class="dropBox" (click)="gameAreaClick(5)"><img src={{this.images[5].source}} [ngStyle]="this.images[5].style"></div>
+        <div class="dropBox header"><p><span style="font-size: 1rem; color: black;">{{splitRule(rules[5], true)}}</span><br><br><span>{{splitRule(rules[5], false)}}</span></p></div>
+        <div class="dropBox" (click)="gameAreaClick(6)"><img src={{this.images[6].source}} [ngStyle]="this.images[6].style"></div>
+        <div class="dropBox" (click)="gameAreaClick(7)"><img src={{this.images[7].source}} [ngStyle]="this.images[7].style"></div>
+        <div class="dropBox" (click)="gameAreaClick(8)"><img src={{this.images[8].source}} [ngStyle]="this.images[8].style"></div>
+
+    </div>
+
+    <a #openModal (click)="navigate()" style="visibility: hidden;"></a>
+
+    <div #userModal id="user-modal" class="modal-dialog">
+        <app-user-name-dialog></app-user-name-dialog>
+    </div>
+
+    
+</body>
+

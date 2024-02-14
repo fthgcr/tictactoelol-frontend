@@ -1,0 +1,49 @@
+.example-form {
+  min-width: 150px;
+  max-width: 600px;
+  width: 100%;
+}
+
+.example-full-width {
+  width: 100%;
+}
+
+.example-option-img {
+  vertical-align: middle;
+  margin-right: 8px;
+}
+
+[dir="rtl"] .example-option-img {
+  margin-right: 0;
+  margin-left: 8px;
+}
+
+::ng-deep {
+  .mat-dialog-container {
+    border-radius: 40px !important;
+  }
+
+  
+}
+
+:host ::ng-deep .mat-dialog-container {
+  background-color: green !important;
+}
+
+:host ::ng-deep .mat-dialog-container .mat-mdc-dialog-surface,
+:host ::ng-deep .mat-dialog-container .mdc-dialog__surface {
+  /* Custom styles for the dialog surface */
+  /* Example: Change background color */
+  background-color: red !important;
+}
+
+:host ::ng-deep .mat-mdc-dialog-surface .mdc-dialog__surface {
+  /* Custom styles for the dialog surface */
+  /* Example: Change background color */
+  background-color: purple !important;
+}
+
+::ng-deep .my-custom-dialog-class {
+  /* Custom styles for the dialog */
+  background-color: blue;
+}

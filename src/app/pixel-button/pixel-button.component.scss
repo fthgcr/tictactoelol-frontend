@@ -1,0 +1,115 @@
+
+  
+  body {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 3em;
+    height: 40vh;
+    width: 40vw;
+    font-family: "MyFont";
+    background-color: black;
+    overflow: hidden;
+  }
+  
+  
+  /* ------------------- Button Grid styles ------------------- */
+  .pixel-grid {
+    display: grid;
+    row-gap: 0;
+    column-gap: 0;
+    grid-template-columns: repeat(20, 13px);
+    grid-template-rows: repeat(11, 13px);
+    justify-content: center;
+    text-align: center;
+    filter: drop-shadow(0 20px 0 #545454);
+  
+    cursor: pointer;
+  }
+  
+  .pixel-grid:active {
+    transform: translate(0, 20px);
+    filter: drop-shadow(0 0 0 #545454);
+  }
+  
+  /* ------------------- pixel styles ------------------- */
+  
+  .transparent {
+    background-color: transparent;
+    height: 13px;
+    width: 13px;
+  }
+  
+  .black {
+    background-color: black;
+    height: 13px;
+    width: 13px;
+  }
+  
+  .lightg {
+    background-color: #909090;
+    height: 13px;
+    width: 13px;
+  }
+  
+  .white {
+    background-color: white;
+    height: 13px;
+    width: 13px;
+  }
+  
+  .grey {
+    background-color: #545454;
+    height: 13px;
+    width: 13px;
+  }
+  
+  /* ------------------- text styles ------------------- */
+  .text {
+    filter: none;
+    position: absolute;
+    display: block;
+    z-index: 5;
+    font-family: "MyFont";
+    font-size: 30px;
+    width: 100%;
+    height: 50%;
+    top: 25%;
+    margin-top: 1%;
+  }
+  
+  a {
+    text-decoration: none;
+    color: black;
+  }
+  
+  /* ------------------- background styles ------------------- */
+  
+  /* ------------------- for smoother animation ------------------- */
+  /* @keyframes background {
+      0 {transform: translate(0, 0);}
+      5% {transform: translate(10px, 0);} 
+      10% {transform: translate(20px, 0);} 
+      15% {transform: translate(30px, 0);}
+      20% {transform: translate(40px, 0);} 
+      25% {transform: translate(50px, 0);} 
+      30% {transform: translate(60px, 0);} 
+      35% {transform: translate(70px, 0);} 
+      40% {transform: translate(80px, 0);} 
+      45% {transform: translate(90px, 0);} 
+      50% {transform: translate(100px, 0);} 
+      55% {transform: translate(110px, 0);} 
+      60% {transform: translate(120px, 0);}
+      65% {transform: translate(130px, 0);} 
+      70% {transform: translate(140px, 0);} 
+      75% {transform: translate(150px, 0);} 
+      80% {transform: translate(160px, 0);} 
+      85% {transform: translate(170px, 0);} 
+      90% {transform: translate(180px, 0);} 
+      95% {transform: translate(190px, 0);} 
+      100% {transform: translate(200px, 0);} 
+    } */
+  
+  
+  

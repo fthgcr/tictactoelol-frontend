@@ -1,0 +1,23 @@
+<div class="button-container" [ngStyle]="backgroundOverlay()">
+  <app-pixel-button class="child-component" [buttonName]="'Create Game'" (notify)="createGame()"></app-pixel-button>
+  <app-pixel-button class="child-component" [buttonName]="'Join Game'" (notify)="openJoinGameModal()"></app-pixel-button>
+</div>
+
+<div [ngStyle]="backgroundOverlay()" (click)="openInfoPage()">
+  <app-pixel-button class="child-component" [buttonName]="'How to Play'" (notify)="openInfoPage()" style="margin-top: 15% !important;"></app-pixel-button>
+</div>
+
+
+<div *ngIf="spinner" style="display: flex; justify-content: center; align-items: center; ">
+  <mat-spinner></mat-spinner>
+</div>
+
+<a #openModal href="#user-modal" style="visibility: hidden;"></a>
+
+<div #userModal id="user-modal" class="modal-dialog">
+  <app-user-name-dialog (notify)="joinGame($event)"></app-user-name-dialog>
+</div>
+
+<div class="designer">
+  by <a href="https://github.com/fthgcr">Fatih GOCER</a>
+</div>

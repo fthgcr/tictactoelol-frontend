@@ -1,0 +1,88 @@
+:host ::ng-deep .pixel-grid {
+  grid-template-columns: repeat(20, 5px);
+  grid-template-rows: repeat(11, 5px);
+}
+
+:host ::ng-deep .transparent {
+  background-color: transparent;
+  height: 5px;
+  width: 5px;
+}
+
+:host ::ng-deep .black {
+  background-color: black;
+  height: 5px;
+  width: 5px;
+}
+
+:host ::ng-deep .lightg {
+  background-color: #909090;
+  height: 5px;
+  width: 5px;
+}
+
+:host ::ng-deep .white {
+  background-color: white;
+  height: 5px;
+  width: 5px;
+}
+
+:host ::ng-deep .grey {
+  background-color: #545454;
+  height: 5px;
+  width: 5px;
+}
+
+:host ::ng-deep .text {
+  top: 10%;
+}
+
+////////////
+/// 
+
+.modal__content {
+  border-radius: 4px;
+  position: relative;
+  max-width: 90%;
+  background: #fff;
+  padding: 1em 2em;
+  width: 75% !important;
+  margin: 2em auto;
+  box-shadow:   -15px 0 0 0 black,
+                 15px 0 0 0 black,
+                 0 -15px 0 0 black,
+                 0 15px 0 0 black;
+}
+
+.modal__footer {
+  text-align: right;
+  a {
+    color: #585858;
+  }
+  i {
+    color: #d02d2c;
+  }
+}
+.modal__close {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  color: red;
+  text-decoration: none;
+}
+
+::ng-deep .mdc-text-field--focused:not(.mdc-text-field--disabled) .mdc-floating-label {
+  font-family: "MyFont";
+}
+
+::ng-deep .mdc-text-field:not(.mdc-text-field-disabled) .mdc-floating-label {
+  font-family: "MyFont";
+}
+
+::ng-deep .mdc-text-field:not(.mdc-text-field-disabled) .mdc-text-field__input::placeholder{
+  font-family: "MyFont";
+}
+
+::ng-deep .mdc-text-field:not(.mdc-text-field-disabled) .mdc-text-field__input {
+  font-family: "MyFont";
+}

@@ -1,0 +1,13 @@
+
+<div class="modal__content">
+    <mat-form-field appearance="outline">
+        <mat-label>Game Id</mat-label>
+        <input matInput placeholder="Enter Game Id " [(ngModel)]="playerName" (ngModelChange)="checkName()"/>
+        <p *ngIf="validationCheck" style="color: red;">Please Enter Valid Game Id</p>
+      </mat-form-field>
+      
+
+    <app-pixel-button [buttonName]="'GO !'" (notify)="validateName()"></app-pixel-button>
+
+    <a href="#" #closeModal class="modal__close" style="visibility: hidden;"></a>
+</div>
