@@ -1,5 +1,5 @@
 {
-  "name": "tic-tac-toe-lo-lfront-end",
+  "name": "tic-tac-toe-lol-front-end",
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
@@ -7,7 +7,7 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "serve:ssr:TicTacToeLoLFrontEnd": "node dist/tic-tac-toe-lo-lfront-end/server/server.mjs"
+    "serve:ssr:TicTacToeLoLFrontEnd": "node dist/tic-tac-toe-lol-front-end/server/server.mjs"
   },
   "private": true,
   "dependencies": {
