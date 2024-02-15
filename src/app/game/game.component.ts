@@ -91,9 +91,12 @@ export class GameComponent implements OnInit, OnDestroy {
       if(tempModel && tempModel.uid){
         this.gameModel = tempModel;
         this.player = this.gameModel.secondPlayer ? 1 : 0;
-        if(this.gameModel.secondPlayer){
-          this.sessionService.playArea(this.gameId, Utils.default.gameSessionToPlayRequest(this.gameModel,-1, "", "", ""));
-        }
+        setTimeout(() => {
+          if(this.gameModel.secondPlayer){
+            this.sessionService.playArea(this.gameId, Utils.default.gameSessionToPlayRequest(this.gameModel,-1, "", "", ""));
+          }
+        },3000);
+        
       }
     });
   }
