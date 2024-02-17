@@ -30,7 +30,7 @@ export class InputDialogComponent implements OnInit, AfterViewInit  {
 
   constructor(
     private lolChampionsExternalService: LolChampionsExternalService,
-    @Inject(MAT_DIALOG_DATA) public data : any, 
+    @Inject(MAT_DIALOG_DATA) public pickedChampions : any[], 
     private ref: MatDialogRef<InputDialogComponent>,
     
   ) {
@@ -54,10 +54,12 @@ export class InputDialogComponent implements OnInit, AfterViewInit  {
     this.lolChampionsExternalService.getChampions().subscribe((result: any) => {
       let obj: Champion = new Champion();
       for (const [key, value] of Object.entries(result.data)) {
-        obj = new Champion();
-        obj.name = (value as any).name;
-        obj.png = Utils.default.placeImageURL(key);
-        this.champions.push(obj);
+        if(!(this.pickedChampions.includes((value as any).name))){
+          obj = new Champion();
+          obj.name = (value as any).name;
+          obj.png = Utils.default.placeImageURL(key);
+          this.champions.push(obj);
+        }
       }
     });
   }

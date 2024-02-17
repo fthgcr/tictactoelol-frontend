@@ -5,8 +5,7 @@
            aria-label="Champions"
            [matAutocomplete]="auto"
            [formControl]="stateCtrl"
-           [placeholder]="'Type a Champion'"
-           formControlName="stateCtrl" #myInput>
+           [placeholder]="'Type a Champion'" #myInput>
     <mat-autocomplete #auto="matAutocomplete" (optionSelected)='clickSelect($event.option.value)'>
       @for (state of filteredStates | async; track state) {
         <mat-option [value]="state.name">

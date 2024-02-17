@@ -110,30 +110,30 @@ export class GameComponent implements OnInit, OnDestroy {
       .subscribe((messages: any) => {
         if(Array.isArray(messages) && messages.length > 0){
           this.gameModel = messages[messages.length - 1 ];
-          if(this.gameModel.gameStatus === -1){
+          
+          if (!((this.gameModel.playAreaArray as any).includes("0")) && this.gameModel.gameStatus === -1){
+            this.gameOverText = "Draw !";
+            this.gameModel.gameStatus = 2;
+            this.redirectHomePage();
+          } else if(this.gameModel.gameStatus === -1){
             this.checkPersonalClick((this.gameModel.playAreaArray as any));
           } else {
             if(this.gameModel.gameStatus === this.player){
               this.gameOverText = "You Won !";
+              this.redirectHomePage();
             } else {
               this.gameOverText = "You Lose !";
+              this.redirectHomePage();
             }
-            if (!(this.gameModel.playAreaArray as any).includes["0"]){
-              this.gameOverText = "Draw !";
-              this.gameModel.gameStatus = 2;
-              setTimeout(() => {
-                this.router.navigate(['/']);
-              },3000);
-            }
-          }
+          } 
           
           //Set Rules Init
           if(messages.length < 2) {
              this.rules = this.gameModel.gameRule.split(',');
           } else {
-            if(this.player !== this.gameModel.turn && Utils.default.areArraysEqual(this.gameModel.playAreaArray, messages[messages.length - 1 ].playAreaArray) && this.timer > 0){
+            if(this.player !== this.gameModel.turn && Utils.default.areArraysEqual(this.gameModel.playAreaArray, messages[messages.length - 2 ].playAreaArray) && this.timer > 0 && this.gameModel.gameStatus === -1){
               this.callSnackBar("Your answer is wrong! Your Opponent's Turn.", 2500);
-            } else if(this.player !== this.gameModel.turn && Utils.default.areArraysEqual(this.gameModel.playAreaArray, messages[messages.length - 1 ].playAreaArray) && this.timer < 1){
+            } else if(this.player !== this.gameModel.turn && Utils.default.areArraysEqual(this.gameModel.playAreaArray, messages[messages.length - 2 ].playAreaArray) && this.timer < 1){
               this.callSnackBar("Time is up! Your Opponent's Turn.", 2500);
             }
           }
@@ -172,6 +172,7 @@ export class GameComponent implements OnInit, OnDestroy {
     var championSelectDialog = this.matDialog.open(InputDialogComponent, {
       width: '600px',
       height: '9%',
+      data: { selectedChampions: this.gameModel.playAreaArray }
     });
     championSelectDialog.afterClosed().subscribe((result) => {
       if (result) {
@@ -186,7 +187,6 @@ export class GameComponent implements OnInit, OnDestroy {
     if(gameArea[this.selectedChamp] !== null && gameArea[this.selectedChamp] !== "0" && this.selectedChamp !== -1){
       this.personalClicked.push(this.selectedChamp);
       if(this.checkWinCondition()){
-        this.gameModel.gameStatus = this.player;
         var tempModel = this.gameModel;
         tempModel.gameStatus = this.player;
         this.sessionService.playArea(this.gameId, Utils.default.gameSessionToPlayRequest(tempModel,-2, "", "", ""));
@@ -238,6 +238,10 @@ export class GameComponent implements OnInit, OnDestroy {
 
   //Check Win Condition
   checkWinCondition(): boolean {
+
+    if(this.personalClicked.length < 3){
+      return false;
+    }
     // Define winning combinations
     const winningCombinations = [
       [0, 1, 2], [3, 4, 5], [6, 7, 8], // Horizontal
@@ -309,6 +313,12 @@ export class GameComponent implements OnInit, OnDestroy {
     const dialogRef = this.matDialog.open(ChampionsOverviewComponent, {
       panelClass:'icon-outside',
     });
+  }
+
+  redirectHomePage(){
+    setTimeout(() => {
+      this.router.navigate(['/']);
+    },5000);
   }
 
   //Timer Section
