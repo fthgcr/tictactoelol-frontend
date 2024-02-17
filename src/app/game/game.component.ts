@@ -171,8 +171,7 @@ export class GameComponent implements OnInit, OnDestroy {
     if (!this.images[index].isOpen || !this.isTurn || this.gameModel.gameStatus !== -1) return;
     var championSelectDialog = this.matDialog.open(InputDialogComponent, {
       width: '600px',
-      height: '9%',
-      data: { selectedChampions: this.gameModel.playAreaArray }
+      height: '9%'
     });
     championSelectDialog.afterClosed().subscribe((result) => {
       if (result) {
