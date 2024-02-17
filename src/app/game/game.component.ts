@@ -22,6 +22,7 @@ import {
 import { SnackbarComponent } from '../snackbar/snackbar.component';
 import { GameAreaRequest } from '../models/GameAreaRequest';
 import { interval, Subscription } from 'rxjs';
+import { ChampionsOverviewComponent } from '../champions-overview/champions-overview.component';
 
 @Component({
   selector: 'app-game',
@@ -51,7 +52,9 @@ export class GameComponent implements OnInit, OnDestroy {
   player : number = 0;
   isTurn: boolean = false;
   rules : String[] = [];
-  timer: number = 10;
+  timer: number = 45;
+  selectedChamp : number = -1;
+  gameOverText : String = "";
 
   ngOnInit() {
     //this.getUserName();
@@ -106,10 +109,24 @@ export class GameComponent implements OnInit, OnDestroy {
       .getMessageSubject()
       .subscribe((messages: any) => {
         if(Array.isArray(messages) && messages.length > 0){
-          
           this.gameModel = messages[messages.length - 1 ];
-          //console.log("this.gameModel : " + JSON.stringify(this.gameModel));
-
+          if(this.gameModel.gameStatus === -1){
+            this.checkPersonalClick((this.gameModel.playAreaArray as any));
+          } else {
+            if(this.gameModel.gameStatus === this.player){
+              this.gameOverText = "You Won !";
+            } else {
+              this.gameOverText = "You Lose !";
+            }
+            if (!(this.gameModel.playAreaArray as any).includes["0"]){
+              this.gameOverText = "Draw !";
+              this.gameModel.gameStatus = 2;
+              setTimeout(() => {
+                this.router.navigate(['/']);
+              },3000);
+            }
+          }
+          
           //Set Rules Init
           if(messages.length < 2) {
              this.rules = this.gameModel.gameRule.split(',');
@@ -151,24 +168,37 @@ export class GameComponent implements OnInit, OnDestroy {
 
   //Clicked Game Area FROM Page
   gameAreaClick(index: number) {
-    if (!this.images[index].isOpen || !this.isTurn) return;
+    if (!this.images[index].isOpen || !this.isTurn || this.gameModel.gameStatus !== -1) return;
     var championSelectDialog = this.matDialog.open(InputDialogComponent, {
       width: '600px',
       height: '9%',
     });
     championSelectDialog.afterClosed().subscribe((result) => {
       if (result) {
+        this.selectedChamp = index;
         this.setPlayArea(index, result);
       }
     });
   }
 
+  //Check PersonalClick
+  checkPersonalClick(gameArea : String []){
+    if(gameArea[this.selectedChamp] !== null && gameArea[this.selectedChamp] !== "0" && this.selectedChamp !== -1){
+      this.personalClicked.push(this.selectedChamp);
+      if(this.checkWinCondition()){
+        this.gameModel.gameStatus = this.player;
+        var tempModel = this.gameModel;
+        tempModel.gameStatus = this.player;
+        this.sessionService.playArea(this.gameId, Utils.default.gameSessionToPlayRequest(tempModel,-2, "", "", ""));
+      }
+    }
+    this.selectedChamp = -1;
+  }
+
   //Call Service for Set Play Area 
   setPlayArea(index: number, champ: String){
     this.isTurn = false;
-    this.personalClicked.push(index);
     this.sessionService.playArea(this.gameId, Utils.default.gameSessionToPlayRequest(this.gameModel,index, champ, this.getHorizontalRule(index), this.getVerticalRule(index)));
-    
   }
 
   placeImage(index: number, champ: String) {
@@ -275,10 +305,19 @@ export class GameComponent implements OnInit, OnDestroy {
     this.router.navigate(['/howto']);
   }
 
+  openChampionsGuide(){
+    const dialogRef = this.matDialog.open(ChampionsOverviewComponent, {
+      panelClass:'icon-outside',
+    });
+  }
+
   //Timer Section
   startInterval(): void {
     this.intervalSubscription = interval(1000).subscribe(() => {
       this.timer -= 1;
+      if(this.timer === 0){
+        this.matDialog.closeAll();
+      }
       if(this.timer < -2){
          var tempModel = this.gameModel;
          tempModel.turn = tempModel.turn == 0 ? 1 : 0;
@@ -294,7 +333,7 @@ export class GameComponent implements OnInit, OnDestroy {
   }
 
   resetInterval(): void {
-    this.timer = 10;
+    this.timer = 45;
     this.stopInterval();
     this.startInterval();
   }

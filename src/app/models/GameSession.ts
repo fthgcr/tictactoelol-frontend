@@ -7,6 +7,7 @@ export class GameSession {
     turn: number | undefined;
     date: Date | undefined;
     playArea: String | undefined;
+    gameStatus: number;
 
     constructor(){};
 }

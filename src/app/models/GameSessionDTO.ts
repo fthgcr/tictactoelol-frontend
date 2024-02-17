@@ -9,6 +9,7 @@ export class GameSessionDTO {
     playArea: String | undefined;
     playAreaArray: String[];
     gameRule: String;
+    gameStatus: number = -1;
 
     constructor(){};
 }

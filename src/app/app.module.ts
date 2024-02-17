@@ -25,6 +25,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatIconModule } from '@angular/material/icon';
 import { HowToPlayComponent } from './how-to-play/how-to-play.component';
 import { MatCardModule } from '@angular/material/card';
+import { ChampionsOverviewComponent } from './champions-overview/champions-overview.component';
 
 @NgModule({
   declarations: [
@@ -35,6 +36,7 @@ import { MatCardModule } from '@angular/material/card';
     MainMenuComponent,
     GameComponent,
     HowToPlayComponent,
+    ChampionsOverviewComponent,
   ],
   imports: [
     BrowserModule,

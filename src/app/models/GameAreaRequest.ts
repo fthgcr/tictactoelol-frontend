@@ -11,6 +11,7 @@ export class GameAreaRequest {
     playArea: String | undefined;
     horizontalRule: String | undefined;
     verticalRule: String | undefined;
+    gameStatus: number;
     
     constructor(){};
 }

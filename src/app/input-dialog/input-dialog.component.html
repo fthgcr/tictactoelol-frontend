@@ -11,7 +11,7 @@
       @for (state of filteredStates | async; track state) {
         <mat-option [value]="state.name">
           <img alt="" class="example-option-img" [src]="state.png" height="25">
-          <span>{{state.name}}</span> 
+          <span style="font-family: MyFont;">{{state.name}}</span> 
           <!-- <small>Population: {{state.population}}</small> -->
         </mat-option>
       }

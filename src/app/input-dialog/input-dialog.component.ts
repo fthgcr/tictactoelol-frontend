@@ -10,7 +10,7 @@ import { MatAutocomplete, MatAutocompleteModule, MatAutocompleteTrigger } from '
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogContent, MatDialogRef } from '@angular/material/dialog';
 import * as Utils from '../consts/Consts';
 
 @Component({
@@ -21,7 +21,6 @@ import * as Utils from '../consts/Consts';
 export class InputDialogComponent implements OnInit, AfterViewInit  {
 
   @ViewChild('inputAutoComplete', { read: MatAutocompleteTrigger }) autocompleteTrigger: MatAutocompleteTrigger;
-  
 
   myForm = new FormGroup({
     stateCtrl: new FormControl(''),
@@ -32,7 +31,8 @@ export class InputDialogComponent implements OnInit, AfterViewInit  {
   constructor(
     private lolChampionsExternalService: LolChampionsExternalService,
     @Inject(MAT_DIALOG_DATA) public data : any, 
-    private ref: MatDialogRef<InputDialogComponent>
+    private ref: MatDialogRef<InputDialogComponent>,
+    
   ) {
     this.filteredStates = this.stateCtrl.valueChanges.pipe(
       startWith(''),
@@ -48,7 +48,6 @@ export class InputDialogComponent implements OnInit, AfterViewInit  {
   }
 
   ngAfterViewInit() {
-    
   }
   
   getChampions() {

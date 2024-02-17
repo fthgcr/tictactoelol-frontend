@@ -3,14 +3,19 @@ import { GameSession } from "../models/GameSession";
 import { GameSessionDTO } from "../models/GameSessionDTO";
 import { GameSessionRequest } from "../models/GameSessionRequest";
 
-export const PNG_URL = 'https://ddragon.leagueoflegends.com/cdn/14.2.1/img/champion/';
+export const PNG_URL = 'https://ddragon.leagueoflegends.com/cdn/14.3.1/img/champion/';
 export const PNG_BORDER = "border: 0.5rem solid ";
+export const SPLASH_URL = 'https://ddragon.leagueoflegends.com/cdn/img/champion/splash/';
 
 
 
 export default class Utils {
   static placeImageURL(val: String) : String {
     return PNG_URL + val + ".png";
+  }
+
+  static placeSplashURL(val: String) : String {
+    return SPLASH_URL + val + "_0.jpg";
   }
   
   static placePngBorder(player: number) : any {
@@ -62,6 +67,7 @@ export default class Utils {
     gameAreaRequest.value = value;
     gameAreaRequest.verticalRule = verticalRule;
     gameAreaRequest.horizontalRule = horizontalRule;
+    gameAreaRequest.gameStatus = gameSession.gameStatus;
 
     return gameAreaRequest;
   }
@@ -81,6 +87,7 @@ export default class Utils {
     gameSessionDTO.gameId = gameSession.gameId;
     gameSessionDTO.pid = gameSession.pid;
     gameSessionDTO.playArea = gameSession.playArea;
+    gameSessionDTO.gameStatus = gameSession.gameStatus;
     if(Array.isArray((gameSession as any).playAreaArray)){
       gameSessionDTO.playAreaArray = (gameSession as any).playAreaArray;
     } else {

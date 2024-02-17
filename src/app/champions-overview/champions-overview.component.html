@@ -1,0 +1,12 @@
+<!-- <button mat-icon-button color="primary" class="icon-buttons" style="right: 20px;" (click)="closeDialog()">
+  <mat-icon class="icon-display">close</mat-icon>
+</button> -->
+<a class="close-button" (click)="closeDialog()">Close</a>
+<div class="card-grid-list">
+  <mat-card class="example-card" *ngFor="let item of champions">
+    <img mat-card-image [src]="item.png" />
+    <mat-card-content>
+      <p>{{ item.name }}</p>
+    </mat-card-content>
+  </mat-card>
+</div>
