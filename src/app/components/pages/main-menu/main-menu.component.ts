@@ -1,12 +1,12 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
-import { GetIpService } from '../services/get-ip.service';
+import { GetIpService } from '../../../services/get-ip.service';
 import { Router } from '@angular/router';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import * as Utils from '../consts/Consts';
+import * as Utils from '../../../consts/Consts';
 import { CommonModule } from '@angular/common';
-import { PixelButtonComponent } from '../pixel-button/pixel-button.component';
+import { PixelButtonComponent } from '../../tools/pixel-button/pixel-button.component';
 import { MatDialog } from '@angular/material/dialog';
-import { UserNameDialogComponent } from '../user-name-dialog/user-name-dialog.component';
+import { UserNameDialogComponent } from '../../tools/user-name-dialog/user-name-dialog.component';
 
 @Component({
   selector: 'app-main-menu',
@@ -67,6 +67,7 @@ export class MainMenuComponent{
   }
 
   joinGame(event : any){
+    this.spinner = false;
     this.openGamePage(event)
   }
 

@@ -6,8 +6,8 @@ import {
   OnInit,
   ViewChild,
 } from '@angular/core';
-import { LolChampionsExternalService } from '../services/lol-champions-external.service';
-import { Champion } from '../models/Champion';
+import { LolChampionsExternalService } from '../../../services/lol-champions-external.service';
+import { Champion } from '../../../models/Champion';
 import {
   FormControl,
   FormGroup,
@@ -31,7 +31,7 @@ import {
   MatDialogContent,
   MatDialogRef,
 } from '@angular/material/dialog';
-import * as Utils from '../consts/Consts';
+import * as Utils from '../../../consts/Consts';
 
 @Component({
   selector: 'app-input-dialog',

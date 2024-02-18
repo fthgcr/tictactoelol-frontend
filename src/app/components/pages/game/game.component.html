@@ -1,14 +1,23 @@
 <body>
-  <a href="/" id="homeButtonLink"><mat-icon style="transform: scale(1.5); color: black;">arrow_back_ios</mat-icon></a>
+  <!-- <a href="/" id="homeButtonLink"><mat-icon style="transform: scale(1.5); color: black;">arrow_back_ios</mat-icon></a> -->
+
+  <button mat-icon-button color="primary" class="icon-buttons" (click)="openDialogWithTemplateRef(confirmExit, 'Home')" style="left: 20px;">
+    <mat-icon style="transform: scale(1.5); color: black;">arrow_back_ios</mat-icon>
+  </button>
+
+   <!-- <button mat-icon-button color="primary" class="icon-buttons" (click)="changeBackground(false)" style="right: 160px;" >
+    <mat-icon class="icon-display">close</mat-icon>
+  </button>  -->
 
       <button mat-icon-button color="primary" class="icon-buttons" (click)="openChampionsGuide()" style="right: 80px;" *ngIf="this.gameModel.secondPlayer">
         <mat-icon class="icon-display">notes</mat-icon>
       </button>
-  
+
       <button mat-icon-button color="primary" class="icon-buttons" (click)="clipBoard('Game ID Copied to Clipboard !')" style="right: 80px;" *ngIf="!this.gameModel.secondPlayer">
         <mat-icon class="icon-display">share</mat-icon>
       </button>
-      <button mat-icon-button color="primary" class="icon-buttons" (click)="openInfoPage()" style="right: 20px;">
+
+      <button mat-icon-button color="primary" class="icon-buttons" (click)="openDialogWithTemplateRef(confirmExit, 'Info')" style="right: 20px;">
         <mat-icon class="icon-display">info</mat-icon>
       </button>
 
@@ -68,6 +77,18 @@
     </div>
 
     <!-- Testttt -->
+
+    <ng-template #confirmExit>
+      <h2 matDialogTitle style="font-family: 'MyFont';">Notice!</h2>
+      <mat-dialog-content>
+        <p>Are you sure you want to leave the game?</p>
+      </mat-dialog-content>
+      <mat-dialog-actions >
+        <!-- <button mat-button matDialogClose color="primary">Dismiss</button> -->
+        <app-pixel-button class="child-component" [buttonName]="'Stay'" (notify)="closeDialogs()"></app-pixel-button>
+        <app-pixel-button class="child-component" [buttonName]="'Leave'" (notify)="leavePage()"></app-pixel-button>
+      </mat-dialog-actions>
+    </ng-template>
 
     
 </body>

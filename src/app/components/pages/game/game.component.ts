@@ -1,16 +1,16 @@
-import { Component, ElementRef, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
+import { Component, ElementRef, OnDestroy, OnInit, Renderer2, TemplateRef, ViewChild, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { GetIpService } from '../services/get-ip.service';
-import { SessionService } from '../services/session.service';
+import { GetIpService } from '../../../services/get-ip.service';
+import { SessionService } from '../../../services/session.service';
 import { MatDialog } from '@angular/material/dialog';
-import { InputDialogComponent } from '../input-dialog/input-dialog.component';
-import { ImageGame } from '../models/ImageGame';
-import * as Utils from '../consts/Consts';
-import { UserNameDialogComponent } from '../user-name-dialog/user-name-dialog.component';
+import { InputDialogComponent } from '../../tools/input-dialog/input-dialog.component';
+import { ImageGame } from '../../../models/ImageGame';
+import * as Utils from '../../../consts/Consts';
+import { UserNameDialogComponent } from '../../tools/user-name-dialog/user-name-dialog.component';
 import { CommonModule } from '@angular/common';
-import { GameSessionRequest } from '../models/GameSessionRequest';
-import { GameSession } from '../models/GameSession';
-import { GameSessionDTO } from '../models/GameSessionDTO';
+import { GameSessionRequest } from '../../../models/GameSessionRequest';
+import { GameSession } from '../../../models/GameSession';
+import { GameSessionDTO } from '../../../models/GameSessionDTO';
 import { MatButtonModule } from '@angular/material/button';
 import {
   MatSnackBar,
@@ -19,13 +19,13 @@ import {
   MatSnackBarLabel,
   MatSnackBarRef,
 } from '@angular/material/snack-bar';
-import { SnackbarComponent } from '../snackbar/snackbar.component';
-import { GameAreaRequest } from '../models/GameAreaRequest';
+import { SnackbarComponent } from '../../tools/snackbar/snackbar.component';
+import { GameAreaRequest } from '../../../models/GameAreaRequest';
 import { interval, Subscription } from 'rxjs';
-import { ChampionsOverviewComponent } from '../champions-overview/champions-overview.component';
-import { LolChampionsExternalService } from '../services/lol-champions-external.service';
-import { Champion } from '../models/Champion';
-import { ReplayDialogComponent } from '../replay-dialog/replay-dialog.component';
+import { ChampionsOverviewComponent } from '../../../champions-overview/champions-overview.component';
+import { LolChampionsExternalService } from '../../../services/lol-champions-external.service';
+import { Champion } from '../../../models/Champion';
+import { ReplayDialogComponent } from '../../tools/replay-dialog/replay-dialog.component';
 
 @Component({
   selector: 'app-game',
@@ -36,6 +36,7 @@ export class GameComponent implements OnInit, OnDestroy {
   @ViewChild('openModal') openModal: ElementRef;
   private messageSubscription: Subscription;
   private intervalSubscription: Subscription;
+  private styleElement: HTMLStyleElement;
 
   constructor(
     private route: ActivatedRoute,
@@ -44,7 +45,8 @@ export class GameComponent implements OnInit, OnDestroy {
     private sessionService: SessionService,
     private matDialog: MatDialog,
     private _snackBar: MatSnackBar,
-    private lolChampionsExternalService: LolChampionsExternalService
+    private lolChampionsExternalService: LolChampionsExternalService,
+    private renderer: Renderer2
   ) {}
 
   userName: any;
@@ -60,9 +62,11 @@ export class GameComponent implements OnInit, OnDestroy {
   selectedChamp : number = -1;
   gameOverText : String = "";
   champions: Champion[] = [];
+  leavePageParameter : String = "";
 
   ngOnInit() {
     //this.getUserName();
+    this.changeBackground(true);
     this.getChampions();
     this.setGameAreaEmpty();
     this.getParameter();
@@ -145,6 +149,7 @@ export class GameComponent implements OnInit, OnDestroy {
           //Change Turn
           this.isTurn = this.player === this.gameModel.turn;
           if(this.isTurn) {
+            this.changeBackground(false);
             this.resetInterval();
           } else {
             this.stopInterval();
@@ -208,7 +213,7 @@ export class GameComponent implements OnInit, OnDestroy {
   }
 
   placeImage(index: number, champ: String) {
-    let modifiedChamp = champ.replaceAll(/\s/g, '').replaceAll(/'/g, '').replaceAll(/./g, '');
+    let modifiedChamp = champ.replaceAll(/\s/g, '').replaceAll(/'/g, '').replaceAll(/\./g, '');
     modifiedChamp = modifiedChamp.charAt(0).toUpperCase() + modifiedChamp.slice(1).toLowerCase();
     this.images[index].source = Utils.default.placeImageURL(modifiedChamp);
     this.images[index].isOpen = false;
@@ -324,9 +329,7 @@ export class GameComponent implements OnInit, OnDestroy {
   }
 
   redirectHomePage(){
-    setTimeout(() => {
-      this.router.navigate(['/']);
-    },5000);
+    this.router.navigate(['/']);
   }
 
   //Timer Section
@@ -336,7 +339,7 @@ export class GameComponent implements OnInit, OnDestroy {
       if(this.timer === 0){
         this.matDialog.closeAll();
       }
-      if(this.timer < -2){
+      if(this.timer < -1){
          var tempModel = this.gameModel;
          tempModel.turn = tempModel.turn == 0 ? 1 : 0;
          this.sessionService.playArea(this.gameId, Utils.default.gameSessionToPlayRequest(tempModel,-2, "", "", ""));
@@ -381,5 +384,64 @@ export class GameComponent implements OnInit, OnDestroy {
     });
 
   }
+
+  //Confirm Exit Game
+  openDialogWithTemplateRef(templateRef: TemplateRef<any>, whichPage: String) {
+    this.leavePageParameter = whichPage;
+    this.matDialog.open(templateRef);
+  }
+
+  //Close all dialogs
+  closeDialogs(){
+    this.matDialog.closeAll();
+  }
+
+  //Leave Page
+  leavePage(){
+    this.closeDialogs();
+    if(this.leavePageParameter === "Info"){
+      this.openInfoPage();
+    } else {
+      this.redirectHomePage();
+    }
+  }
+
+  //Body Background
+  changeBackground(isDefault : boolean){
+    if (!isDefault) {
+      const keyframes = `
+        @keyframes gradient {
+          0% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+          100% { background-position: 0% 50%; }
+        }
+      `;
+
+      const background = `
+        body {
+          background: linear-gradient(-45deg, #4b658496, #4b658496, #00bfb3, #00bfb3);
+          background-size: 400% 400%;
+          animation: gradient 3s ease infinite;
+          height: 100vh;
+        }
+      `;
+
+      const styles = keyframes + background;
+
+      this.styleElement = this.renderer.createElement('style');
+      this.renderer.appendChild(this.styleElement, this.renderer.createText(styles));
+      this.renderer.appendChild(document.head, this.styleElement);
+      setTimeout(() => {
+        this.changeBackground(true);
+      },3000);
+    } else {
+      if (this.styleElement && this.styleElement.parentNode) { // Check parentNode existence before removal
+        this.renderer.removeChild(document.head, this.styleElement);
+      }
+    }
+  }
+
+
+
 
 }

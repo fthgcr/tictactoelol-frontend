@@ -8,7 +8,7 @@ import {
   transition,
 } from '@angular/animations';
 import { Router } from '@angular/router';
-import { SessionService } from '../services/session.service';
+import { SessionService } from '../../../services/session.service';
 
 @Component({
   selector: 'app-replay-dialog',
