@@ -173,7 +173,7 @@ export class GameComponent implements OnInit, OnDestroy {
 
   //Clicked Game Area FROM Page
   gameAreaClick(index: number) {
-    if (!this.images[index].isOpen || !this.isTurn || this.gameModel.gameStatus !== -1) return;
+    if (!this.images[index].isOpen || !this.isTurn || this.gameModel.gameStatus !== -1 || this.timer < 1)  return;
     this.filterChampion();
     var championSelectDialog = this.matDialog.open(InputDialogComponent, {
       width: '600px',
@@ -208,7 +208,9 @@ export class GameComponent implements OnInit, OnDestroy {
   }
 
   placeImage(index: number, champ: String) {
-    this.images[index].source = Utils.default.placeImageURL(champ.replaceAll(/\s/g, '').replaceAll(/'/g, ''));
+    let modifiedChamp = champ.replaceAll(/\s/g, '').replaceAll(/'/g, '').replaceAll(/./g, '');
+    modifiedChamp = modifiedChamp.charAt(0).toUpperCase() + modifiedChamp.slice(1).toLowerCase();
+    this.images[index].source = Utils.default.placeImageURL(modifiedChamp);
     this.images[index].isOpen = false;
     this.images[index].style = Utils.default.placePngBorder(this.personalClicked.includes(index) ? 0 : 1);
   }
@@ -377,6 +379,7 @@ export class GameComponent implements OnInit, OnDestroy {
       panelClass:'icon-outside',
       data: this.gameId
     });
+
   }
 
 }
