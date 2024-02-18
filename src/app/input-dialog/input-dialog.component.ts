@@ -50,7 +50,7 @@ export class InputDialogComponent implements OnInit, AfterViewInit {
 
   constructor(
     private lolChampionsExternalService: LolChampionsExternalService,
-    @Inject(MAT_DIALOG_DATA) public pickedChampions: any[],
+    @Inject(MAT_DIALOG_DATA) public allChampions: any[],
     private ref: MatDialogRef<InputDialogComponent>
   ) {
     this.filteredStates = this.stateCtrl.valueChanges.pipe(
@@ -64,7 +64,8 @@ export class InputDialogComponent implements OnInit, AfterViewInit {
   champions: Champion[] = [];
 
   ngOnInit(): void {
-    this.getChampions();
+    this.champions = this.allChampions; 
+    //this.getChampions();
   }
 
   ngAfterViewInit() {}

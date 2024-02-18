@@ -26,6 +26,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { HowToPlayComponent } from './how-to-play/how-to-play.component';
 import { MatCardModule } from '@angular/material/card';
 import { ChampionsOverviewComponent } from './champions-overview/champions-overview.component';
+import { ReplayDialogComponent } from './replay-dialog/replay-dialog.component';
 
 @NgModule({
   declarations: [
@@ -37,6 +38,7 @@ import { ChampionsOverviewComponent } from './champions-overview/champions-overv
     GameComponent,
     HowToPlayComponent,
     ChampionsOverviewComponent,
+    ReplayDialogComponent,
   ],
   imports: [
     BrowserModule,

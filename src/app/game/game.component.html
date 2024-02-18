@@ -1,11 +1,11 @@
 <body>
   <a href="/" id="homeButtonLink"><mat-icon style="transform: scale(1.5); color: black;">arrow_back_ios</mat-icon></a>
 
-      <button mat-icon-button color="primary" class="icon-buttons" (click)="openChampionsGuide()" style="right: 140px;">
+      <button mat-icon-button color="primary" class="icon-buttons" (click)="openChampionsGuide()" style="right: 80px;" *ngIf="this.gameModel.secondPlayer">
         <mat-icon class="icon-display">notes</mat-icon>
       </button>
   
-      <button mat-icon-button color="primary" class="icon-buttons" (click)="clipBoard('Game ID Copied to Clipboard !')" style="right: 80px;">
+      <button mat-icon-button color="primary" class="icon-buttons" (click)="clipBoard('Game ID Copied to Clipboard !')" style="right: 80px;" *ngIf="!this.gameModel.secondPlayer">
         <mat-icon class="icon-display">share</mat-icon>
       </button>
       <button mat-icon-button color="primary" class="icon-buttons" (click)="openInfoPage()" style="right: 20px;">

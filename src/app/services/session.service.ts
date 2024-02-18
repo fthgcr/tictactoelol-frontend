@@ -20,8 +20,6 @@ export class SessionService {
     this.initConnectionSocket();
   }
 
-  
-
   createOrJoinGame(sessionRequest: GameSessionRequest): Observable<any> {
     return this.http.post<any>(`${environment.apiURL}/session/createOrJoinGame`, sessionRequest);
   }
@@ -34,25 +32,27 @@ export class SessionService {
     return this.http.post<any>(`${environment.apiURL}/session/setPlayArea`, gameAreaRequest);
   }
 
+  replaySession(gameId : String): Observable<any>{
+    return this.http.get<any>(`${environment.apiURL}/session/replaySession/${gameId}`);
+  }
+
   //Web Socket
   initConnectionSocket(){
     this.messageSubject = new BehaviorSubject<GameSession[]>([]);
     const socket = new SockJS(environment.wsURL);
     this.stompClient = Stomp.over(socket);
-    this.stompClient.debug = function (){};
   }
 
   joinGame(gameId : String) {
     this.messageSubject.next([]);
     this.stompClient.connect({}, () => {
-      this.stompClient.subscribe(`/topic/${gameId}` , (messages : any) => {
-        const messageContent = JSON.parse(messages.body);
-        const currentMessage = this.messageSubject.getValue();
-        currentMessage.push(messageContent);
-        this.messageSubject.next(currentMessage);
-        //console.log("Join Game - Messages : " + JSON.stringify(messageContent));
-
-      })
+        this.stompClient.subscribe(`/topic/${gameId}` , (messages : any) => {
+          const messageContent = JSON.parse(messages.body);
+          const currentMessage = this.messageSubject.getValue();
+          currentMessage.push(messageContent);
+          this.messageSubject.next(currentMessage);
+          //console.log("Join Game - Messages : " + JSON.stringify(messageContent));
+        })
     })
   }
 
@@ -74,3 +74,4 @@ export class SessionService {
 
 
 }
+

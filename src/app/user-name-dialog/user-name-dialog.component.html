@@ -3,11 +3,14 @@
     <mat-form-field appearance="outline">
         <mat-label>Game Id</mat-label>
         <input matInput placeholder="Enter Game Id " [(ngModel)]="playerName" (ngModelChange)="checkName()"/>
+        <mat-icon matSuffix (click)="pasteFromClipboard()">file_copy</mat-icon>
         <p *ngIf="validationCheck" style="color: red; font-family: MyFont;">Please Enter Valid Game Id</p>
       </mat-form-field>
       
+      <div (click)="validateName()">
+        <app-pixel-button [buttonName]="'GO !'" (notify)="validateName()"></app-pixel-button>
+      </div>
+    
 
-    <app-pixel-button [buttonName]="'GO !'" (notify)="validateName()"></app-pixel-button>
-
-    <a href="#" #closeModal class="modal__close" style="visibility: hidden;"></a>
+    <a href="#" #closeModal class="close-button" ><mat-icon>close</mat-icon></a>
 </div>

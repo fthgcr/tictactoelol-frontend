@@ -86,3 +86,69 @@
 ::ng-deep .mdc-text-field:not(.mdc-text-field-disabled) .mdc-text-field__input {
   font-family: "MyFont";
 }
+
+//Close Button
+
+@mixin transition($prop: all, $time: 1s, $ease: ease-out){
+  -webkit-transition : $prop $time $ease;
+  -moz-transition    : $prop $time $ease;
+  -ms-transition     : $prop $time $ease;
+  -o-transition      : $prop $time $ease;
+  transition         : $prop $time $ease;
+}
+@mixin rotate($degrees){
+  -webkit-transform : rotate($degrees);
+  -moz-transform    : rotate($degrees);
+  -ms-transform     : rotate($degrees);
+  -o-transform      : rotate($degrees);
+  transform         : rotate($degrees);
+}
+
+@mixin square( $size ){
+  width: $size;
+  height: $size;
+}
+
+$black : #000;
+$white : #fff;
+
+.close-button{
+  @include square(30px);
+  box-shadow : 0px 10 10px 10px rgba( 0, 0, 0, .25 );
+  border-radius: 10px; 
+  background : $black;
+  top: -25px; /* Adjust this value to move the button higher */
+  right: -35px;
+  margin-right: 10px;
+  position   : absolute;
+  display    : block;
+  z-index    : 200;
+  text-indent : -9999px;
+
+  &:before,
+  &:after{
+    content    : '';
+    width      : 55%;
+    height     : 2px;
+    background : $white;
+    position   : absolute;
+    top        : 48%;
+    left       : 22%;
+    @include rotate(-45deg);
+    @include transition( $time : 0.3s );
+  }
+
+  &:after{
+    @include rotate(45deg);
+    @include transition( $time : 0.3s );
+  }
+
+
+
+  &:hover{
+    &:before,
+    &:after{
+      @include rotate(180deg);
+    }
+  }
+}

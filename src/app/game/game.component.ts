@@ -23,6 +23,9 @@ import { SnackbarComponent } from '../snackbar/snackbar.component';
 import { GameAreaRequest } from '../models/GameAreaRequest';
 import { interval, Subscription } from 'rxjs';
 import { ChampionsOverviewComponent } from '../champions-overview/champions-overview.component';
+import { LolChampionsExternalService } from '../services/lol-champions-external.service';
+import { Champion } from '../models/Champion';
+import { ReplayDialogComponent } from '../replay-dialog/replay-dialog.component';
 
 @Component({
   selector: 'app-game',
@@ -40,7 +43,8 @@ export class GameComponent implements OnInit, OnDestroy {
     private getipService: GetIpService,
     private sessionService: SessionService,
     private matDialog: MatDialog,
-    private _snackBar: MatSnackBar
+    private _snackBar: MatSnackBar,
+    private lolChampionsExternalService: LolChampionsExternalService
   ) {}
 
   userName: any;
@@ -52,12 +56,14 @@ export class GameComponent implements OnInit, OnDestroy {
   player : number = 0;
   isTurn: boolean = false;
   rules : String[] = [];
-  timer: number = 45;
+  timer: number = 30;
   selectedChamp : number = -1;
   gameOverText : String = "";
+  champions: Champion[] = [];
 
   ngOnInit() {
     //this.getUserName();
+    this.getChampions();
     this.setGameAreaEmpty();
     this.getParameter();
   }
@@ -114,17 +120,16 @@ export class GameComponent implements OnInit, OnDestroy {
           if (!((this.gameModel.playAreaArray as any).includes("0")) && this.gameModel.gameStatus === -1){
             this.gameOverText = "Draw !";
             this.gameModel.gameStatus = 2;
-            this.redirectHomePage();
+            this.openGameOverDialog();
           } else if(this.gameModel.gameStatus === -1){
             this.checkPersonalClick((this.gameModel.playAreaArray as any));
           } else {
             if(this.gameModel.gameStatus === this.player){
               this.gameOverText = "You Won !";
-              this.redirectHomePage();
             } else {
               this.gameOverText = "You Lose !";
-              this.redirectHomePage();
             }
+            this.openGameOverDialog();
           } 
           
           //Set Rules Init
@@ -169,9 +174,11 @@ export class GameComponent implements OnInit, OnDestroy {
   //Clicked Game Area FROM Page
   gameAreaClick(index: number) {
     if (!this.images[index].isOpen || !this.isTurn || this.gameModel.gameStatus !== -1) return;
+    this.filterChampion();
     var championSelectDialog = this.matDialog.open(InputDialogComponent, {
       width: '600px',
-      height: '9%'
+      height: '9%',
+      data: this.champions
     });
     championSelectDialog.afterClosed().subscribe((result) => {
       if (result) {
@@ -342,9 +349,34 @@ export class GameComponent implements OnInit, OnDestroy {
   }
 
   resetInterval(): void {
-    this.timer = 45;
+    this.timer = 30;
     this.stopInterval();
     this.startInterval();
+  }
+
+  //Champions Data 
+  getChampions() {
+    this.lolChampionsExternalService.getChampions().subscribe((result: any) => {
+      let obj: Champion = new Champion();
+      for (const [key, value] of Object.entries(result.data)) {
+        obj = new Champion();
+        obj.name = (value as any).name;
+        obj.png = Utils.default.placeImageURL(key);
+        this.champions.push(obj);
+      }
+    });
+  }
+
+  filterChampion(){
+    this.champions = this.champions.filter(item => item.name && !this.gameModel.playAreaArray.includes(item.name));
+  }
+
+  //Replay Section
+  openGameOverDialog(){
+    const dialogRef = this.matDialog.open(ReplayDialogComponent, {
+      panelClass:'icon-outside',
+      data: this.gameId
+    });
   }
 
 }

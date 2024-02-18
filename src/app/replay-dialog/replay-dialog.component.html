@@ -1,0 +1,11 @@
+
+<div class="container" @slowAnimate >
+    <h1 style="text-align: center; font-family: 'MyFont';" @slowAnimate *ngIf="stateAnimate">Game Over</h1>
+    <h1 style="text-align: center; font-family: 'MyFont';" @slowAnimate *ngIf="!stateAnimate">Thank you for playing.</h1>
+    <div class="button-container" *ngIf="stateAnimate">
+        <app-pixel-button class="child-component button-size" [buttonName]="'Replay'" (notify)="replay()" ></app-pixel-button>
+        <app-pixel-button class="child-component button-size" [buttonName]="'Quit'" (notify)="quit()"></app-pixel-button>
+      </div>
+</div>
+
+
