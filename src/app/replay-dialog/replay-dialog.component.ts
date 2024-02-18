@@ -38,6 +38,7 @@ export class ReplayDialogComponent implements OnInit{
 
   replay(){
     this.sessionService.replaySession(this.gameId).subscribe((response) => {
+      this.ref.close();
       this.router.navigate(['/game', this.gameId]);
     })
   }

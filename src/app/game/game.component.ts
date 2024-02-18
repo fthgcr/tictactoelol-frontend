@@ -104,7 +104,7 @@ export class GameComponent implements OnInit, OnDestroy {
           if(this.gameModel.secondPlayer){
             this.sessionService.playArea(this.gameId, Utils.default.gameSessionToPlayRequest(this.gameModel,-1, "", "", ""));
           }
-        },3000);
+        },2000);
         
       }
     });
@@ -208,7 +208,7 @@ export class GameComponent implements OnInit, OnDestroy {
   }
 
   placeImage(index: number, champ: String) {
-    this.images[index].source = Utils.default.placeImageURL(champ);
+    this.images[index].source = Utils.default.placeImageURL(champ.replaceAll(/\s/g, '').replaceAll(/'/g, ''));
     this.images[index].isOpen = false;
     this.images[index].style = Utils.default.placePngBorder(this.personalClicked.includes(index) ? 0 : 1);
   }
