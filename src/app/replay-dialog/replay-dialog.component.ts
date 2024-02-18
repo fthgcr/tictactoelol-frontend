@@ -26,20 +26,18 @@ export class ReplayDialogComponent implements OnInit{
   constructor(@Inject(MAT_DIALOG_DATA) public gameId: String,
   private ref: MatDialogRef<ReplayDialogComponent>,
   private router: Router,
-  private sessionService: SessionService,){}
+  private sessionService: SessionService){}
 
   public stateAnimate: boolean;
 
   ngOnInit(): void {
     this.stateAnimate = true;
-    console.log("gameId : " + this.gameId);
-
   }
 
   replay(){
     this.sessionService.replaySession(this.gameId).subscribe((response) => {
       this.ref.close();
-      this.router.navigate(['/game', this.gameId]);
+      this.router.navigate(['/gam', this.gameId]);
     })
   }
 
