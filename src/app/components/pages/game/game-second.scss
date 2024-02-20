@@ -1,0 +1,93 @@
+//// Your Turn Breathe
+
+.breathe {
+	font-weight: bold;
+	animation-name: breathe;
+	animation-duration: 2s;
+	animation-timing-function: ease-in-out;
+	animation-delay: 0;
+	animation-iteration-count: infinite;
+	animation-direction: alternate;
+	margin-right: 10px;
+	font-family: "MyFont";
+  }
+  
+  @keyframes breathe {
+	0% {
+		font-size: 25px;
+		color: black;
+	}
+	
+	50% {
+		color: #4b658496;
+		font-size: 24px;
+	}
+	
+	100% {
+		color: black;
+		font-size: 25px;
+	}
+  }
+
+  .gameOverText{
+	margin-right: 10px;
+	font-family: "MyFont";
+	font-size: 24px;
+	color: red;
+  }
+  
+
+// Confirm Dialog
+::ng-deep .mat-mdc-dialog-container {
+    border-radius: 4px;
+    position: relative;
+    //max-width: 90%;
+    //background: #fff;
+    background: transparent;
+    width: 75% !important;
+    margin: 2em auto;
+    box-shadow: -15px 0 0 0 black, 15px 0 0 0 black, 0 -15px 0 0 black,
+      0 15px 0 0 black;
+      
+  }
+
+  ::ng-deep .mat-mdc-dialog-container {
+	width: 500px !important;
+  }
+
+  .child-component {
+	margin-right: 20px; /* Adjust the value to set the desired space */
+  }
+  
+  /* If you want space on the left side of the first child component */
+  .child-component:first-child {
+	margin-left: 20px; /* Adjust the value to set the desired space */
+  }
+
+  // Custom Background
+  .your-turn-background {
+	background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+	background-size: 400% 400%;
+	animation: gradient 3s ease infinite;
+	height: 100vh;
+  }
+  
+  @keyframes gradient {
+	0% {
+	  background-position: 0% 50%;
+	}
+	50% {
+	  background-position: 100% 50%;
+	}
+	100% {
+	  background-position: 0% 50%;
+	}
+  }
+
+  .default-body-background {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	min-height: 100vh;
+	background-color: #00bfb3;
+  }
