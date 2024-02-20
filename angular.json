@@ -33,7 +33,7 @@
             ],
             "budgets": [
               {
-                "type": "css",
+                "type": "initial",
                 "maximumWarning": "4kb",
                 "maximumError": "5kb"
               }
