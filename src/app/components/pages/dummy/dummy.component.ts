@@ -8,12 +8,9 @@ import { ActivatedRoute, Router } from '@angular/router';
 })
 export class DummyComponent implements OnInit{
 
-  constructor(private route: ActivatedRoute, private router: Router,){}
+  constructor(private route: ActivatedRoute, private router: Router){}
 
   ngOnInit(): void {
-    this.redirect();
-  }
-  redirect(){
     this.route.paramMap.subscribe((params) => {
       const gameId = params.get('gameId');
       this.router.navigate(['/game', gameId]);

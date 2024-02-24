@@ -13,7 +13,7 @@ export class GetIpService {
   }
 
   generateRandomString(length = 8): string {
-    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+    const characters = 'ABCDEGHJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
     const charactersLength = characters.length;
     let result = '';
     for (let i = 0; i < length; i++) {

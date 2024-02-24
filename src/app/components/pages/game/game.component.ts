@@ -26,6 +26,8 @@ import { ChampionsOverviewComponent } from '../../../champions-overview/champion
 import { LolChampionsExternalService } from '../../../services/lol-champions-external.service';
 import { Champion } from '../../../models/Champion';
 import { ReplayDialogComponent } from '../../tools/replay-dialog/replay-dialog.component';
+import { ScoreBoard } from '../../../models/ScoreBoard';
+import { ScoreBoardService } from '../../../services/score-board.service';
 
 @Component({
   selector: 'app-game',
@@ -46,7 +48,8 @@ export class GameComponent implements OnInit, OnDestroy {
     private matDialog: MatDialog,
     private _snackBar: MatSnackBar,
     private lolChampionsExternalService: LolChampionsExternalService,
-    private renderer: Renderer2
+    private renderer: Renderer2,
+    private scoreBoardService : ScoreBoardService
   ) {}
 
   userName: any;
@@ -63,6 +66,7 @@ export class GameComponent implements OnInit, OnDestroy {
   gameOverText : String = "";
   champions: Champion[] = [];
   leavePageParameter : String = "";
+  scoreBoard : ScoreBoard = new ScoreBoard("");
 
   ngOnInit() {
     //this.getUserName();
@@ -86,16 +90,36 @@ export class GameComponent implements OnInit, OnDestroy {
   getParameter() {
     this.route.paramMap.subscribe((params) => {
       this.gameId = params.get('gameId');
-      this.gameSessionRequest.playerIp = this.getipService.generateRandomString(8);
-      this.gameSessionRequest.gameId = this.gameId;
+      this.scoreBoard = this.scoreBoardService.getScoreBoard(this.gameId);
       this.sessionService.initConnectionSocket();
       this.sessionService.joinGame(this.gameId);
       this.listenForMessages();
       //this.listenerMessage();
-      this.initializeSession();
-      //this.createOrJoinGame();
+      if(Utils.default.isMatchmaking(this.gameId)){
+        this.gameSessionRequest.playerIp = localStorage.getItem('fromMatchmaking')?.toString();
+        this.gameSessionRequest.gameId = this.gameId;
+        this.getMatchmaking();
+      } else {
+        this.gameSessionRequest.playerIp = this.getipService.generateRandomString(8);
+        this.gameSessionRequest.gameId = this.gameId;
+        this.initializeSession();
+      }
+      
       
     });
+  }
+
+  getMatchmaking(){
+    this.sessionService.healthCheckSession(this.gameSessionRequest).subscribe(gameSession => {
+      this.gameModel = gameSession;
+      setTimeout(() => {
+        this.player = this.gameModel.secondPlayer === this.gameSessionRequest.playerIp ? 1 : 0;
+        this.isTurn = this.player === this.gameModel.turn;
+        if(this.gameModel.secondPlayer && this.gameModel.secondPlayer === this.gameSessionRequest.playerIp){
+          this.sessionService.playArea(this.gameId, Utils.default.gameSessionToPlayRequest(this.gameModel,-1, "", "", ""));
+        }
+      },3000);
+    })
   }
 
   initializeSession(){
@@ -129,8 +153,10 @@ export class GameComponent implements OnInit, OnDestroy {
             this.checkPersonalClick((this.gameModel.playAreaArray as any));
           } else {
             if(this.gameModel.gameStatus === this.player){
+              this.scoreBoardService.updateScoreBoard(this.gameId, true);
               this.gameOverText = "You Won !";
             } else {
+              this.scoreBoardService.updateScoreBoard(this.gameId, false);
               this.gameOverText = "You Lose !";
             }
             this.openGameOverDialog();
@@ -163,17 +189,6 @@ export class GameComponent implements OnInit, OnDestroy {
           }
         }
       });
-  }
-
-  createOrJoinGame() {
-    this.sessionService.createOrJoinGame(this.gameSessionRequest).subscribe((response) => {
-        this.gameModel = Utils.default.setPlayAreaArray(response, new GameSessionDTO());
-        this.player = this.gameModel.secondPlayer ? 1 : 0;
-        //this.startInterval();
-      },(error) => {
-        console.error('Error in createOrJoinGame request: ', error);
-      }
-    );
   }
 
   //Clicked Game Area FROM Page
@@ -214,7 +229,9 @@ export class GameComponent implements OnInit, OnDestroy {
 
   placeImage(index: number, champ: String) {
     let modifiedChamp = champ.replaceAll(/\s/g, '').replaceAll(/'/g, '').replaceAll(/\./g, '');
-    modifiedChamp = modifiedChamp.charAt(0).toUpperCase() + modifiedChamp.slice(1).toLowerCase();
+    if(champ.includes("'")){
+      modifiedChamp = modifiedChamp.charAt(0).toUpperCase() + modifiedChamp.slice(1).toLowerCase();
+    }
     this.images[index].source = Utils.default.placeImageURL(modifiedChamp);
     this.images[index].isOpen = false;
     this.images[index].style = Utils.default.placePngBorder(this.personalClicked.includes(index) ? 0 : 1);

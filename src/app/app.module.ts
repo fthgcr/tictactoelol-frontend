@@ -29,6 +29,7 @@ import { ChampionsOverviewComponent } from './champions-overview/champions-overv
 import { ReplayDialogComponent } from './components/tools/replay-dialog/replay-dialog.component';
 import { DummyComponent } from './components/pages/dummy/dummy.component';
 import { MatDialogModule } from '@angular/material/dialog';
+import { FindMatchComponent } from './components/pages/find-match/find-match.component';
 
 @NgModule({
   declarations: [
@@ -42,6 +43,7 @@ import { MatDialogModule } from '@angular/material/dialog';
     ChampionsOverviewComponent,
     ReplayDialogComponent,
     DummyComponent,
+    FindMatchComponent
   ],
   imports: [
     BrowserModule,

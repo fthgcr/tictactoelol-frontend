@@ -101,5 +101,9 @@ export default class Utils {
     
     return gameSessionDTO;
   }
+
+  static isMatchmaking(gameId : String) : boolean {
+    return gameId.substring(0, 2) === "FI";
+  }
   
 }

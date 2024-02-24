@@ -21,7 +21,7 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-top: 20%;
+  margin-top: 25%;
   padding-inline: 5px;
 }
 
@@ -59,4 +59,12 @@ body {
   color: black;
   font-family: "MyFont";
   font-size: small;
+}
+
+#banner {
+  width: 40%;
+  height: 40%;
+  position: absolute;
+  top: 90px;
+  right: 30%;
 }

@@ -36,6 +36,10 @@ export class SessionService {
     return this.http.get<any>(`${environment.apiURL}/session/replaySession/${gameId}`);
   }
 
+  quitSession(sessionId : number): Observable<any>{
+    return this.http.delete<any>(`${environment.apiURL}/session/quitSession/${sessionId}`);
+  }
+
   //Web Socket
   initConnectionSocket(){
     this.messageSubject = new BehaviorSubject<GameSession[]>([]);
@@ -70,6 +74,11 @@ export class SessionService {
         //console.log('Disconnected from WebSocket');
       });
     }
+  }
+
+  //Find Match
+  findMatch(username : String): Observable<any>{
+    return this.http.get<any>(`${environment.apiURL}/session/findMatch/${username}`);
   }
 
 

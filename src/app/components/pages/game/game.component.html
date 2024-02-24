@@ -76,6 +76,10 @@
         <app-user-name-dialog></app-user-name-dialog>
     </div>
 
+    <div class="scoreBoard" *ngIf="this.gameModel.secondPlayer">
+      <h3 class="scoreBoardText">You : {{scoreBoard.user}} - {{scoreBoard.opponent}} : Opponent</h3>
+    </div>
+
     <!-- Testttt -->
 
     <ng-template #confirmExit>

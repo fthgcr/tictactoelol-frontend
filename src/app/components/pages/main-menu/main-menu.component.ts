@@ -7,6 +7,7 @@ import { CommonModule } from '@angular/common';
 import { PixelButtonComponent } from '../../tools/pixel-button/pixel-button.component';
 import { MatDialog } from '@angular/material/dialog';
 import { UserNameDialogComponent } from '../../tools/user-name-dialog/user-name-dialog.component';
+import { FindMatchComponent } from '../find-match/find-match.component';
 
 @Component({
   selector: 'app-main-menu',
@@ -73,5 +74,11 @@ export class MainMenuComponent{
 
   openInfoPage(){
     this.router.navigate(['/howto']);
+  }
+
+  findMatch(){
+    const dialogRef = this.matDialog.open(FindMatchComponent, {
+      panelClass:'icon-outside'
+    });
   }
 }
