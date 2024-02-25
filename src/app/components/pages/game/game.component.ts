@@ -67,6 +67,7 @@ export class GameComponent implements OnInit, OnDestroy {
   champions: Champion[] = [];
   leavePageParameter : String = "";
   scoreBoard : ScoreBoard = new ScoreBoard("");
+  isCursorPointer: boolean = false;
 
   ngOnInit() {
     //this.getUserName();
@@ -204,6 +205,7 @@ export class GameComponent implements OnInit, OnDestroy {
       if (result) {
         this.selectedChamp = index;
         this.setPlayArea(index, result);
+        //this.placeImage(index, result);
       }
     });
   }
@@ -456,6 +458,15 @@ export class GameComponent implements OnInit, OnDestroy {
         this.renderer.removeChild(document.head, this.styleElement);
       }
     }
+  }
+
+  setCursorCondition(condition: boolean, index : number){
+    if(this.images[index].source === "" && condition){
+      this.isCursorPointer = true;
+    } else {
+      this.isCursorPointer = false;
+    }
+
   }
 
 

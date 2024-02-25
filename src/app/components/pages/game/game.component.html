@@ -56,17 +56,17 @@
         <div class="dropBox header"><p><span style="font-size: 1rem; color: black;">{{splitRule(rules[1], true)}}</span><br><br><span>{{splitRule(rules[1], false)}}</span></p></div>
         <div class="dropBox header"><p><span style="font-size: 1rem; color: black;">{{splitRule(rules[2], true)}}</span><br><br><span>{{splitRule(rules[2], false)}}</span></p></div>
         <div class="dropBox header"><p><span style="font-size: 1rem; color: black;">{{splitRule(rules[3], true)}}</span><br><br><span>{{splitRule(rules[3], false)}}</span></p></div>
-        <div class="dropBox" (click)="gameAreaClick(0)"><img src={{this.images[0].source}} [ngStyle]="this.images[0].style"></div>
-        <div class="dropBox" (click)="gameAreaClick(1)"><img src={{this.images[1].source}} [ngStyle]="this.images[1].style"></div>
-        <div class="dropBox" (click)="gameAreaClick(2)"><img src={{this.images[2].source}} [ngStyle]="this.images[2].style"></div>
+        <div class="dropBox" [ngStyle]="{'cursor': isCursorPointer ? 'url(/assets/cursor/extra_attack.cur), auto' : 'url(/assets/cursor/normal.cur), auto'}" (mouseenter)="setCursorCondition(true,0)" (mouseleave)="setCursorCondition(false,0)" (click)="gameAreaClick(0)"><img src={{this.images[0].source}} [ngStyle]="this.images[0].style"></div>
+        <div class="dropBox" [ngStyle]="{'cursor': isCursorPointer ? 'url(/assets/cursor/extra_attack.cur), auto' : 'url(/assets/cursor/normal.cur), auto'}" (mouseenter)="setCursorCondition(true,1)" (mouseleave)="setCursorCondition(false,1)" (click)="gameAreaClick(1)"><img src={{this.images[1].source}} [ngStyle]="this.images[1].style"></div>
+        <div class="dropBox" [ngStyle]="{'cursor': isCursorPointer ? 'url(/assets/cursor/extra_attack.cur), auto' : 'url(/assets/cursor/normal.cur), auto'}" (mouseenter)="setCursorCondition(true,2)" (mouseleave)="setCursorCondition(false,2)" (click)="gameAreaClick(2)"><img src={{this.images[2].source}} [ngStyle]="this.images[2].style"></div>
         <div class="dropBox header"><p><span style="font-size: 1rem; color: black;">{{splitRule(rules[4], true)}}</span><br><br><span>{{splitRule(rules[4], false)}}</span></p></div>
-        <div class="dropBox" (click)="gameAreaClick(3)"><img src={{this.images[3].source}} [ngStyle]="this.images[3].style"></div>
-        <div class="dropBox" (click)="gameAreaClick(4)"><img src={{this.images[4].source}} [ngStyle]="this.images[4].style"></div>
-        <div class="dropBox" (click)="gameAreaClick(5)"><img src={{this.images[5].source}} [ngStyle]="this.images[5].style"></div>
+        <div class="dropBox" [ngStyle]="{'cursor': isCursorPointer ? 'url(/assets/cursor/extra_attack.cur), auto' : 'url(/assets/cursor/normal.cur), auto'}" (mouseenter)="setCursorCondition(true,3)" (mouseleave)="setCursorCondition(false,3)" (click)="gameAreaClick(3)"><img src={{this.images[3].source}} [ngStyle]="this.images[3].style"></div>
+        <div class="dropBox" [ngStyle]="{'cursor': isCursorPointer ? 'url(/assets/cursor/extra_attack.cur), auto' : 'url(/assets/cursor/normal.cur), auto'}" (mouseenter)="setCursorCondition(true,4)" (mouseleave)="setCursorCondition(false,4)" (click)="gameAreaClick(4)"><img src={{this.images[4].source}} [ngStyle]="this.images[4].style"></div>
+        <div class="dropBox" [ngStyle]="{'cursor': isCursorPointer ? 'url(/assets/cursor/extra_attack.cur), auto' : 'url(/assets/cursor/normal.cur), auto'}" (mouseenter)="setCursorCondition(true,5)" (mouseleave)="setCursorCondition(false,5)" (click)="gameAreaClick(5)"><img src={{this.images[5].source}} [ngStyle]="this.images[5].style"></div>
         <div class="dropBox header"><p><span style="font-size: 1rem; color: black;">{{splitRule(rules[5], true)}}</span><br><br><span>{{splitRule(rules[5], false)}}</span></p></div>
-        <div class="dropBox" (click)="gameAreaClick(6)"><img src={{this.images[6].source}} [ngStyle]="this.images[6].style"></div>
-        <div class="dropBox" (click)="gameAreaClick(7)"><img src={{this.images[7].source}} [ngStyle]="this.images[7].style"></div>
-        <div class="dropBox" (click)="gameAreaClick(8)"><img src={{this.images[8].source}} [ngStyle]="this.images[8].style"></div>
+        <div class="dropBox" [ngStyle]="{'cursor': isCursorPointer ? 'url(/assets/cursor/extra_attack.cur), auto' : 'url(/assets/cursor/normal.cur), auto'}" (mouseenter)="setCursorCondition(true,6)" (mouseleave)="setCursorCondition(false,6)" (click)="gameAreaClick(6)"><img src={{this.images[6].source}} [ngStyle]="this.images[6].style"></div>
+        <div class="dropBox" [ngStyle]="{'cursor': isCursorPointer ? 'url(/assets/cursor/extra_attack.cur), auto' : 'url(/assets/cursor/normal.cur), auto'}" (mouseenter)="setCursorCondition(true,7)" (mouseleave)="setCursorCondition(false,7)" (click)="gameAreaClick(7)"><img src={{this.images[7].source}} [ngStyle]="this.images[7].style"></div>
+        <div class="dropBox" [ngStyle]="{'cursor': isCursorPointer ? 'url(/assets/cursor/extra_attack.cur), auto' : 'url(/assets/cursor/normal.cur), auto'}" (mouseenter)="setCursorCondition(true,8)" (mouseleave)="setCursorCondition(false,8)" (click)="gameAreaClick(8)"><img src={{this.images[8].source}} [ngStyle]="this.images[8].style"></div>
 
     </div>
 

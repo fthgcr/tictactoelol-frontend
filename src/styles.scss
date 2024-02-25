@@ -11,14 +11,24 @@
 // }
 body {
 	margin: 0;
-	font-family: Roboto, "Helvetica Neue", sans-serif;
+	cursor: url('/assets/cursor/normal.cur'), auto;
 }
 
 html,
 body {
 	//height: 100%;
 	//background-image: url("./assets/photos/bg.png");
+	cursor: url('/assets/cursor/normal.cur'), auto;
 }
+
+a:hover {
+	cursor: url('/assets/cursor/link.cur'), auto;
+}
+
+button:hover {
+	cursor: url('/assets/cursor/link.cur'), auto;
+}
+
 
 //body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 
@@ -39,6 +49,7 @@ html {
 	background-repeat: no-repeat;
 	background-position-x: 50%;
 	background-color: #00bfb3;
+	cursor: url('/assets/cursor/normal.cur'), auto;
 }
 
 .backdropBackgroundDialog {

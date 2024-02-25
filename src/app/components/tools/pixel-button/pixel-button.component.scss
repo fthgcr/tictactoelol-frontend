@@ -24,8 +24,7 @@
     justify-content: center;
     text-align: center;
     filter: drop-shadow(0 20px 0 #545454);
-  
-    cursor: pointer;
+    cursor: url('/assets/cursor/link.cur'), auto;
   }
   
   .pixel-grid:active {

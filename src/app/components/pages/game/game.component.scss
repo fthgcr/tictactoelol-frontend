@@ -3,6 +3,7 @@
 ::ng-deep html {
  // background-image: url("/assets/photos/bg.jpg");
   background-color: #00bfb3;
+  cursor: url('/assets/cursor/normal.cur'), auto;
 }
 
  body {
@@ -11,6 +12,7 @@
    align-items: center;
    min-height: 100vh;
    background-color: #00bfb3;
+   cursor: url('/assets/cursor/normal.cur'), auto;
  }
 
 .board {
@@ -119,6 +121,9 @@
   color: black;
 }
 
+.icon-buttons, .icon-buttons .mat-icon {
+  cursor: url('/assets/cursor/link.cur'), auto;
+}
 
 .icon-display {
   transform: scale(1.5);
