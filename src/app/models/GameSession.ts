@@ -7,6 +7,7 @@ export class GameSession {
     turn: number | undefined;
     date: Date | undefined;
     playArea: String | undefined;
+    cellOwners: String | undefined;
     gameStatus: number;
 
     constructor(){};

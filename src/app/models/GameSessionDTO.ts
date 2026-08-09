@@ -8,8 +8,11 @@ export class GameSessionDTO {
     date: Date | undefined;
     playArea: String | undefined;
     playAreaArray: String[];
+    // Server-provided cell ownership: "-1" empty, "0" first player, "1" second player.
+    cellOwners: String | undefined;
+    cellOwnersArray: String[] | undefined;
     gameRule: String;
     gameStatus: number = -1;
 
-    constructor(){};
+    constructor(secondPlayer = null){};
 }

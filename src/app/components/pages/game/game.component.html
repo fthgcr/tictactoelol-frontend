@@ -9,6 +9,10 @@
     <mat-icon class="icon-display">close</mat-icon>
   </button>  -->
 
+  <button mat-icon-button color="primary" class="icon-buttons" (click)="openGameOverDialog()" style="right: 160px;">
+    <mat-icon class="icon-display">notes</mat-icon>
+  </button>
+
       <button mat-icon-button color="primary" class="icon-buttons" (click)="openChampionsGuide()" style="right: 80px;" *ngIf="this.gameModel.secondPlayer">
         <mat-icon class="icon-display">notes</mat-icon>
       </button>

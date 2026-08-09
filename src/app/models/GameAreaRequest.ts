@@ -1,6 +1,8 @@
 export class GameAreaRequest {
     pid: number | undefined;
     uid: number | undefined;
+    // Sender identity; the server validates every move against it.
+    playerId: String | undefined;
     firstPlayer: String | undefined;
     secondPlayer: String | undefined;
     gameId: String | undefined;

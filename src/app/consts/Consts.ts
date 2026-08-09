@@ -3,6 +3,13 @@ import { GameSession } from "../models/GameSession";
 import { GameSessionDTO } from "../models/GameSessionDTO";
 import { GameSessionRequest } from "../models/GameSessionRequest";
 
+// Websocket control signals passed in the "index" field of a GameAreaRequest.
+// index >= 0 is a real board cell; these negative values are commands.
+// The old -2 "broadcast client state" signal is gone: game state (wins, turns, board)
+// is now fully server-authoritative and cannot be pushed from a client.
+export const WS_SIGNAL_HEALTH_CHECK = -1; // ask the server to re-broadcast its state
+export const WS_SIGNAL_SKIP_TURN = -3;    // current player's timer ran out
+
 export const PNG_URL = 'https://ddragon.leagueoflegends.com/cdn/14.3.1/img/champion/';
 export const PNG_BORDER = "border: 0.5rem solid ";
 export const SPLASH_URL = 'https://ddragon.leagueoflegends.com/cdn/img/champion/splash/';
@@ -49,25 +56,15 @@ export default class Utils {
     return JSON.stringify(array1) === JSON.stringify(array2);
   }
 
-  static gameSessionToPlayRequest(gameSession: GameSessionDTO, index: number, value: String, horizontalRule: String, verticalRule: String) : GameAreaRequest{
+  // Only identity ("who"), the target cell ("where") and the champion ("which") matter
+  // to the server now; board, turn, rules and status are all resolved server-side.
+  static gameSessionToPlayRequest(gameSession: GameSessionDTO, playerId: String | undefined, index: number, value: String) : GameAreaRequest{
     let gameAreaRequest : GameAreaRequest = new GameAreaRequest();
-    gameAreaRequest.pid = gameSession.pid;
-    gameAreaRequest.date = gameSession.date;
-    gameAreaRequest.firstPlayer = gameSession.firstPlayer;
+    gameAreaRequest.playerId = playerId;
     gameAreaRequest.gameId = gameSession.gameId;
-    gameAreaRequest.secondPlayer = gameSession.secondPlayer;
-    gameAreaRequest.turn = gameSession.turn;
     gameAreaRequest.uid = gameSession.uid;
-    gameAreaRequest.playArea = "";
-    for(let index: number = 0; index < 9; index++){
-      gameAreaRequest.playArea = gameAreaRequest.playArea + (gameSession as any).playAreaArray[index] + "," 
-    }
-    gameAreaRequest.playArea = gameAreaRequest.playArea.slice(0,-1);
     gameAreaRequest.index = index;
     gameAreaRequest.value = value;
-    gameAreaRequest.verticalRule = verticalRule;
-    gameAreaRequest.horizontalRule = horizontalRule;
-    gameAreaRequest.gameStatus = gameSession.gameStatus;
 
     return gameAreaRequest;
   }
@@ -92,6 +89,12 @@ export default class Utils {
       gameSessionDTO.playAreaArray = (gameSession as any).playAreaArray;
     } else {
       gameSessionDTO.playAreaArray = (gameSession as any).playAreaArray.split(",").map(String);
+    }
+    gameSessionDTO.cellOwners = (gameSession as any).cellOwners;
+    if(Array.isArray((gameSession as any).cellOwnersArray)){
+      gameSessionDTO.cellOwnersArray = (gameSession as any).cellOwnersArray;
+    } else if((gameSession as any).cellOwners){
+      gameSessionDTO.cellOwnersArray = (gameSession as any).cellOwners.split(",").map(String);
     }
 
     

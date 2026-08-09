@@ -38,6 +38,7 @@ export class GameComponent implements OnInit, OnDestroy {
   @ViewChild('openModal') openModal: ElementRef;
   private messageSubscription: Subscription;
   private intervalSubscription: Subscription;
+  private routeSubscription: Subscription;
   private styleElement: HTMLStyleElement;
 
   constructor(
@@ -57,12 +58,10 @@ export class GameComponent implements OnInit, OnDestroy {
   images: ImageGame[] = [];
   gameSessionRequest : GameSessionRequest = new GameSessionRequest();
   gameModel : GameSessionDTO = new GameSessionDTO();
-  personalClicked: number[] = [];
   player : number = 0;
   isTurn: boolean = false;
   rules : String[] = [];
   timer: number = 30;
-  selectedChamp : number = -1;
   gameOverText : String = "";
   champions: Champion[] = [];
   leavePageParameter : String = "";
@@ -80,6 +79,12 @@ export class GameComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.sessionService.disconnect();
     this.stopInterval();
+    if (this.messageSubscription) {
+      this.messageSubscription.unsubscribe();
+    }
+    if (this.routeSubscription) {
+      this.routeSubscription.unsubscribe();
+    }
   }
 
   listenerMessage(){
@@ -89,7 +94,7 @@ export class GameComponent implements OnInit, OnDestroy {
   }
 
   getParameter() {
-    this.route.paramMap.subscribe((params) => {
+    this.routeSubscription = this.route.paramMap.subscribe((params) => {
       this.gameId = params.get('gameId');
       this.scoreBoard = this.scoreBoardService.getScoreBoard(this.gameId);
       this.sessionService.initConnectionSocket();
@@ -97,11 +102,12 @@ export class GameComponent implements OnInit, OnDestroy {
       this.listenForMessages();
       //this.listenerMessage();
       if(Utils.default.isMatchmaking(this.gameId)){
-        this.gameSessionRequest.playerIp = localStorage.getItem('fromMatchmaking')?.toString();
+        // Per-game key first (multi-tab safe), fall back to the legacy single key.
+        this.gameSessionRequest.playerIp = (localStorage.getItem('matchmaking_' + this.gameId) ?? localStorage.getItem('fromMatchmaking'))?.toString();
         this.gameSessionRequest.gameId = this.gameId;
         this.getMatchmaking();
       } else {
-        this.gameSessionRequest.playerIp = this.getipService.generateRandomString(8);
+        this.gameSessionRequest.playerIp = this.getipService.getPersistentPlayerId();
         this.gameSessionRequest.gameId = this.gameId;
         this.initializeSession();
       }
@@ -117,7 +123,7 @@ export class GameComponent implements OnInit, OnDestroy {
         this.player = this.gameModel.secondPlayer === this.gameSessionRequest.playerIp ? 1 : 0;
         this.isTurn = this.player === this.gameModel.turn;
         if(this.gameModel.secondPlayer && this.gameModel.secondPlayer === this.gameSessionRequest.playerIp){
-          this.sessionService.playArea(this.gameId, Utils.default.gameSessionToPlayRequest(this.gameModel,-1, "", "", ""));
+          this.sessionService.playArea(this.gameId, Utils.default.gameSessionToPlayRequest(this.gameModel, this.gameSessionRequest.playerIp, Utils.WS_SIGNAL_HEALTH_CHECK, ""));
         }
       },3000);
     })
@@ -131,7 +137,7 @@ export class GameComponent implements OnInit, OnDestroy {
         this.player = this.gameModel.secondPlayer ? 1 : 0;
         setTimeout(() => {
           if(this.gameModel.secondPlayer){
-            this.sessionService.playArea(this.gameId, Utils.default.gameSessionToPlayRequest(this.gameModel,-1, "", "", ""));
+            this.sessionService.playArea(this.gameId, Utils.default.gameSessionToPlayRequest(this.gameModel, this.gameSessionRequest.playerIp, Utils.WS_SIGNAL_HEALTH_CHECK, ""));
           }
         },2000);
         
@@ -145,14 +151,12 @@ export class GameComponent implements OnInit, OnDestroy {
       .subscribe((messages: any) => {
         if(Array.isArray(messages) && messages.length > 0){
           this.gameModel = messages[messages.length - 1 ];
-          
-          if (!((this.gameModel.playAreaArray as any).includes("0")) && this.gameModel.gameStatus === -1){
+
+          // Game status is fully server-authoritative: -1 active, 0/1 winner, 2 draw.
+          if(this.gameModel.gameStatus === 2){
             this.gameOverText = "Draw !";
-            this.gameModel.gameStatus = 2;
             this.openGameOverDialog();
-          } else if(this.gameModel.gameStatus === -1){
-            this.checkPersonalClick((this.gameModel.playAreaArray as any));
-          } else {
+          } else if(this.gameModel.gameStatus !== -1){
             if(this.gameModel.gameStatus === this.player){
               this.scoreBoardService.updateScoreBoard(this.gameId, true);
               this.gameOverText = "You Won !";
@@ -161,8 +165,8 @@ export class GameComponent implements OnInit, OnDestroy {
               this.gameOverText = "You Lose !";
             }
             this.openGameOverDialog();
-          } 
-          
+          }
+
           //Set Rules Init
           if(messages.length < 2) {
              this.rules = this.gameModel.gameRule.split(',');
@@ -195,38 +199,22 @@ export class GameComponent implements OnInit, OnDestroy {
   //Clicked Game Area FROM Page
   gameAreaClick(index: number) {
     if (!this.images[index].isOpen || !this.isTurn || this.gameModel.gameStatus !== -1 || this.timer < 1)  return;
-    this.filterChampion();
     var championSelectDialog = this.matDialog.open(InputDialogComponent, {
       width: '600px',
       height: '9%',
-      data: this.champions
+      data: this.filterChampion()
     });
     championSelectDialog.afterClosed().subscribe((result) => {
       if (result) {
-        this.selectedChamp = index;
         this.setPlayArea(index, result);
-        //this.placeImage(index, result);
       }
     });
   }
 
-  //Check PersonalClick
-  checkPersonalClick(gameArea : String []){
-    if(gameArea[this.selectedChamp] !== null && gameArea[this.selectedChamp] !== "0" && this.selectedChamp !== -1){
-      this.personalClicked.push(this.selectedChamp);
-      if(this.checkWinCondition()){
-        var tempModel = this.gameModel;
-        tempModel.gameStatus = this.player;
-        this.sessionService.playArea(this.gameId, Utils.default.gameSessionToPlayRequest(tempModel,-2, "", "", ""));
-      }
-    }
-    this.selectedChamp = -1;
-  }
-
-  //Call Service for Set Play Area 
+  //Call Service for Set Play Area
   setPlayArea(index: number, champ: String){
     this.isTurn = false;
-    this.sessionService.playArea(this.gameId, Utils.default.gameSessionToPlayRequest(this.gameModel,index, champ, this.getHorizontalRule(index), this.getVerticalRule(index)));
+    this.sessionService.playArea(this.gameId, Utils.default.gameSessionToPlayRequest(this.gameModel, this.gameSessionRequest.playerIp, index, champ));
   }
 
   placeImage(index: number, champ: String) {
@@ -236,7 +224,9 @@ export class GameComponent implements OnInit, OnDestroy {
     }
     this.images[index].source = Utils.default.placeImageURL(modifiedChamp);
     this.images[index].isOpen = false;
-    this.images[index].style = Utils.default.placePngBorder(this.personalClicked.includes(index) ? 0 : 1);
+    // Border color comes from server-side cell ownership (blue = mine, red = opponent).
+    const owner = this.gameModel.cellOwnersArray ? this.gameModel.cellOwnersArray[index] : undefined;
+    this.images[index].style = Utils.default.placePngBorder(owner === String(this.player) ? 0 : 1);
   }
 
   setGameAreaEmpty() {
@@ -266,33 +256,6 @@ export class GameComponent implements OnInit, OnDestroy {
         //console.log(result);
       }
     });
-  }
-
-  //Check Win Condition
-  checkWinCondition(): boolean {
-
-    if(this.personalClicked.length < 3){
-      return false;
-    }
-    // Define winning combinations
-    const winningCombinations = [
-      [0, 1, 2], [3, 4, 5], [6, 7, 8], // Horizontal
-      [0, 3, 6], [1, 4, 7], [2, 5, 8], // Vertical
-      [0, 4, 8], [2, 4, 6]             // Diagonal
-    ];
-
-    // Create a set of user moves for faster lookup
-    const userMovesSet = new Set(this.personalClicked);
-
-    // Check each winning combination
-    for (const combination of winningCombinations) {
-      const [a, b, c] = combination;
-      if (userMovesSet.has(a) && userMovesSet.has(b) && userMovesSet.has(c)) {
-        return true; // User has a winning combination
-      }
-    }
-
-    return false; // No win condition met
   }
 
   //Rules
@@ -359,9 +322,8 @@ export class GameComponent implements OnInit, OnDestroy {
         this.matDialog.closeAll();
       }
       if(this.timer < -1){
-         var tempModel = this.gameModel;
-         tempModel.turn = tempModel.turn == 0 ? 1 : 0;
-         this.sessionService.playArea(this.gameId, Utils.default.gameSessionToPlayRequest(tempModel,-2, "", "", ""));
+         // Ask the server to skip our turn; it validates that we really are the turn holder.
+         this.sessionService.playArea(this.gameId, Utils.default.gameSessionToPlayRequest(this.gameModel, this.gameSessionRequest.playerIp, Utils.WS_SIGNAL_SKIP_TURN, ""));
       }
     });
   }
@@ -391,8 +353,10 @@ export class GameComponent implements OnInit, OnDestroy {
     });
   }
 
-  filterChampion(){
-    this.champions = this.champions.filter(item => item.name && !this.gameModel.playAreaArray.includes(item.name));
+  // Returns a filtered copy for the picker; the master champions list is left intact
+  // so already-placed champions can still be filtered correctly on the next turn.
+  filterChampion(): Champion[] {
+    return this.champions.filter(item => item.name && !this.gameModel.playAreaArray.includes(item.name));
   }
 
   //Replay Section

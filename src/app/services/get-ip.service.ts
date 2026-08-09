@@ -21,4 +21,18 @@ export class GetIpService {
     }
     return result;
   }
+
+  // Stable per-browser identity so a refresh/reconnect keeps the same player,
+  // instead of generating a brand new id on every page load.
+  getPersistentPlayerId(): string {
+    if (typeof localStorage === 'undefined') {
+      return this.generateRandomString(8);
+    }
+    let id = localStorage.getItem('playerId');
+    if (!id) {
+      id = this.generateRandomString(8);
+      localStorage.setItem('playerId', id);
+    }
+    return id;
+  }
 }
