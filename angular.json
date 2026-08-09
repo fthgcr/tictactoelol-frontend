@@ -48,7 +48,8 @@
             "assets": [
               "src/favicon.ico",
               "src/assets",
-              "src/assets/photos"
+              "src/assets/photos",
+              "src/web.config"
             ],
             "styles": [
               "@angular/material/prebuilt-themes/indigo-pink.css",

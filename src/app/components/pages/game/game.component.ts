@@ -323,8 +323,11 @@ export class GameComponent implements OnInit, OnDestroy {
   }
 
   //Buttons
+  // Copies the joinable URL, not the bare game id. Pasting the id on its own is not
+  // a route, which is what made a shared "link" land on a 404.
   clipBoard(message: String){
-    navigator.clipboard.writeText(this.gameId)
+    const invite = `${window.location.origin}/game/${this.gameId}`;
+    navigator.clipboard.writeText(invite)
       .then(() => {
         this.callSnackBar(message, 2000);
       })
