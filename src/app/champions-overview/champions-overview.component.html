@@ -4,7 +4,9 @@
 <a class="close-button" (click)="closeDialog()">Close</a>
 <div class="card-grid-list">
   <mat-card class="example-card" *ngFor="let item of champions">
-    <img mat-card-image [src]="item.png" />
+    <!-- Splash art is heavy (~0.5mb each). Only the cards actually scrolled into
+         view are fetched, so opening the dialog no longer waits on ~168 images. -->
+    <img mat-card-image [src]="item.png" loading="lazy" decoding="async" />
     <mat-card-content>
       <p>{{ item.name }}</p>
     </mat-card-content>
