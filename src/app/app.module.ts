@@ -29,6 +29,7 @@ import { ChampionsOverviewComponent } from './champions-overview/champions-overv
 import { ReplayDialogComponent } from './components/tools/replay-dialog/replay-dialog.component';
 import { DummyComponent } from './components/pages/dummy/dummy.component';
 import { MatDialogModule } from '@angular/material/dialog';
+import { MatMenuModule } from '@angular/material/menu';
 import { FindMatchComponent } from './components/pages/find-match/find-match.component';
 import { ConnectionsComponent } from './components/pages/connections/connections.component';
 import { GuessWhoComponent } from './components/pages/guess-who/guess-who.component';
@@ -66,7 +67,8 @@ import { GuessWhoComponent } from './components/pages/guess-who/guess-who.compon
     MatButtonModule,
     MatIconModule,
     MatCardModule,
-    MatDialogModule
+    MatDialogModule,
+    MatMenuModule
   ],
   providers: [
     //provideClientHydration()

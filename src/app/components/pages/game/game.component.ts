@@ -248,11 +248,7 @@ export class GameComponent implements OnInit, OnDestroy {
   }
 
   placeImage(index: number, champ: String) {
-    let modifiedChamp = champ.replaceAll(/\s/g, '').replaceAll(/'/g, '').replaceAll(/\./g, '');
-    if(champ.includes("'")){
-      modifiedChamp = modifiedChamp.charAt(0).toUpperCase() + modifiedChamp.slice(1).toLowerCase();
-    }
-    this.images[index].source = Utils.default.placeImageURL(modifiedChamp);
+    this.images[index].source = Utils.default.championImageURL(champ);
     this.images[index].isOpen = false;
     // Border color comes from server-side cell ownership (blue = mine, red = opponent).
     const owner = this.gameModel.cellOwnersArray ? this.gameModel.cellOwnersArray[index] : undefined;
@@ -323,13 +319,24 @@ export class GameComponent implements OnInit, OnDestroy {
   }
 
   //Buttons
-  // Copies the joinable URL, not the bare game id. Pasting the id on its own is not
-  // a route, which is what made a shared "link" land on a 404.
-  clipBoard(message: String){
-    const invite = `${window.location.origin}/game/${this.gameId}`;
-    navigator.clipboard.writeText(invite)
+  // Two ways to invite: a URL the opponent can paste straight into the address bar,
+  // or the bare id for the "Join Game" box on the main menu. Copying the id as if it
+  // were a link is what used to send people to a 404.
+  copyInviteLink(){
+    this.copyToClipboard(`${window.location.origin}/game/${this.gameId}`, "Invite link copied !");
+  }
+
+  copyGameId(){
+    this.copyToClipboard(this.gameId, "Game ID copied !");
+  }
+
+  private copyToClipboard(value: String, message: String){
+    navigator.clipboard.writeText(value.toString())
       .then(() => {
         this.callSnackBar(message, 2000);
+      })
+      .catch(() => {
+        this.callSnackBar("Could not access the clipboard.", 2000);
       })
   }
 

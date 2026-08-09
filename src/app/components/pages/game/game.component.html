@@ -13,9 +13,20 @@
         <mat-icon class="icon-display">notes</mat-icon>
       </button>
 
-      <button mat-icon-button color="primary" class="icon-buttons" (click)="clipBoard('Invite link copied to clipboard !')" style="right: 80px;" *ngIf="!this.gameModel.secondPlayer">
+      <button mat-icon-button color="primary" class="icon-buttons" [matMenuTriggerFor]="shareMenu" style="right: 80px;" *ngIf="!this.gameModel.secondPlayer">
         <mat-icon class="icon-display">share</mat-icon>
       </button>
+
+      <mat-menu #shareMenu="matMenu">
+        <button mat-menu-item (click)="copyInviteLink()">
+          <mat-icon>link</mat-icon>
+          <span>Copy invite link</span>
+        </button>
+        <button mat-menu-item (click)="copyGameId()">
+          <mat-icon>tag</mat-icon>
+          <span>Copy game ID</span>
+        </button>
+      </mat-menu>
 
       <button mat-icon-button color="primary" class="icon-buttons" (click)="openDialogWithTemplateRef(confirmExit, 'Info')" style="right: 20px;">
         <mat-icon class="icon-display">info</mat-icon>
