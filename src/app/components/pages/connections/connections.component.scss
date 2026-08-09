@@ -1,23 +1,56 @@
+// Same dark glass treatment as Guess Who: the shared page background is a busy
+// pixel-art scene, so all content sits on an opaque panel to stay readable.
+$panel-bg: rgba(14, 20, 32, 0.88);
+$panel-border: rgba(255, 255, 255, 0.16);
+$ink: #f4f6fa;
+$ink-dim: #b9c2d0;
+$field-bg: #1c2536;
+$field-border: #46586f;
+
+// Tile surface: light enough for the champion portraits to read well.
+$tile-bg: #e9ebe2;
+$tile-bg-hover: #f6f7f1;
+$tile-ink: #16202f;
+$tile-selected: #4d7fc4;
+
 .connections-page {
-  max-width: 640px;
+  max-width: 700px;
   margin: 0 auto;
-  padding: 1rem;
+  padding: 1.5rem 1rem 2rem;
   text-align: center;
+  color: $ink;
+}
+
+.panel {
+  background: $panel-bg;
+  backdrop-filter: blur(10px) saturate(115%);
+  -webkit-backdrop-filter: blur(10px) saturate(115%);
+  border: 2px solid $panel-border;
+  border-radius: 16px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+  padding: 1.5rem 1.25rem 1.75rem;
 }
 
 .header {
   h1 {
-    margin: 0.5rem 0 0.25rem;
+    margin: 0 0 0.4rem;
+    font-family: "MyFont", sans-serif;
+    font-size: 2rem;
+    font-weight: normal;
+    letter-spacing: 0.04em;
+    color: #ffffff;
+    text-shadow: 0 3px 0 rgba(0, 0, 0, 0.55);
   }
 
   .subtitle {
     margin: 0 0 1rem;
-    opacity: 0.8;
+    font-size: 0.95rem;
+    color: $ink-dim;
   }
 
   .mode-toggle {
     display: inline-flex;
-    border: 2px solid #4b6584;
+    border: 2px solid $field-border;
     border-radius: 8px;
     overflow: hidden;
     margin-bottom: 0.5rem;
@@ -25,14 +58,20 @@
     button {
       font: inherit;
       font-weight: bold;
-      padding: 0.4rem 1.2rem;
+      padding: 0.4rem 1.3rem;
       border: none;
-      background: #efefe6;
-      color: #1a1a1a;
+      background: $field-bg;
+      color: $ink-dim;
       cursor: pointer;
+      transition: background 0.15s ease, color 0.15s ease;
+
+      &:hover {
+        background: #27334a;
+        color: $ink;
+      }
 
       &.active {
-        background: #4b6584;
+        background: $tile-selected;
         color: #ffffff;
       }
     }
@@ -41,26 +80,7 @@
   .daily-label {
     margin: 0 0 0.5rem;
     font-size: 0.85rem;
-    opacity: 0.8;
-  }
-}
-
-.daily-summary {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.5rem;
-  margin-top: 0.5rem;
-
-  .emoji-grid {
-    font-size: 1.4rem;
-    line-height: 1.5;
-  }
-
-  .come-back {
-    margin: 0;
-    font-size: 0.9rem;
-    opacity: 0.8;
+    color: $ink-dim;
   }
 }
 
@@ -80,24 +100,27 @@
 
 /* Solved rows - one fixed color per original group index */
 .solved-group {
-  border-radius: 8px;
-  padding: 0.6rem 0.5rem;
+  border-radius: 10px;
+  padding: 0.65rem 0.6rem;
   color: #1a1a1a;
+  animation: solved-pop 380ms cubic-bezier(0.2, 0.9, 0.3, 1.2) both;
 
   .solved-rule {
     font-weight: bold;
     text-transform: uppercase;
+    letter-spacing: 0.03em;
     font-size: 0.9rem;
   }
 
   .solved-champs {
     font-size: 0.85rem;
+    opacity: 0.85;
   }
 
-  &.color-0 { background: #f9df6d; }
-  &.color-1 { background: #a0c35a; }
-  &.color-2 { background: #b0c4ef; }
-  &.color-3 { background: #ba81c5; }
+  &.color-0 { background: #f5d34e; }
+  &.color-1 { background: #93bd48; }
+  &.color-2 { background: #94b2ec; }
+  &.color-3 { background: #b06fc0; }
 }
 
 .tile-grid {
@@ -107,38 +130,78 @@
 }
 
 .tile {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 0.3rem;
-  padding: 0.5rem 0.25rem;
-  min-height: 5.5rem;
-  border: 2px solid #4b6584;
-  border-radius: 8px;
-  background: #efefe6;
-  color: #1a1a1a;
+  gap: 0.35rem;
+  padding: 0.55rem 0.25rem;
+  min-height: 5.75rem;
+  border: 2px solid transparent;
+  border-radius: 10px;
+  background: $tile-bg;
+  color: $tile-ink;
   cursor: pointer;
   font: inherit;
   font-size: 0.8rem;
   font-weight: bold;
   word-break: break-word;
+  transition: background 0.12s ease, border-color 0.12s ease, transform 0.12s ease;
 
-  img {
+  img,
+  .img-fallback {
     width: 40px;
     height: 40px;
-    border-radius: 4px;
+    border-radius: 6px;
     pointer-events: none;
+    flex-shrink: 0;
+  }
+
+  // Shown when Data Dragon has no portrait: keeps the tile the same height
+  // instead of collapsing to a bare name.
+  .img-fallback {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #cbcfc2;
+    color: #4a5566;
+    font-size: 1.1rem;
+  }
+
+  .tile-name {
+    line-height: 1.15;
   }
 
   &:hover {
-    filter: brightness(0.95);
+    background: $tile-bg-hover;
+    transform: translateY(-2px);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+
+  &:focus-visible {
+    outline: none;
+    border-color: #6ea8ff;
+    box-shadow: 0 0 0 3px rgba(110, 168, 255, 0.35);
   }
 
   &.selected {
-    background: #5a594e;
-    border-color: #5a594e;
+    background: $tile-selected;
+    border-color: #a9cbff;
     color: #ffffff;
+    animation: tile-pick 200ms ease-out;
+
+    .img-fallback {
+      background: #33608f;
+      color: #dce9fb;
+    }
+  }
+
+  &.shake {
+    animation: tile-shake 480ms cubic-bezier(0.36, 0.07, 0.19, 0.97);
   }
 }
 
@@ -146,25 +209,47 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 0.4rem;
-  margin-top: 0.5rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.6rem;
+  font-size: 0.85rem;
+  color: $ink-dim;
 
-  .mistakes-label {
-    font-size: 0.9rem;
+  .selection-count {
+    font-weight: bold;
+    color: $ink;
+  }
+
+  .status-sep {
+    width: 1px;
+    height: 14px;
+    background: $field-border;
+  }
+
+  .dots {
+    display: inline-flex;
+    gap: 0.35rem;
   }
 
   .dot {
-    width: 12px;
-    height: 12px;
+    width: 11px;
+    height: 11px;
     border-radius: 50%;
-    background: #5a594e;
+    background: #e8b13c;
     display: inline-block;
+    transition: background 0.2s ease;
+
+    &.spent {
+      background: transparent;
+      box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.28);
+    }
   }
 }
 
 .message {
   min-height: 1.5rem;
   font-weight: bold;
+  color: #ffe08a;
   opacity: 0;
   transition: opacity 0.2s ease;
 
@@ -179,20 +264,47 @@
   align-items: center;
   flex-wrap: wrap;
   gap: 0.75rem;
+  margin-top: 0.75rem;
+}
+
+.game-over-box,
+.daily-summary {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
   margin-top: 0.5rem;
 }
 
 .game-over-text {
-  font-size: 1.3rem;
-  font-weight: bold;
+  font-family: "MyFont", sans-serif;
+  font-size: 1.5rem;
+  color: #ff7b6b;
+  text-shadow: 0 3px 0 rgba(0, 0, 0, 0.5);
 
   &.win {
-    color: #2e8b57;
+    color: #6ee68d;
   }
 }
 
+.daily-summary {
+  .emoji-grid {
+    font-size: 1.4rem;
+    line-height: 1.5;
+  }
+
+  .come-back {
+    margin: 0;
+    font-size: 0.9rem;
+    color: $ink-dim;
+  }
+}
+
+// The pixel buttons are drawn as a white grid, so a plain opacity drop washed
+// out over the old background. Desaturating as well makes "off" unmistakable.
 .disabled-button {
-  opacity: 0.5;
+  opacity: 0.4;
+  filter: grayscale(1);
   pointer-events: none;
 }
 
@@ -201,6 +313,83 @@
 
   a {
     cursor: pointer;
-    text-decoration: underline;
+    color: $ink;
+    font-weight: bold;
+    text-decoration: none;
+    padding: 0.4rem 0.9rem;
+    border: 2px solid $panel-border;
+    border-radius: 8px;
+    background: rgba(14, 20, 32, 0.8);
+
+    &:hover {
+      background: rgba(30, 42, 62, 0.9);
+    }
+  }
+}
+
+@keyframes solved-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.94);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes tile-pick {
+  0%   { transform: scale(1); }
+  55%  { transform: scale(1.07); }
+  100% { transform: scale(1); }
+}
+
+@keyframes tile-shake {
+  10%, 90% { transform: translateX(-2px); }
+  20%, 80% { transform: translateX(4px); }
+  30%, 50%, 70% { transform: translateX(-6px); }
+  40%, 60% { transform: translateX(6px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .solved-group,
+  .tile.selected,
+  .tile.shake {
+    animation: none !important;
+  }
+
+  .tile:hover {
+    transform: none;
+  }
+}
+
+@media (max-width: 560px) {
+  .connections-page {
+    padding: 0.75rem 0.5rem 1.5rem;
+  }
+
+  .panel {
+    padding: 1rem 0.75rem 1.25rem;
+    border-radius: 12px;
+  }
+
+  .header h1 {
+    font-size: 1.4rem;
+  }
+
+  .tile-grid {
+    gap: 0.35rem;
+  }
+
+  .tile {
+    min-height: 4.75rem;
+    font-size: 0.7rem;
+    padding: 0.4rem 0.15rem;
+
+    img,
+    .img-fallback {
+      width: 32px;
+      height: 32px;
+    }
   }
 }

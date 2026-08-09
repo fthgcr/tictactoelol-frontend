@@ -1,0 +1,180 @@
+// =============================================================================
+// Triple Kill — design tokens
+// =============================================================================
+// Single source of truth for the "light puzzle" theme. Component styles should
+// never hardcode a hex, size or radius; they pull from here so that changing the
+// look of the whole app stays a one-file edit.
+//
+// Usage (includePaths is set to src/styles in angular.json):
+//   @use 'tokens' as *;
+//   .thing { color: $text-primary; padding: $space-4; }
+//
+// The Outfit webfont is loaded in index.html. If you swap it, change
+// $font-sans here and the <link> there — nothing else should need touching.
+// =============================================================================
+
+
+// -----------------------------------------------------------------------------
+// Colour — surfaces
+// -----------------------------------------------------------------------------
+// Warm off-white rather than pure white: easier on the eyes for a game you stare
+// at, and it keeps champion portraits from looking like cut-outs.
+
+$canvas:           #faf8f4;  // page background
+$surface:          #ffffff;  // cards, tiles, board cells
+$surface-sunken:   #f0ede6;  // rule headers, code chips, inert fills
+$surface-muted:    #f5f2ec;  // empty / disabled board cells
+
+// -----------------------------------------------------------------------------
+// Colour — text
+// -----------------------------------------------------------------------------
+
+$text-primary:     #121212;  // headings, champion names, primary buttons
+$text-secondary:   #6b6862;  // supporting copy
+$text-muted:       #8a857d;  // labels, counters, metadata
+$text-faint:       #a39e95;  // placeholders only
+
+// -----------------------------------------------------------------------------
+// Colour — lines
+// -----------------------------------------------------------------------------
+
+$border:           #e5e0d6;  // default hairline
+$border-strong:    #d8d3c9;  // inputs, secondary buttons, hover
+$divider:          #ede9e1;  // inside-card separators
+
+// -----------------------------------------------------------------------------
+// Colour — players
+// -----------------------------------------------------------------------------
+// Replaces the old blue/red 0.5rem borders. Purple is always the local player,
+// green is always the opponent, on every screen. Do not swap them per-seat: the
+// point is that "purple = me" holds even when you are player two.
+
+$p1-fill:          #e4d9f5;
+$p1-line:          #c6b4ec;
+$p1-ink:           #3c3489;
+$p1-solid:         #b99fe8;  // share-card squares
+
+$p2-fill:          #d6ead9;
+$p2-line:          #afcfb4;
+$p2-ink:           #27500a;
+$p2-solid:         #8fbf97;
+
+// -----------------------------------------------------------------------------
+// Colour — guess feedback (Guess Who, Connections validation)
+// -----------------------------------------------------------------------------
+// Deliberately not red/green: red/green is the single most common colour-blind
+// failure. Green vs amber vs neutral stays distinguishable for deuteranopia, and
+// the arrow glyphs carry the same information for anyone who can't see hue.
+
+$feedback-correct-fill: #d6ead9;
+$feedback-correct-ink:  #27500a;
+$feedback-partial-fill: #faeeda;
+$feedback-partial-ink:  #854f0b;
+$feedback-wrong-fill:   #ede9e1;
+$feedback-wrong-ink:    #6b6862;
+
+// -----------------------------------------------------------------------------
+// Colour — brand accent
+// -----------------------------------------------------------------------------
+// Used sparingly: the logo mark and nothing else. The moment gold appears in
+// buttons too, it stops reading as the brand.
+
+$brand-mark-bg:    #121212;
+$brand-mark-fg:    #f5d06f;
+
+// -----------------------------------------------------------------------------
+// Typography
+// -----------------------------------------------------------------------------
+
+$font-sans: 'Outfit', 'Segoe UI', system-ui, -apple-system, sans-serif;
+$font-mono: 'SFMono-Regular', Consolas, 'Liberation Mono', monospace;
+
+$text-xs:   11px;  // uppercase micro-labels
+$text-sm:   12px;  // counters, metadata
+$text-base: 13px;  // dense UI: tiles, table cells
+$text-md:   14px;  // buttons, body
+$text-lg:   15px;  // card titles
+$text-xl:   16px;  // panel titles
+$text-2xl:  20px;  // page titles
+$text-3xl:  24px;  // result screens
+$text-4xl:  30px;  // main menu wordmark
+
+$weight-regular: 400;
+$weight-medium:  500;
+$weight-bold:    600;  // nothing heavier: Outfit 700 gets muddy at small sizes
+
+$tracking-tight: -0.02em;  // display sizes, 20px and up
+$tracking-wide:   0.06em;  // uppercase micro-labels
+$tracking-code:   0.16em;  // game codes
+
+$leading-tight: 1.2;
+$leading-body:  1.6;
+
+// -----------------------------------------------------------------------------
+// Spacing
+// -----------------------------------------------------------------------------
+
+$space-1:  4px;
+$space-2:  6px;
+$space-3:  8px;
+$space-4:  10px;
+$space-5:  12px;
+$space-6:  14px;
+$space-7:  16px;
+$space-8:  20px;
+$space-9:  24px;
+$space-10: 32px;
+$space-11: 40px;
+
+// -----------------------------------------------------------------------------
+// Radius
+// -----------------------------------------------------------------------------
+
+$radius-sm:   6px;   // chips, swatches
+$radius-md:   8px;   // rule headers, small tiles
+$radius-lg:   10px;  // board cells, inputs
+$radius-xl:   14px;  // cards, panels
+$radius-pill: 999px; // buttons
+
+// -----------------------------------------------------------------------------
+// Elevation
+// -----------------------------------------------------------------------------
+// Flat theme: depth comes from borders, not shadows. The only shadow in the
+// system is for genuinely floating layers (dialogs, the champion picker).
+
+$shadow-overlay: 0 12px 32px rgba(18, 18, 18, 0.14);
+$scrim:          rgba(18, 18, 18, 0.35);
+
+// -----------------------------------------------------------------------------
+// Motion
+// -----------------------------------------------------------------------------
+
+$duration-fast: 120ms;
+$duration-base: 180ms;
+$ease-out: cubic-bezier(0.2, 0, 0, 1);
+
+// -----------------------------------------------------------------------------
+// Layout
+// -----------------------------------------------------------------------------
+
+$content-max:  720px;  // main menu, result screens
+$board-max:    400px;  // 3x3 board plus its rule headers
+$panel-max:    470px;  // Guess Who table, champion picker
+
+$breakpoint-mobile: 640px;
+
+@mixin below($width: $breakpoint-mobile) {
+  @media (max-width: $width) {
+    @content;
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Cursors
+// -----------------------------------------------------------------------------
+// The custom pixel cursors are the one piece of the old identity worth keeping:
+// they're a wink that costs nothing in readability.
+
+$cursor-default: url('/assets/cursor/normal.cur'), auto;
+$cursor-link:    url('/assets/cursor/link.cur'), pointer;
+$cursor-place:   url('/assets/cursor/extra_attack.cur'), pointer;

@@ -1,74 +1,320 @@
-body {
-  font-family: Arial, sans-serif;
-  background-color: #f0f0f0;
+// Palette follows the LoL client: deep navy canvas, hextech gold for structure,
+// teal for anything the player can act on.
+$navy: #0a1428;
+$card: rgba(4, 20, 40, 0.72);
+$gold: #c8aa6e;
+$gold-line: rgba(200, 170, 110, 0.3);
+$teal: #0ac8b9;
+$teal-soft: #9fe1cb;
+$teal-line: rgba(159, 225, 203, 0.22);
+$ink: #04342c;
+$link-cursor: url('/assets/cursor/link.cur'), auto;
+
+.menu-screen {
+  position: relative;
+  min-height: 100vh;
   display: flex;
-  justify-content: center;
   align-items: center;
-  height: 100vh;
-  margin: 0;
-}
-
-.child-component {
-  margin-right: 20px; /* Adjust the value to set the desired space */
-}
-
-/* If you want space on the left side of the first child component */
-.child-component:first-child {
-  margin-left: 20px; /* Adjust the value to set the desired space */
-}
-
-.button-container {
-  display: flex;
   justify-content: center;
-  align-items: center;
-  margin-top: 25%;
-  padding-inline: 5px;
+  overflow: hidden;
+  background: $navy;
 }
 
-.button-container button {
-  padding: 10px 20px;
-  margin: 0 10px;
-  font-size: 16px;
-  background-color: #007bff;
-  color: #fff;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.button-container button:first-child {
-  margin-left: 0;
-}
-
-.button-container button:last-child {
-  margin-right: 0;
-}
-
-///////
-/// 
-/// 
-/// 
-/// 
-
-
-
-.designer {
+// The pixel Rift art stays as identity, but blurred and dimmed so the menu on top
+// of it stays readable. Negative inset hides the soft edge the blur leaves behind.
+.menu-bg {
   position: absolute;
-  bottom: 2px;
-  right: 10px;
-  color: black;
-  font-family: "MyFont";
-  font-size: small;
+  inset: -24px;
+  background: url('/assets/photos/bg.jpg') center / cover no-repeat;
+  filter: blur(6px);
+  opacity: 0.3;
 }
 
-::ng-deep .designer, ::ng-deep .designer a {
-  cursor: url('/assets/cursor/link.cur'), auto;
+.menu-scrim {
+  position: absolute;
+  inset: 0;
+  background: rgba(4, 20, 40, 0.55);
+}
+
+.menu-content {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 48px 24px 32px;
+  box-sizing: border-box;
+}
+
+/* ------------------- header ------------------- */
+
+.menu-header {
+  text-align: center;
+  margin-bottom: 28px;
 }
 
 #banner {
-  width: 40%;
-  height: 40%;
+  display: block;
+  width: 100%;
+  max-width: 340px;
+  height: auto;
+  margin: 0 auto;
+}
+
+.tagline {
+  margin: 12px 0 0;
+  font-family: "MyFont";
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: $teal-soft;
+}
+
+/* ------------------- Triple Kill hero card ------------------- */
+
+.hero-card {
+  background: $card;
+  border: 1px solid $gold-line;
+  border-radius: 12px;
+  padding: 20px;
+}
+
+.hero-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.hero-title {
+  margin: 0;
+  font-family: "MyFont";
+  font-size: 20px;
+  font-weight: normal;
+  color: $gold;
+}
+
+.hero-badge {
+  flex: none;
+  font-family: "MyFont";
+  font-size: 11px;
+  color: $gold;
+  border: 1px solid rgba(200, 170, 110, 0.5);
+  border-radius: 999px;
+  padding: 5px 12px;
+}
+
+.hero-sub {
+  margin: 8px 0 18px;
+  font-size: 14px;
+  color: $teal-soft;
+}
+
+.hero-actions {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+/* ------------------- buttons ------------------- */
+
+.menu-btn {
+  font-family: "MyFont";
+  font-size: 15px;
+  padding: 14px 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(159, 225, 203, 0.45);
+  background: transparent;
+  color: $teal-soft;
+  cursor: $link-cursor;
+  transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
+
+  &:hover {
+    background: rgba(10, 200, 185, 0.14);
+    border-color: $teal;
+  }
+
+  &:active {
+    transform: translateY(2px);
+  }
+
+  &.primary {
+    background: $teal;
+    border-color: $teal;
+    color: $ink;
+
+    &:hover {
+      background: #1adcce;
+    }
+  }
+}
+
+/* ------------------- more games ------------------- */
+
+.section-label {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 26px 0 12px;
+
+  span {
+    font-family: "MyFont";
+    font-size: 12px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: $gold;
+  }
+
+  i {
+    flex: 1;
+    height: 1px;
+    background: rgba(200, 170, 110, 0.28);
+  }
+}
+
+.game-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.game-card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  text-align: left;
+  background: $card;
+  border: 1px solid $teal-line;
+  border-radius: 12px;
+  padding: 16px;
+  cursor: $link-cursor;
+  transition: border-color 0.15s ease, transform 0.15s ease;
+
+  &:hover {
+    border-color: rgba(10, 200, 185, 0.6);
+    transform: translateY(-2px);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+
+  &__head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  &__title {
+    font-family: "MyFont";
+    font-size: 14px;
+    color: #e1f5ee;
+  }
+
+  &__sub {
+    font-size: 13px;
+    color: $teal-soft;
+  }
+
+  mat-icon {
+    color: $teal;
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+  }
+}
+
+/* ------------------- footer ------------------- */
+
+.menu-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 26px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(159, 225, 203, 0.16);
+}
+
+.link-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: 0;
+  padding: 0;
+  font-family: "MyFont";
+  font-size: 14px;
+  color: $teal-soft;
+  cursor: $link-cursor;
+
+  &:hover {
+    color: $teal;
+  }
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+}
+
+.designer {
+  font-family: "MyFont";
+  font-size: 12px;
+  color: rgba(159, 225, 203, 0.6);
+
+  a {
+    color: inherit;
+    text-decoration: none;
+
+    &:hover {
+      color: $teal;
+    }
+  }
+}
+
+::ng-deep .designer,
+::ng-deep .designer a {
+  cursor: $link-cursor;
+}
+
+/* ------------------- spinner ------------------- */
+
+.menu-spinner {
   position: absolute;
-  top: 90px;
-  right: 30%;
+  inset: 0;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ------------------- responsive ------------------- */
+
+@media (max-width: 640px) {
+  .menu-content {
+    padding: 32px 16px 24px;
+  }
+
+  #banner {
+    max-width: 250px;
+  }
+
+  .hero-actions,
+  .game-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .hero-head {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .menu-footer {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
 }

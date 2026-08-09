@@ -1,29 +1,71 @@
-<img src="/assets/photos/banner.png" id="banner">
+<div class="menu-screen">
+  <div class="menu-bg" aria-hidden="true"></div>
+  <div class="menu-scrim" aria-hidden="true"></div>
 
-<div class="button-container" [ngStyle]="backgroundOverlay()">
-  <app-pixel-button class="child-component" [buttonName]="'Create Game'" (notify)="createGame()"></app-pixel-button>
-  <app-pixel-button class="child-component" [buttonName]="'Join Game'" (notify)="openJoinGameModal()"></app-pixel-button>
-  <app-pixel-button class="child-component" [buttonName]="'Find Match'" (notify)="findMatch()"></app-pixel-button>
-  <app-pixel-button class="child-component" [buttonName]="'Connections'" (notify)="openConnectionsPage()"></app-pixel-button>
-  <app-pixel-button class="child-component" [buttonName]="'Guess Who'" (notify)="openGuessWhoPage()"></app-pixel-button>
+  <div class="menu-content" [ngStyle]="backgroundOverlay()">
+
+    <header class="menu-header">
+      <img src="/assets/photos/banner.png" alt="Triple Kill" id="banner">
+      <p class="tagline">League of Legends puzzle arena</p>
+    </header>
+
+    <section class="hero-card">
+      <div class="hero-head">
+        <h1 class="hero-title">Triple Kill</h1>
+        <span class="hero-badge">1v1 online</span>
+      </div>
+      <p class="hero-sub">Line up three champions in a row</p>
+
+      <div class="hero-actions">
+        <button type="button" class="menu-btn primary" (click)="createGame()">Create Game</button>
+        <button type="button" class="menu-btn" (click)="openJoinGameModal()">Join Game</button>
+        <button type="button" class="menu-btn" (click)="findMatch()">Find Match</button>
+      </div>
+    </section>
+
+    <div class="section-label">
+      <span>More games</span>
+      <i></i>
+    </div>
+
+    <div class="game-grid">
+      <button type="button" class="game-card" (click)="openConnectionsPage()">
+        <span class="game-card__head">
+          <mat-icon>grid_view</mat-icon>
+          <span class="game-card__title">Connections</span>
+        </span>
+        <span class="game-card__sub">Four groups of four &middot; solo</span>
+      </button>
+
+      <button type="button" class="game-card" (click)="openGuessWhoPage()">
+        <span class="game-card__head">
+          <mat-icon>help_outline</mat-icon>
+          <span class="game-card__title">Guess Who</span>
+        </span>
+        <span class="game-card__sub">Find the champion &middot; solo</span>
+      </button>
+    </div>
+
+    <footer class="menu-footer">
+      <button type="button" class="link-btn" (click)="openInfoPage()">
+        <mat-icon>menu_book</mat-icon>
+        How to play
+      </button>
+      <span class="designer">by <a href="https://github.com/fthgcr">Fatih GOCER</a></span>
+    </footer>
+
+  </div>
+
+  <div *ngIf="spinner" class="menu-spinner">
+    <mat-spinner></mat-spinner>
+  </div>
 </div>
 
-<div [ngStyle]="backgroundOverlay()" >
-  <app-pixel-button class="child-component" [buttonName]="'How to Play'" (notify)="openInfoPage()" style="margin-top: 15% !important;"></app-pixel-button>
-  
-</div>
-
-
-<div *ngIf="spinner" style="display: flex; justify-content: center; align-items: center; ">
-  <mat-spinner></mat-spinner>
-</div>
-
+<!-- Kept outside .menu-screen on purpose: .modal-dialog is position:absolute with
+     inset 0, so it must resolve against the viewport, not against the (relatively
+     positioned, taller-than-viewport on mobile) menu screen. -->
 <a #openModal href="#user-modal" style="visibility: hidden;"></a>
 
 <div #userModal id="user-modal" class="modal-dialog">
   <app-user-name-dialog (notify)="joinGame($event)"></app-user-name-dialog>
-</div>
-
-<div class="designer">
-  by <a href="https://github.com/fthgcr">Fatih GOCER</a>
 </div>

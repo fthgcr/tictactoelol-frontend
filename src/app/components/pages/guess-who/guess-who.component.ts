@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { GuessWhoService } from '../../../services/guess-who.service';
 import { GuessWhoChampion, GuessWhoPuzzle } from '../../../models/GuessWhoPuzzle';
@@ -19,6 +19,7 @@ interface GuessRow {
   imgFailed: boolean;
   correct: boolean;
   cells: GuessCell[];
+  animate: boolean; // true while the tiles are flipping open
 }
 
 // Persisted result of a finished daily puzzle (one entry, overwritten each day).
@@ -31,7 +32,13 @@ interface DailyResult {
 }
 
 const DAILY_RESULT_KEY = 'guesswho_daily_result';
-const COLUMNS = ['Gender', 'Role', 'Melee/Ranged', 'Region', 'Resource', 'Difficulty', 'Year'];
+const COLUMNS = ['Gender', 'Role', 'Range', 'Region', 'Resource', 'Difficulty', 'Year'];
+
+// Tile reveal animation timings; must stay in sync with the SCSS keyframes.
+const REVEAL_STAGGER_MS = 110; // gap between two neighbouring tiles
+const REVEAL_TILE_MS = 520;    // duration of a single tile flip
+const REVEAL_TOTAL_MS = (COLUMNS.length - 1) * REVEAL_STAGGER_MS + REVEAL_TILE_MS;
+
 const FEEDBACK_EMOJIS: Record<Feedback, string> = {
   correct: '\u{1F7E9}', // green
   partial: '\u{1F7E7}', // orange
@@ -43,7 +50,7 @@ const FEEDBACK_EMOJIS: Record<Feedback, string> = {
   templateUrl: './guess-who.component.html',
   styleUrl: './guess-who.component.scss',
 })
-export class GuessWhoComponent implements OnInit {
+export class GuessWhoComponent implements OnInit, OnDestroy {
 
   columns: string[] = COLUMNS;
 
@@ -57,6 +64,8 @@ export class GuessWhoComponent implements OnInit {
   suggestions: GuessWhoChampion[] = [];
   gameOver: boolean = false;
   won: boolean = false;
+  // True while the newest row's tiles are still flipping open; input is locked.
+  revealing: boolean = false;
   message: String = '';
   answerImgUrl: String = '';
   answerImgFailed: boolean = false;
@@ -64,6 +73,7 @@ export class GuessWhoComponent implements OnInit {
   dailyResult: DailyResult | null = null;
   private emojiRows: string[] = []; // oldest first, for sharing
   private messageTimeout: any;
+  private revealTimeout: any;
 
   constructor(
     private guessWhoService: GuessWhoService,
@@ -74,6 +84,11 @@ export class GuessWhoComponent implements OnInit {
     this.newGame();
   }
 
+  ngOnDestroy(): void {
+    clearTimeout(this.messageTimeout);
+    clearTimeout(this.revealTimeout);
+  }
+
   switchMode(mode: 'daily' | 'unlimited'): void {
     if (this.mode === mode && !this.loadFailed) return;
     this.mode = mode;
@@ -81,6 +96,8 @@ export class GuessWhoComponent implements OnInit {
   }
 
   newGame(): void {
+    clearTimeout(this.revealTimeout);
+    this.revealing = false;
     this.loading = true;
     this.loadFailed = false;
     this.puzzle = null;
@@ -103,7 +120,7 @@ export class GuessWhoComponent implements OnInit {
     request.subscribe({
       next: (puzzle) => {
         this.puzzle = puzzle;
-        this.answerImgUrl = Utils.default.placeImageURL(this.normalizeChampionName(puzzle.answer));
+        this.answerImgUrl = Utils.default.championImageURL(puzzle.answer);
         if (this.mode === 'daily') {
           const saved = this.loadDailyResult();
           if (saved && puzzle.puzzleId && saved.puzzleId === puzzle.puzzleId) {
@@ -145,7 +162,7 @@ export class GuessWhoComponent implements OnInit {
   }
 
   guessChampion(champion: GuessWhoChampion): void {
-    if (!this.puzzle || this.gameOver || this.guessedNames.has(champion.name)) return;
+    if (!this.puzzle || this.gameOver || this.revealing || this.guessedNames.has(champion.name)) return;
 
     this.guessedNames.add(champion.name);
     this.searchText = '';
@@ -158,13 +175,29 @@ export class GuessWhoComponent implements OnInit {
     this.guesses.unshift(row); // newest on top
     this.emojiRows.push(row.cells.map((cell) => FEEDBACK_EMOJIS[cell.feedback]).join(''));
 
-    if (row.correct) {
-      this.finishGame(true);
-    }
+    this.startReveal(row);
+  }
+
+  // Plays the staggered tile flip, then hands over to the end-of-game logic.
+  private startReveal(row: GuessRow): void {
+    this.revealing = true;
+    clearTimeout(this.revealTimeout);
+    this.revealTimeout = setTimeout(() => {
+      row.animate = false;
+      this.revealing = false;
+      if (row.correct) {
+        this.finishGame(true);
+      }
+    }, REVEAL_TOTAL_MS);
+  }
+
+  // Per-tile delay so the traits open one after another, left to right.
+  revealDelayMs(index: number): number {
+    return index * REVEAL_STAGGER_MS;
   }
 
   giveUp(): void {
-    if (this.gameOver) return;
+    if (this.gameOver || this.revealing) return;
     this.finishGame(false);
   }
 
@@ -180,10 +213,11 @@ export class GuessWhoComponent implements OnInit {
     ];
     return {
       name: guess.name,
-      imgUrl: Utils.default.placeImageURL(this.normalizeChampionName(guess.name)),
+      imgUrl: Utils.default.championImageURL(guess.name),
       imgFailed: false,
       correct: guess.name === answer.name,
       cells: cells,
+      animate: true,
     };
   }
 
@@ -289,17 +323,8 @@ export class GuessWhoComponent implements OnInit {
     }, 2500);
   }
 
-  // Same Data Dragon name normalization the game board uses.
-  private normalizeChampionName(champ: string): string {
-    let modified = champ.replaceAll(/\s/g, '').replaceAll(/'/g, '').replaceAll(/\./g, '');
-    if (champ.includes("'")) {
-      modified = modified.charAt(0).toUpperCase() + modified.slice(1).toLowerCase();
-    }
-    return modified;
-  }
-
   suggestionImgUrl(champion: GuessWhoChampion): String {
-    return Utils.default.placeImageURL(this.normalizeChampionName(champion.name));
+    return Utils.default.championImageURL(champion.name);
   }
 
   onImgError(row: GuessRow): void {

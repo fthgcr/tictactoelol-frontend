@@ -15,11 +15,42 @@ export const PNG_URL = 'https://ddragon.leagueoflegends.com/cdn/14.3.1/img/champ
 export const PNG_BORDER = "border: 0.5rem solid ";
 export const SPLASH_URL = 'https://ddragon.leagueoflegends.com/cdn/img/champion/splash/';
 
+// Champions whose Data Dragon image key cannot be derived from the display name
+// by stripping spaces/apostrophes/dots. Verified against Data Dragon 14.3.1.
+export const CHAMPION_IMAGE_KEY_OVERRIDES: Record<string, string> = {
+  "leblanc": "Leblanc",
+  "wukong": "MonkeyKing",
+  "kog'maw": "KogMaw",
+  "rek'sai": "RekSai",
+  "k'sante": "KSante",
+  "nunu & willump": "Nunu",
+  "renata glasc": "Renata",
+};
 
 
 export default class Utils {
   static placeImageURL(val: String) : String {
     return PNG_URL + val + ".png";
+  }
+
+  // Display name -> Data Dragon image key ("Cho'Gath" -> "Chogath", "Wukong" -> "MonkeyKing").
+  // Single source of truth: every screen that renders a champion portrait uses this.
+  static championImageKey(champ: String) : String {
+    const name = String(champ ?? '').trim();
+    const override = CHAMPION_IMAGE_KEY_OVERRIDES[name.toLowerCase()];
+    if (override) {
+      return override;
+    }
+    let modified = name.replaceAll(/\s/g, '').replaceAll(/'/g, '').replaceAll(/\./g, '');
+    if (name.includes("'")) {
+      modified = modified.charAt(0).toUpperCase() + modified.slice(1).toLowerCase();
+    }
+    return modified;
+  }
+
+  // Convenience: display name straight to a portrait URL.
+  static championImageURL(champ: String) : String {
+    return Utils.placeImageURL(Utils.championImageKey(champ));
   }
 
   static placeSplashURL(val: String) : String {

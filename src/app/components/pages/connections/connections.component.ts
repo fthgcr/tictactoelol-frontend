@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { ConnectionsService } from '../../../services/connections.service';
 import { ConnectionsGroup, ConnectionsPuzzle } from '../../../models/ConnectionsPuzzle';
@@ -33,7 +33,7 @@ const GROUP_EMOJIS = ['\u{1F7E8}', '\u{1F7E9}', '\u{1F7E6}', '\u{1F7EA}']; // ma
   templateUrl: './connections.component.html',
   styleUrl: './connections.component.scss',
 })
-export class ConnectionsComponent implements OnInit {
+export class ConnectionsComponent implements OnInit, OnDestroy {
 
   static readonly MAX_MISTAKES = 4;
 
@@ -49,9 +49,12 @@ export class ConnectionsComponent implements OnInit {
   won: boolean = false;
   message: String = '';
   guessRows: string[] = [];
+  // Briefly true after a wrong guess so the selected tiles can shake.
+  shaking: boolean = false;
   // Set when today's daily was already finished; shows the summary instead of the board.
   dailyResult: DailyResult | null = null;
   private messageTimeout: any;
+  private shakeTimeout: any;
 
   constructor(
     private connectionsService: ConnectionsService,
@@ -81,6 +84,8 @@ export class ConnectionsComponent implements OnInit {
     this.message = '';
     this.guessRows = [];
     this.dailyResult = null;
+    clearTimeout(this.shakeTimeout);
+    this.shaking = false;
 
     const request = this.mode === 'daily'
       ? this.connectionsService.dailyPuzzle()
@@ -118,21 +123,12 @@ export class ConnectionsComponent implements OnInit {
         tiles.push({
           name: name,
           groupIndex: groupIndex,
-          imgUrl: Utils.default.placeImageURL(this.normalizeChampionName(name)),
+          imgUrl: Utils.default.championImageURL(name),
           imgFailed: false,
         });
       });
     });
     this.tiles = this.shuffleArray(tiles);
-  }
-
-  // Same Data Dragon name normalization the game board uses.
-  private normalizeChampionName(champ: string): string {
-    let modified = champ.replaceAll(/\s/g, '').replaceAll(/'/g, '').replaceAll(/\./g, '');
-    if (champ.includes("'")) {
-      modified = modified.charAt(0).toUpperCase() + modified.slice(1).toLowerCase();
-    }
-    return modified;
   }
 
   private shuffleArray<T>(array: T[]): T[] {
@@ -185,6 +181,7 @@ export class ConnectionsComponent implements OnInit {
       }
     } else {
       this.mistakesLeft--;
+      this.shakeSelection();
       if (this.mistakesLeft <= 0) {
         this.revealRemainingGroups();
         this.finishGame(false);
@@ -192,6 +189,14 @@ export class ConnectionsComponent implements OnInit {
         this.showMessage(bestMatch === 3 ? 'One away...' : 'Wrong guess!');
       }
     }
+  }
+
+  private shakeSelection(): void {
+    this.shaking = true;
+    clearTimeout(this.shakeTimeout);
+    this.shakeTimeout = setTimeout(() => {
+      this.shaking = false;
+    }, 600);
   }
 
   private finishGame(won: boolean): void {
@@ -265,6 +270,11 @@ export class ConnectionsComponent implements OnInit {
     });
   }
 
+  ngOnDestroy(): void {
+    clearTimeout(this.messageTimeout);
+    clearTimeout(this.shakeTimeout);
+  }
+
   private showMessage(text: String): void {
     this.message = text;
     if (this.messageTimeout) {
@@ -280,8 +290,18 @@ export class ConnectionsComponent implements OnInit {
     return rule.replace(' : ', ': ');
   }
 
-  mistakeDots(): number[] {
-    return Array.from({ length: this.mistakesLeft }, (_, index) => index);
+  // One entry per allowed mistake; true = still available, false = already spent.
+  // Showing the spent ones too makes the remaining budget easier to read at a glance.
+  mistakeDots(): boolean[] {
+    return Array.from(
+      { length: ConnectionsComponent.MAX_MISTAKES },
+      (_, index) => index < this.mistakesLeft
+    );
+  }
+
+  // Shown inside a tile when Data Dragon has no portrait for that champion.
+  tileInitial(name: string): string {
+    return (name ?? '?').trim().charAt(0).toUpperCase();
   }
 
   onImgError(tile: ConnectionsTile): void {

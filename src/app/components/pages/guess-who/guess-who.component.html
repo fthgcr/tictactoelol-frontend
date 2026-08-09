@@ -1,91 +1,112 @@
 <div class="guess-who-page">
 
-  <div class="header">
-    <h1>LoL Guess Who</h1>
-    <p class="subtitle">Guess the secret champion! Each guess reveals which traits match.</p>
-    <div class="mode-toggle">
-      <button [class.active]="mode === 'daily'" (click)="switchMode('daily')">Daily</button>
-      <button [class.active]="mode === 'unlimited'" (click)="switchMode('unlimited')">Unlimited</button>
-    </div>
-    <p class="daily-label" *ngIf="mode === 'daily' && puzzle?.puzzleId">Champion of {{ puzzle?.puzzleId }}</p>
-  </div>
+  <div class="panel">
 
-  <div *ngIf="loading" class="center-box">
-    <mat-spinner></mat-spinner>
-  </div>
-
-  <div *ngIf="loadFailed" class="center-box">
-    <p>Could not load a puzzle. The server may be waking up.</p>
-    <app-pixel-button [buttonName]="'Retry'" (notify)="newGame()"></app-pixel-button>
-  </div>
-
-  <div *ngIf="!loading && !loadFailed" class="board">
-
-    <!-- Guess input -->
-    <div class="search-box" *ngIf="!gameOver">
-      <input
-        type="text"
-        placeholder="Type a champion name..."
-        [(ngModel)]="searchText"
-        (ngModelChange)="onSearchChange()"
-        (keyup.enter)="submitFirstSuggestion()" />
-      <div class="suggestions" *ngIf="suggestions.length > 0">
-        <button *ngFor="let champion of suggestions" (click)="guessChampion(champion)">
-          <img [src]="suggestionImgUrl(champion)" alt="" />
-          <span>{{ champion.name }}</span>
-        </button>
+    <div class="header">
+      <h1>LoL Guess Who</h1>
+      <p class="subtitle">Guess the secret champion! Each guess reveals which traits match.</p>
+      <div class="mode-toggle">
+        <button [class.active]="mode === 'daily'" (click)="switchMode('daily')">Daily</button>
+        <button [class.active]="mode === 'unlimited'" (click)="switchMode('unlimited')">Unlimited</button>
       </div>
+      <p class="daily-label" *ngIf="mode === 'daily' && puzzle?.puzzleId">Champion of {{ puzzle?.puzzleId }}</p>
     </div>
 
-    <div class="message" [class.visible]="message !== ''">{{ message }}</div>
+    <div *ngIf="loading" class="center-box">
+      <mat-spinner></mat-spinner>
+    </div>
 
-    <!-- Guesses -->
-    <div class="guess-table" *ngIf="guesses.length > 0">
-      <div class="guess-header">
-        <div class="cell champ-cell">Champion</div>
-        <div class="cell" *ngFor="let column of columns">{{ column }}</div>
-      </div>
-      <div class="guess-row" *ngFor="let row of guesses">
-        <div class="cell champ-cell" [class.correct]="row.correct">
-          <img *ngIf="!row.imgFailed" [src]="row.imgUrl" (error)="onImgError(row)" alt="" />
-          <span>{{ row.name }}</span>
-        </div>
-        <div class="cell tile {{ cell.feedback }}" *ngFor="let cell of row.cells">
-          <span>{{ cell.value }}</span>
-          <span class="arrow" *ngIf="cell.arrow === 'up'">&#9650;</span>
-          <span class="arrow" *ngIf="cell.arrow === 'down'">&#9660;</span>
+    <div *ngIf="loadFailed" class="center-box">
+      <p>Could not load a puzzle. The server may be waking up.</p>
+      <app-pixel-button [buttonName]="'Retry'" (notify)="newGame()"></app-pixel-button>
+    </div>
+
+    <div *ngIf="!loading && !loadFailed" class="board">
+
+      <!-- Guess input -->
+      <div class="search-box" *ngIf="!gameOver">
+        <input
+          type="text"
+          placeholder="Type a champion name..."
+          [disabled]="revealing"
+          [(ngModel)]="searchText"
+          (ngModelChange)="onSearchChange()"
+          (keyup.enter)="submitFirstSuggestion()" />
+        <div class="suggestions" *ngIf="suggestions.length > 0">
+          <button *ngFor="let champion of suggestions" (click)="guessChampion(champion)">
+            <img [src]="suggestionImgUrl(champion)" alt="" />
+            <span>{{ champion.name }}</span>
+          </button>
         </div>
       </div>
-    </div>
 
-    <div class="guess-count" *ngIf="guesses.length > 0 && !gameOver">
-      Guesses: {{ guesses.length }}
-    </div>
-
-    <div class="action-row" *ngIf="!gameOver && guesses.length > 0">
-      <app-pixel-button [buttonName]="'Give Up'" (notify)="giveUp()"></app-pixel-button>
-    </div>
-
-    <!-- Game over -->
-    <div class="game-over-box" *ngIf="gameOver">
-      <div class="game-over-text" [class.win]="won">
-        {{ won ? 'You Won !' : 'You Lose !' }}
-      </div>
-      <div class="answer-reveal">
-        <img *ngIf="!answerImgFailed" [src]="answerImgUrl" (error)="answerImgFailed = true" alt="" />
-        <span>The champion was <b>{{ dailyResult ? dailyResult.answer : puzzle?.answer }}</b></span>
+      <!-- Legend: explains the tile colours -->
+      <div class="legend" *ngIf="!gameOver">
+        <span><i class="swatch correct"></i>Exact match</span>
+        <span><i class="swatch partial"></i>Partly right</span>
+        <span><i class="swatch wrong"></i>No match</span>
+        <span><i class="swatch hint">&#9650;</i>Answer is higher</span>
       </div>
 
-      <!-- Finished daily: summary with shareable emoji grid -->
-      <div class="daily-summary" *ngIf="mode === 'daily' && dailyResult">
-        <div class="emoji-grid">
-          <div *ngFor="let row of dailyResult.guessRows">{{ row }}</div>
+      <div class="message" [class.visible]="message !== ''">{{ message }}</div>
+
+      <!-- Guesses -->
+      <div class="table-scroll" *ngIf="guesses.length > 0">
+        <div class="guess-table">
+          <div class="guess-header">
+            <div class="cell champ-cell">Champion</div>
+            <div class="cell" *ngFor="let column of columns">{{ column }}</div>
+          </div>
+          <div class="guess-row"
+               *ngFor="let row of guesses"
+               [class.revealing]="row.animate"
+               [class.win-row]="row.correct && !row.animate">
+            <div class="cell champ-cell" [class.correct]="row.correct">
+              <img *ngIf="!row.imgFailed" [src]="row.imgUrl" (error)="onImgError(row)" alt="" />
+              <span>{{ row.name }}</span>
+            </div>
+            <div class="cell tile {{ cell.feedback }}"
+                 *ngFor="let cell of row.cells; index as i"
+                 [class.flip]="row.animate"
+                 [style.animation-delay.ms]="revealDelayMs(i)">
+              <span class="tile-value">{{ cell.value }}</span>
+              <span class="arrow" *ngIf="cell.arrow === 'up'">&#9650;</span>
+              <span class="arrow" *ngIf="cell.arrow === 'down'">&#9660;</span>
+            </div>
+          </div>
         </div>
-        <p class="come-back">Come back tomorrow for a new champion!</p>
-        <app-pixel-button [buttonName]="'Share'" (notify)="shareResult()"></app-pixel-button>
       </div>
 
-      <app-pixel-button *ngIf="mode === 'unlimited'" [buttonName]="'New Game'" (notify)="newGame()"></app-pixel-button>
+      <div class="guess-count" *ngIf="guesses.length > 0 && !gameOver">
+        Guesses: {{ guesses.length }}
+      </div>
+
+      <div class="action-row" *ngIf="!gameOver && guesses.length > 0">
+        <app-pixel-button [buttonName]="'Give Up'" (notify)="giveUp()"></app-pixel-button>
+      </div>
+
+      <!-- Game over -->
+      <div class="game-over-box" *ngIf="gameOver">
+        <div class="game-over-text" [class.win]="won">
+          {{ won ? 'You Won !' : 'You Lose !' }}
+        </div>
+        <div class="answer-reveal">
+          <img *ngIf="!answerImgFailed" [src]="answerImgUrl" (error)="answerImgFailed = true" alt="" />
+          <span>The champion was <b>{{ dailyResult ? dailyResult.answer : puzzle?.answer }}</b></span>
+        </div>
+
+        <!-- Finished daily: summary with shareable emoji grid -->
+        <div class="daily-summary" *ngIf="mode === 'daily' && dailyResult">
+          <div class="emoji-grid">
+            <div *ngFor="let row of dailyResult.guessRows">{{ row }}</div>
+          </div>
+          <p class="come-back">Come back tomorrow for a new champion!</p>
+          <app-pixel-button [buttonName]="'Share'" (notify)="shareResult()"></app-pixel-button>
+        </div>
+
+        <app-pixel-button *ngIf="mode === 'unlimited'" [buttonName]="'New Game'" (notify)="newGame()"></app-pixel-button>
+      </div>
+
     </div>
 
   </div>
