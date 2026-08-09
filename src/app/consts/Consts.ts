@@ -9,6 +9,7 @@ import { GameSessionRequest } from "../models/GameSessionRequest";
 // is now fully server-authoritative and cannot be pushed from a client.
 export const WS_SIGNAL_HEALTH_CHECK = -1; // ask the server to re-broadcast its state
 export const WS_SIGNAL_SKIP_TURN = -3;    // current player's timer ran out
+export const WS_SIGNAL_REPLAY = -4;       // rematch: reset the session for both players
 
 export const PNG_URL = 'https://ddragon.leagueoflegends.com/cdn/14.3.1/img/champion/';
 export const PNG_BORDER = "border: 0.5rem solid ";

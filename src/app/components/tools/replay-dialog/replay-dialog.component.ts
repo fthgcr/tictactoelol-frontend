@@ -8,7 +8,6 @@ import {
   transition,
 } from '@angular/animations';
 import { Router } from '@angular/router';
-import { SessionService } from '../../../services/session.service';
 
 @Component({
   selector: 'app-replay-dialog',
@@ -25,8 +24,7 @@ export class ReplayDialogComponent implements OnInit{
 
   constructor(@Inject(MAT_DIALOG_DATA) public gameId: String,
   private ref: MatDialogRef<ReplayDialogComponent>,
-  private router: Router,
-  private sessionService: SessionService){}
+  private router: Router){}
 
   public stateAnimate: boolean;
 
@@ -34,11 +32,12 @@ export class ReplayDialogComponent implements OnInit{
     this.stateAnimate = true;
   }
 
+  // The rematch itself is handled by GameComponent, which sends it over the websocket
+  // so the server resets the one shared session and both players are told about it.
+  // This dialog used to call the HTTP endpoint and navigate away on its own, which
+  // recreated the session for one player only - and deleted it for the other.
   replay(){
-    this.sessionService.replaySession(this.gameId).subscribe((response) => {
-      this.ref.close();
-      this.router.navigate(['/gam', this.gameId]);
-    })
+    this.ref.close('replay');
   }
 
   quit(){

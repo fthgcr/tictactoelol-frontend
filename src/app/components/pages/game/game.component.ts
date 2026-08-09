@@ -2,7 +2,7 @@ import { Component, ElementRef, OnDestroy, OnInit, Renderer2, TemplateRef, ViewC
 import { ActivatedRoute, Router } from '@angular/router';
 import { GetIpService } from '../../../services/get-ip.service';
 import { SessionService } from '../../../services/session.service';
-import { MatDialog } from '@angular/material/dialog';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { InputDialogComponent } from '../../tools/input-dialog/input-dialog.component';
 import { ImageGame } from '../../../models/ImageGame';
 import * as Utils from '../../../consts/Consts';
@@ -40,6 +40,10 @@ export class GameComponent implements OnInit, OnDestroy {
   private intervalSubscription: Subscription;
   private routeSubscription: Subscription;
   private styleElement: HTMLStyleElement;
+  // Status of the round we have already reacted to. Keeps the score to one point per
+  // finished game and lets a rematch (finished -> active) be detected.
+  private handledGameStatus: number = -1;
+  private gameOverDialogRef?: MatDialogRef<ReplayDialogComponent>;
 
   constructor(
     private route: ActivatedRoute,
@@ -150,35 +154,61 @@ export class GameComponent implements OnInit, OnDestroy {
       .getMessageSubject()
       .subscribe((messages: any) => {
         if(Array.isArray(messages) && messages.length > 0){
-          this.gameModel = messages[messages.length - 1 ];
+          // The server answers with an empty body when the session is gone (for example
+          // swept by the TTL job); there is nothing to render from that.
+          const latest = messages[messages.length - 1];
+          if(!latest){
+            return;
+          }
+          const previousStatus = this.handledGameStatus;
+          this.gameModel = latest;
+          const status = this.gameModel.gameStatus;
+
+          // A finished round turning active again means a rematch was started - by us or
+          // by the opponent - so clear everything the previous round left on screen.
+          if(previousStatus !== -1 && status === -1){
+            this.startNewRound();
+          }
 
           // Game status is fully server-authoritative: -1 active, 0/1 winner, 2 draw.
-          if(this.gameModel.gameStatus === 2){
-            this.gameOverText = "Draw !";
-            this.openGameOverDialog();
-          } else if(this.gameModel.gameStatus !== -1){
-            if(this.gameModel.gameStatus === this.player){
+          // Only the move into a finished state is handled. Later broadcasts on an
+          // already finished session (health checks, a late skip signal, the opponent's
+          // replay request) must not score again or stack a second dialog.
+          if(status !== -1 && previousStatus === -1){
+            if(status === 2){
+              this.gameOverText = "Draw !";
+            } else if(status === this.player){
               this.scoreBoardService.updateScoreBoard(this.gameId, true);
               this.gameOverText = "You Won !";
             } else {
               this.scoreBoardService.updateScoreBoard(this.gameId, false);
               this.gameOverText = "You Lose !";
             }
+            this.stopInterval();
             this.openGameOverDialog();
           }
+          this.handledGameStatus = status;
 
-          //Set Rules Init
-          if(messages.length < 2) {
-             this.rules = this.gameModel.gameRule.split(',');
-          } else {
-            if(this.player !== this.gameModel.turn && Utils.default.areArraysEqual(this.gameModel.playAreaArray, messages[messages.length - 2 ].playAreaArray) && this.timer > 0 && this.gameModel.gameStatus === -1){
-              this.callSnackBar("Your answer is wrong! Your Opponent's Turn.", 2500);
-            } else if(this.player !== this.gameModel.turn && Utils.default.areArraysEqual(this.gameModel.playAreaArray, messages[messages.length - 2 ].playAreaArray) && this.timer < 1){
-              this.callSnackBar("Time is up! Your Opponent's Turn.", 2500);
+          // Rules are regenerated for every rematch, so they are read from each session
+          // rather than only from the first message.
+          if(this.gameModel.gameRule){
+            this.rules = this.gameModel.gameRule.split(',');
+          }
+
+          // A wrong answer is "the turn moved on but the board did not". Requiring the
+          // turn to have actually changed keeps echoes of the same state - health checks
+          // and rematch broadcasts - from firing a bogus message.
+          if(messages.length >= 2 && status === -1) {
+            const previous = messages[messages.length - 2];
+            const boardUnchanged = Utils.default.areArraysEqual(this.gameModel.playAreaArray, previous.playAreaArray);
+            const turnMoved = previous.turn !== this.gameModel.turn;
+            if(this.player !== this.gameModel.turn && boardUnchanged && turnMoved){
+              this.callSnackBar(this.timer > 0 ? "Your answer is wrong! Your Opponent's Turn."
+                                               : "Time is up! Your Opponent's Turn.", 2500);
             }
           }
-          //Change Turn
-          this.isTurn = this.player === this.gameModel.turn;
+          //Change Turn - never our turn once the round is over
+          this.isTurn = status === -1 && this.player === this.gameModel.turn;
           if(this.isTurn) {
             this.changeBackground(false);
             this.resetInterval();
@@ -318,12 +348,19 @@ export class GameComponent implements OnInit, OnDestroy {
   startInterval(): void {
     this.intervalSubscription = interval(1000).subscribe(() => {
       this.timer -= 1;
-      if(this.timer === 0){
+      // Closing the champion picker on timeout must not also close the game over dialog.
+      if(this.timer === 0 && this.gameModel.gameStatus === -1){
         this.matDialog.closeAll();
       }
       if(this.timer < -1){
-         // Ask the server to skip our turn; it validates that we really are the turn holder.
-         this.sessionService.playArea(this.gameId, Utils.default.gameSessionToPlayRequest(this.gameModel, this.gameSessionRequest.playerIp, Utils.WS_SIGNAL_SKIP_TURN, ""));
+        if(this.gameModel.gameStatus !== -1 || !this.isTurn){
+          // Round is over, or the turn already moved on: there is nothing left to skip.
+          // Without this the loser's timer kept firing skip signals once per second.
+          this.stopInterval();
+          return;
+        }
+        // Ask the server to skip our turn; it validates that we really are the turn holder.
+        this.sessionService.playArea(this.gameId, Utils.default.gameSessionToPlayRequest(this.gameModel, this.gameSessionRequest.playerIp, Utils.WS_SIGNAL_SKIP_TURN, ""));
       }
     });
   }
@@ -361,11 +398,32 @@ export class GameComponent implements OnInit, OnDestroy {
 
   //Replay Section
   openGameOverDialog(){
-    const dialogRef = this.matDialog.open(ReplayDialogComponent, {
+    // Guard against a second dialog stacking on top of the first one.
+    if(this.gameOverDialogRef){
+      return;
+    }
+    this.gameOverDialogRef = this.matDialog.open(ReplayDialogComponent, {
       panelClass:'icon-outside',
       data: this.gameId
     });
+    this.gameOverDialogRef.afterClosed().subscribe((result: any) => {
+      this.gameOverDialogRef = undefined;
+      if(result === 'replay'){
+        // The rematch is a server-side reset broadcast to both players, so the
+        // opponent's board resets at the same moment ours does.
+        this.sessionService.playArea(this.gameId, Utils.default.gameSessionToPlayRequest(this.gameModel, this.gameSessionRequest.playerIp, Utils.WS_SIGNAL_REPLAY, ""));
+      }
+    });
+  }
 
+  // Clears everything the finished round left behind before the new one is rendered.
+  private startNewRound(){
+    if(this.gameOverDialogRef){
+      this.gameOverDialogRef.close();
+    }
+    this.gameOverText = "";
+    this.setGameAreaEmpty();
+    this.timer = 30;
   }
 
   //Confirm Exit Game

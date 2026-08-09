@@ -23,12 +23,14 @@ export class ScoreBoardService {
     }
   }
 
+  // getScoreBoard() creates the entry on demand, so an unknown gameId here would
+  // otherwise blow up on scoreBoard[-1].
   updateScoreBoard(gameId : String, isPlayer : boolean) {
-    var index = this.scoreBoard.findIndex(score => score.gameId === gameId);
+    const score = this.getScoreBoard(gameId);
     if (isPlayer){
-        this.scoreBoard[index].user++;
+        score.user++;
     } else {
-        this.scoreBoard[index].opponent++;
+        score.opponent++;
     }
   }
 
