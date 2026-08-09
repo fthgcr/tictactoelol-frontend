@@ -27,7 +27,6 @@ import { HowToPlayComponent } from './components/pages/how-to-play/how-to-play.c
 import { MatCardModule } from '@angular/material/card';
 import { ChampionsOverviewComponent } from './champions-overview/champions-overview.component';
 import { ReplayDialogComponent } from './components/tools/replay-dialog/replay-dialog.component';
-import { DummyComponent } from './components/pages/dummy/dummy.component';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
 import { FindMatchComponent } from './components/pages/find-match/find-match.component';
@@ -45,7 +44,6 @@ import { GuessWhoComponent } from './components/pages/guess-who/guess-who.compon
     HowToPlayComponent,
     ChampionsOverviewComponent,
     ReplayDialogComponent,
-    DummyComponent,
     FindMatchComponent,
     ConnectionsComponent,
     GuessWhoComponent

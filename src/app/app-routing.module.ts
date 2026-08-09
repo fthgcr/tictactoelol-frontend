@@ -4,7 +4,6 @@ import { MainMenuComponent } from './components/pages/main-menu/main-menu.compon
 import { GameComponent } from './components/pages/game/game.component';
 import { HowToPlayComponent } from './components/pages/how-to-play/how-to-play.component';
 import { InputDialogComponent } from './components/tools/input-dialog/input-dialog.component';
-import { DummyComponent } from './components/pages/dummy/dummy.component';
 import { ConnectionsComponent } from './components/pages/connections/connections.component';
 import { GuessWhoComponent } from './components/pages/guess-who/guess-who.component';
 
@@ -20,10 +19,6 @@ const routes: Routes = [
   {
     path: 'game/:gameId',
     component: GameComponent,
-  },
-  {
-    path: 'gam/:gameId',
-    component: DummyComponent,
   },
   {
     path: 'howto',
