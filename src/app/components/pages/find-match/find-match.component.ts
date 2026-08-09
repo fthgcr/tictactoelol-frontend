@@ -109,7 +109,7 @@ export class FindMatchComponent implements OnInit, OnDestroy {
   }
 
   quitSession() {
-    this.sessionService.quitSession(this.gameModel.uid ?? -1).subscribe();
+    this.sessionService.quitSession(this.gameModel.uid ?? -1, this.username).subscribe();
   }
 
   redirectGame(timeoutMiliSeconds: number) {

@@ -32,13 +32,18 @@
         <mat-icon class="icon-display">info</mat-icon>
       </button>
 
-        <div *ngIf="(!isTurn || !this.gameModel.secondPlayer) && this.gameModel.gameStatus === -1" class="spinner">
+        <div *ngIf="!isSpectator && (!isTurn || !this.gameModel.secondPlayer) && this.gameModel.gameStatus === -1" class="spinner">
         <div class="loading__bar"></div> <br>
         <h4>Waiting for opponent</h4>
-      </div>  
+      </div>
 
       <div class="spinner" *ngIf="(isTurn && this.gameModel.secondPlayer) && this.gameModel.gameStatus === -1">
-        <span class="breathe">Your Turn !</span> 
+        <span class="breathe">Your Turn !</span>
+      </div>
+
+      <!-- Watchers: the seats are taken, so show whose turn it is instead of "waiting". -->
+      <div class="spinner" *ngIf="isSpectator && this.gameModel.gameStatus === -1">
+        <span class="breathe">Spectating &mdash; Player {{ this.gameModel.turn + 1 }}'s turn</span>
       </div>
 
       <div class="spinner" *ngIf="this.gameModel.gameStatus !== -1">
@@ -87,7 +92,7 @@
         <app-user-name-dialog></app-user-name-dialog>
     </div>
 
-    <div class="scoreBoard" *ngIf="this.gameModel.secondPlayer">
+    <div class="scoreBoard" *ngIf="this.gameModel.secondPlayer && !isSpectator">
       <h3 class="scoreBoardText">You : {{scoreBoard.user}} - {{scoreBoard.opponent}} : Opponent</h3>
     </div>
 

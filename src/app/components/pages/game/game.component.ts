@@ -120,11 +120,30 @@ export class GameComponent implements OnInit, OnDestroy {
     });
   }
 
+  // 0 = first player, 1 = second player, -1 = spectator. Derived from our own id
+  // rather than from "is there a second player yet", which used to demote the host
+  // to player 1 whenever they reloaded a game that had already been joined - and
+  // handed anyone opening the link a player seat that the server would not honour.
+  private resolvePlayer(){
+    const me = this.gameSessionRequest.playerIp;
+    if(me && this.gameModel.firstPlayer === me){
+      this.player = 0;
+    } else if(me && this.gameModel.secondPlayer === me){
+      this.player = 1;
+    } else {
+      this.player = -1;
+    }
+  }
+
+  get isSpectator(): boolean {
+    return this.player === -1;
+  }
+
   getMatchmaking(){
     this.sessionService.healthCheckSession(this.gameSessionRequest).subscribe(gameSession => {
       this.gameModel = gameSession;
       setTimeout(() => {
-        this.player = this.gameModel.secondPlayer === this.gameSessionRequest.playerIp ? 1 : 0;
+        this.resolvePlayer();
         this.isTurn = this.player === this.gameModel.turn;
         if(this.gameModel.secondPlayer && this.gameModel.secondPlayer === this.gameSessionRequest.playerIp){
           this.sessionService.playArea(this.gameId, Utils.default.gameSessionToPlayRequest(this.gameModel, this.gameSessionRequest.playerIp, Utils.WS_SIGNAL_HEALTH_CHECK, ""));
@@ -138,7 +157,7 @@ export class GameComponent implements OnInit, OnDestroy {
       const tempModel = Utils.default.setPlayAreaArray(response, this.gameModel);
       if(tempModel && tempModel.uid){
         this.gameModel = tempModel;
-        this.player = this.gameModel.secondPlayer ? 1 : 0;
+        this.resolvePlayer();
         setTimeout(() => {
           if(this.gameModel.secondPlayer){
             this.sessionService.playArea(this.gameId, Utils.default.gameSessionToPlayRequest(this.gameModel, this.gameSessionRequest.playerIp, Utils.WS_SIGNAL_HEALTH_CHECK, ""));
@@ -162,6 +181,10 @@ export class GameComponent implements OnInit, OnDestroy {
           }
           const previousStatus = this.handledGameStatus;
           this.gameModel = latest;
+          // Re-read our seat from every session: someone who arrives while the two
+          // seats are still filling can legitimately become a player, and everyone
+          // after that stays a spectator.
+          this.resolvePlayer();
           const status = this.gameModel.gameStatus;
 
           // A finished round turning active again means a rematch was started - by us or
@@ -177,6 +200,9 @@ export class GameComponent implements OnInit, OnDestroy {
           if(status !== -1 && previousStatus === -1){
             if(status === 2){
               this.gameOverText = "Draw !";
+            } else if(this.isSpectator){
+              // Neutral wording: "You Won" means nothing to someone who is watching.
+              this.gameOverText = `Player ${status + 1} Wins !`;
             } else if(status === this.player){
               this.scoreBoardService.updateScoreBoard(this.gameId, true);
               this.gameOverText = "You Won !";
@@ -185,7 +211,11 @@ export class GameComponent implements OnInit, OnDestroy {
               this.gameOverText = "You Lose !";
             }
             this.stopInterval();
-            this.openGameOverDialog();
+            // Spectators see the result banner but get no Replay/Quit prompt - only the
+            // two players may start a rematch, and the server enforces that as well.
+            if(!this.isSpectator){
+              this.openGameOverDialog();
+            }
           }
           this.handledGameStatus = status;
 
@@ -250,9 +280,11 @@ export class GameComponent implements OnInit, OnDestroy {
   placeImage(index: number, champ: String) {
     this.images[index].source = Utils.default.championImageURL(champ);
     this.images[index].isOpen = false;
-    // Border color comes from server-side cell ownership (blue = mine, red = opponent).
+    // Border color comes from server-side cell ownership. For a player blue is their
+    // own; a spectator has no side, so blue is simply the first player.
     const owner = this.gameModel.cellOwnersArray ? this.gameModel.cellOwnersArray[index] : undefined;
-    this.images[index].style = Utils.default.placePngBorder(owner === String(this.player) ? 0 : 1);
+    const blueSide = this.isSpectator ? 0 : this.player;
+    this.images[index].style = Utils.default.placePngBorder(owner === String(blueSide) ? 0 : 1);
   }
 
   setGameAreaEmpty() {
@@ -493,7 +525,8 @@ export class GameComponent implements OnInit, OnDestroy {
   }
 
   setCursorCondition(condition: boolean, index : number){
-    if(this.images[index].source === "" && condition){
+    // Nothing is clickable when it is not our turn, so do not advertise it as such.
+    if(this.images[index].source === "" && condition && this.isTurn){
       this.isCursorPointer = true;
     } else {
       this.isCursorPointer = false;

@@ -40,12 +40,14 @@ export class SessionService {
     return this.http.post<any>(`${environment.apiURL}/session/healthCheckSession`, sessionRequest);
   }
 
-  replaySession(gameId : String): Observable<any>{
-    return this.http.get<any>(`${environment.apiURL}/session/replaySession/${gameId}`);
-  }
+  // No replaySession() here on purpose: a rematch goes through the websocket replay
+  // signal, which carries the sender's id so only the two players can trigger it.
 
-  quitSession(sessionId : number): Observable<any>{
-    return this.http.delete<any>(`${environment.apiURL}/session/quitSession/${sessionId}`);
+  // playerId is required: the server only drops a seat its own occupant asks it to.
+  quitSession(sessionId : number, playerId : String): Observable<any>{
+    return this.http.delete<any>(`${environment.apiURL}/session/quitSession/${sessionId}`, {
+      params: { playerId: playerId.toString() }
+    });
   }
 
   // Keep only a short tail of messages. The game logic only ever looks at the
