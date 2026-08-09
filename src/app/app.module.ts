@@ -30,6 +30,8 @@ import { ReplayDialogComponent } from './components/tools/replay-dialog/replay-d
 import { DummyComponent } from './components/pages/dummy/dummy.component';
 import { MatDialogModule } from '@angular/material/dialog';
 import { FindMatchComponent } from './components/pages/find-match/find-match.component';
+import { ConnectionsComponent } from './components/pages/connections/connections.component';
+import { GuessWhoComponent } from './components/pages/guess-who/guess-who.component';
 
 @NgModule({
   declarations: [
@@ -43,7 +45,9 @@ import { FindMatchComponent } from './components/pages/find-match/find-match.com
     ChampionsOverviewComponent,
     ReplayDialogComponent,
     DummyComponent,
-    FindMatchComponent
+    FindMatchComponent,
+    ConnectionsComponent,
+    GuessWhoComponent
   ],
   imports: [
     BrowserModule,

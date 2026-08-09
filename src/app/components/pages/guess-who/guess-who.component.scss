@@ -1,0 +1,286 @@
+.guess-who-page {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 1rem;
+  text-align: center;
+}
+
+.header {
+  h1 {
+    margin: 0.5rem 0 0.25rem;
+  }
+
+  .subtitle {
+    margin: 0 0 1rem;
+    opacity: 0.8;
+  }
+
+  .mode-toggle {
+    display: inline-flex;
+    border: 2px solid #4b6584;
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 0.5rem;
+
+    button {
+      font: inherit;
+      font-weight: bold;
+      padding: 0.4rem 1.2rem;
+      border: none;
+      background: #efefe6;
+      color: #1a1a1a;
+      cursor: pointer;
+
+      &.active {
+        background: #4b6584;
+        color: #ffffff;
+      }
+    }
+  }
+
+  .daily-label {
+    margin: 0 0 0.5rem;
+    font-size: 0.85rem;
+    opacity: 0.8;
+  }
+}
+
+.center-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 3rem;
+}
+
+.board {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.search-box {
+  position: relative;
+  width: 100%;
+  max-width: 380px;
+
+  input {
+    width: 100%;
+    box-sizing: border-box;
+    font: inherit;
+    padding: 0.6rem 0.8rem;
+    border: 2px solid #4b6584;
+    border-radius: 8px;
+    background: #efefe6;
+    color: #1a1a1a;
+
+    &:focus {
+      outline: none;
+      border-color: #2c3e50;
+    }
+  }
+
+  .suggestions {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    z-index: 20;
+    background: #efefe6;
+    border: 2px solid #4b6584;
+    border-top: none;
+    border-radius: 0 0 8px 8px;
+    overflow: hidden;
+
+    button {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      width: 100%;
+      font: inherit;
+      padding: 0.35rem 0.8rem;
+      border: none;
+      background: transparent;
+      color: #1a1a1a;
+      cursor: pointer;
+      text-align: left;
+
+      &:hover {
+        background: #d8d8c8;
+      }
+
+      img {
+        width: 32px;
+        height: 32px;
+        border-radius: 4px;
+      }
+    }
+  }
+}
+
+.message {
+  min-height: 1.4rem;
+  font-weight: bold;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+
+  &.visible {
+    opacity: 1;
+  }
+}
+
+.guess-table {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+
+  .guess-header,
+  .guess-row {
+    display: grid;
+    grid-template-columns: 1.4fr repeat(7, 1fr);
+    gap: 0.35rem;
+  }
+
+  .guess-header .cell {
+    font-size: 0.75rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    padding-bottom: 0.15rem;
+    border-bottom: 2px solid #4b6584;
+  }
+
+  .cell {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.15rem;
+    padding: 0.35rem 0.2rem;
+    font-size: 0.8rem;
+    word-break: break-word;
+  }
+
+  .champ-cell {
+    flex-direction: row;
+    gap: 0.4rem;
+    font-weight: bold;
+
+    img {
+      width: 36px;
+      height: 36px;
+      border-radius: 4px;
+    }
+
+    &.correct {
+      color: #1e7d32;
+    }
+  }
+
+  .tile {
+    border-radius: 6px;
+    color: #ffffff;
+    font-weight: bold;
+
+    &.correct {
+      background: #43a047;
+    }
+
+    &.partial {
+      background: #ef6c00;
+    }
+
+    &.wrong {
+      background: #c62828;
+    }
+
+    .arrow {
+      font-size: 0.7rem;
+    }
+  }
+}
+
+.guess-count {
+  font-size: 0.85rem;
+  opacity: 0.8;
+}
+
+.action-row {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
+}
+
+.game-over-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+
+  .game-over-text {
+    font-size: 1.3rem;
+    font-weight: bold;
+    color: #c62828;
+
+    &.win {
+      color: #1e7d32;
+    }
+  }
+
+  .answer-reveal {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+
+    img {
+      width: 48px;
+      height: 48px;
+      border-radius: 6px;
+      border: 2px solid #4b6584;
+    }
+  }
+}
+
+.daily-summary {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+
+  .emoji-grid {
+    font-size: 1.2rem;
+    line-height: 1.5;
+  }
+
+  .come-back {
+    margin: 0;
+    font-size: 0.9rem;
+    opacity: 0.8;
+  }
+}
+
+.home-row {
+  margin-top: 1.5rem;
+}
+
+@media (max-width: 600px) {
+  .guess-table {
+    .guess-header,
+    .guess-row {
+      grid-template-columns: 1.2fr repeat(7, 1fr);
+      gap: 0.2rem;
+    }
+
+    .cell {
+      font-size: 0.6rem;
+      padding: 0.25rem 0.1rem;
+    }
+
+    .champ-cell img {
+      width: 24px;
+      height: 24px;
+    }
+  }
+}

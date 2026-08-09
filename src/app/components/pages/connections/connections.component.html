@@ -1,0 +1,83 @@
+<div class="connections-page">
+
+  <div class="header">
+    <h1>LoL Connections</h1>
+    <p class="subtitle">Create four groups of four champions that share a hidden trait!</p>
+    <div class="mode-toggle">
+      <button [class.active]="mode === 'daily'" (click)="switchMode('daily')">Daily</button>
+      <button [class.active]="mode === 'unlimited'" (click)="switchMode('unlimited')">Unlimited</button>
+    </div>
+    <p class="daily-label" *ngIf="mode === 'daily' && puzzle?.puzzleId">Puzzle of {{ puzzle?.puzzleId }}</p>
+  </div>
+
+  <div *ngIf="loading" class="center-box">
+    <mat-spinner></mat-spinner>
+  </div>
+
+  <div *ngIf="loadFailed" class="center-box">
+    <p>Could not load a puzzle. The server may be waking up.</p>
+    <app-pixel-button [buttonName]="'Retry'" (notify)="newGame()"></app-pixel-button>
+  </div>
+
+  <div *ngIf="!loading && !loadFailed" class="board">
+
+    <div *ngFor="let group of solvedGroups" class="solved-group color-{{group.colorIndex}}">
+      <div class="solved-rule">{{ formatRule(group.rule) }}</div>
+      <div class="solved-champs">{{ group.champions.join(', ') }}</div>
+    </div>
+
+    <div class="tile-grid" *ngIf="tiles.length > 0">
+      <button
+        *ngFor="let tile of tiles"
+        class="tile"
+        [class.selected]="isSelected(tile)"
+        (click)="toggleTile(tile)">
+        <img *ngIf="!tile.imgFailed" [src]="tile.imgUrl" (error)="onImgError(tile)" alt="" />
+        <span>{{ tile.name }}</span>
+      </button>
+    </div>
+
+    <div class="status-row" *ngIf="!gameOver">
+      <span class="mistakes-label">Mistakes remaining:</span>
+      <span class="dot" *ngFor="let dot of mistakeDots()"></span>
+    </div>
+
+    <div class="message" [class.visible]="message !== ''">{{ message }}</div>
+
+    <div class="action-row" *ngIf="!gameOver">
+      <app-pixel-button [buttonName]="'Shuffle'" (notify)="shuffleTiles()"></app-pixel-button>
+      <app-pixel-button [buttonName]="'Deselect'" (notify)="deselectAll()"></app-pixel-button>
+      <app-pixel-button [buttonName]="'Submit'" (notify)="submitGuess()"
+        [class.disabled-button]="selected.length !== 4"></app-pixel-button>
+    </div>
+
+    <!-- Finished daily: summary with shareable emoji grid -->
+    <div class="daily-summary" *ngIf="gameOver && mode === 'daily' && dailyResult">
+      <div class="game-over-text" [class.win]="dailyResult.won">
+        {{ dailyResult.won ? 'You Won !' : 'You Lose !' }}
+      </div>
+      <div class="emoji-grid">
+        <div *ngFor="let row of dailyResult.guessRows">{{ row }}</div>
+      </div>
+      <p class="come-back">Come back tomorrow for a new daily puzzle!</p>
+      <div class="action-row">
+        <app-pixel-button [buttonName]="'Share'" (notify)="shareResult()"></app-pixel-button>
+        <app-pixel-button [buttonName]="'Play Unlimited'" (notify)="switchMode('unlimited')"></app-pixel-button>
+        <app-pixel-button [buttonName]="'Main Menu'" (notify)="redirectHomePage()"></app-pixel-button>
+      </div>
+    </div>
+
+    <!-- Finished unlimited: instant replay -->
+    <div class="action-row" *ngIf="gameOver && mode === 'unlimited'">
+      <div class="game-over-text" [class.win]="won">{{ won ? 'You Won !' : 'You Lose !' }}</div>
+      <app-pixel-button [buttonName]="'New Puzzle'" (notify)="newGame()"></app-pixel-button>
+      <app-pixel-button [buttonName]="'Main Menu'" (notify)="redirectHomePage()"></app-pixel-button>
+    </div>
+
+  </div>
+
+  <div class="back-link" *ngIf="!gameOver">
+    <a (click)="redirectHomePage()">&larr; Main Menu</a>
+  </div>
+
+</div>

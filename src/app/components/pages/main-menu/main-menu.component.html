@@ -4,6 +4,8 @@
   <app-pixel-button class="child-component" [buttonName]="'Create Game'" (notify)="createGame()"></app-pixel-button>
   <app-pixel-button class="child-component" [buttonName]="'Join Game'" (notify)="openJoinGameModal()"></app-pixel-button>
   <app-pixel-button class="child-component" [buttonName]="'Find Match'" (notify)="findMatch()"></app-pixel-button>
+  <app-pixel-button class="child-component" [buttonName]="'Connections'" (notify)="openConnectionsPage()"></app-pixel-button>
+  <app-pixel-button class="child-component" [buttonName]="'Guess Who'" (notify)="openGuessWhoPage()"></app-pixel-button>
 </div>
 
 <div [ngStyle]="backgroundOverlay()" >

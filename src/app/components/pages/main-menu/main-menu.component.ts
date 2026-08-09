@@ -8,6 +8,7 @@ import { PixelButtonComponent } from '../../tools/pixel-button/pixel-button.comp
 import { MatDialog } from '@angular/material/dialog';
 import { UserNameDialogComponent } from '../../tools/user-name-dialog/user-name-dialog.component';
 import { FindMatchComponent } from '../find-match/find-match.component';
+import { SessionService } from '../../../services/session.service';
 
 @Component({
   selector: 'app-main-menu',
@@ -17,9 +18,10 @@ import { FindMatchComponent } from '../find-match/find-match.component';
 })
 export class MainMenuComponent{
   @ViewChild('openModal') openModal: ElementRef;
-  constructor(private getipService: GetIpService, 
+  constructor(private getipService: GetIpService,
     private router: Router,
-    private matDialog: MatDialog) {}
+    private matDialog: MatDialog,
+    private sessionService: SessionService) {}
 
   private gameId: String = '';
   spinner: boolean = false;
@@ -30,8 +32,18 @@ export class MainMenuComponent{
   }
 
   createGame() {
-    //localStorage.setItem('UserName', event);
-    this.openGamePage(this.getipService.generateRandomString(8) + this.getDayInfo());
+    // Game id is generated server-side so the backend owns id format/uniqueness.
+    this.changeSpinner();
+    this.sessionService.generateGameId().subscribe({
+      next: (gameId) => {
+        this.gameId = gameId;
+        this.changeSpinner();
+        this.router.navigate(['/game', this.gameId]);
+      },
+      error: () => {
+        this.changeSpinner();
+      }
+    });
   }
 
   openGamePage(gameId : String){
@@ -74,6 +86,14 @@ export class MainMenuComponent{
 
   openInfoPage(){
     this.router.navigate(['/howto']);
+  }
+
+  openConnectionsPage(){
+    this.router.navigate(['/connections']);
+  }
+
+  openGuessWhoPage(){
+    this.router.navigate(['/guesswho']);
   }
 
   findMatch(){
