@@ -156,6 +156,34 @@ p {
 .header {
   color: white;
   background-color: #4b658496;
+}
+
+// Rule labels used to sit inside a <p>, which the global "display: ruby" rule
+// above turns into a single inline flow - <br> is ignored there, so the value
+// only dropped to a second line when the text happened to overflow the cell.
+// A dedicated column keeps every header identical: name on top, value below.
+.rule {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  text-align: center;
+  font-family: "MyFont";
+  letter-spacing: .1rem;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
+.rule-name {
+  font-size: 0.95rem;
+  color: black;
+}
+
+.rule-value {
+  font-size: 1.05rem;
+  color: white;
 
   //background-image: linear-gradient(to bottom, rgba(130, 230, 223, 0.336), rgba(242, 255, 254, 0));
 }
