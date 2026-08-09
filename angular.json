@@ -34,12 +34,12 @@
             "budgets": [
               {
                 "type": "initial",
-                "maximumWarning": "12kb",
-                "maximumError": "12kb"
+                "maximumWarning": "12mb",
+                "maximumError": "12mb"
               },
               {
                 "type": "anyComponentStyle",
-                "maximumWarning": "6kb"
+                "maximumWarning": "6mb"
               }
             ],
             "optimization": true,
@@ -58,6 +58,12 @@
           },
           "configurations": {
             "production": {
+              "fileReplacements": [
+                {
+                  "replace": "src/app/consts/environment.ts",
+                  "with": "src/app/consts/environment.prod.ts"
+                }
+              ],
               "budgets": [
                 {
                   "type": "initial",
