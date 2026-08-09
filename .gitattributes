@@ -1,0 +1,4 @@
+# Normalize all text files to LF in the repository.
+# Working copies keep the platform native ending (CRLF on Windows),
+# so line endings never show up as spurious changes again.
+* text=auto
