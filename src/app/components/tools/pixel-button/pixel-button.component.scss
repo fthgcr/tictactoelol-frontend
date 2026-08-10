@@ -76,6 +76,10 @@
     height: 50%;
     top: 25%;
     margin-top: 1%;
+    /* The button face is always white, so the label has to be dark no matter where the
+       button is dropped. Without this it inherited the surrounding text colour and went
+       invisible on the dark Connections and Guess Who panels. */
+    color: black;
   }
   
   a {
