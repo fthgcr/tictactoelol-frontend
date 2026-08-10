@@ -43,7 +43,7 @@
 
       <!-- Watchers: the seats are taken, so show whose turn it is instead of "waiting". -->
       <div class="spinner" *ngIf="isSpectator && this.gameModel.gameStatus === -1">
-        <span class="breathe">Spectating &mdash; Player {{ this.gameModel.turn + 1 }}'s turn</span>
+        <span class="breathe">Spectating &mdash; Player {{ currentTurnLabel }}'s turn</span>
       </div>
 
       <div class="spinner" *ngIf="this.gameModel.gameStatus !== -1">

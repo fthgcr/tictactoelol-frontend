@@ -139,6 +139,12 @@ export class GameComponent implements OnInit, OnDestroy {
     return this.player === -1;
   }
 
+  // 1-based seat number for the spectator banner. turn is optional on the DTO, so the
+  // arithmetic lives here rather than in the template, where strictTemplates rejects it.
+  get currentTurnLabel(): number {
+    return (this.gameModel.turn ?? 0) + 1;
+  }
+
   getMatchmaking(){
     this.sessionService.healthCheckSession(this.gameSessionRequest).subscribe(gameSession => {
       this.gameModel = gameSession;
