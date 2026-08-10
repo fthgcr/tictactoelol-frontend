@@ -13,6 +13,9 @@ export class GameSessionDTO {
     cellOwnersArray: String[] | undefined;
     gameRule: String;
     gameStatus: number = -1;
+    // Set by the server when the game ended without being played out - currently only
+    // 'OPPONENT_LEFT', when the turn watchdog handed the win to the remaining player.
+    endReason: String | undefined;
 
     constructor(secondPlayer = null){};
 }

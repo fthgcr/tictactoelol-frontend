@@ -204,14 +204,18 @@ export class GameComponent implements OnInit, OnDestroy {
           // already finished session (health checks, a late skip signal, the opponent's
           // replay request) must not score again or stack a second dialog.
           if(status !== -1 && previousStatus === -1){
+            // The server ends a game whose player stopped answering, so say why rather
+            // than claiming a win nobody played for.
+            const opponentLeft = this.gameModel.endReason === 'OPPONENT_LEFT';
             if(status === 2){
               this.gameOverText = "Draw !";
             } else if(this.isSpectator){
               // Neutral wording: "You Won" means nothing to someone who is watching.
-              this.gameOverText = `Player ${status + 1} Wins !`;
+              this.gameOverText = opponentLeft ? `Player ${status === 0 ? 2 : 1} left — Player ${status + 1} Wins !`
+                                               : `Player ${status + 1} Wins !`;
             } else if(status === this.player){
               this.scoreBoardService.updateScoreBoard(this.gameId, true);
-              this.gameOverText = "You Won !";
+              this.gameOverText = opponentLeft ? "Opponent left the game — You Win !" : "You Won !";
             } else {
               this.scoreBoardService.updateScoreBoard(this.gameId, false);
               this.gameOverText = "You Lose !";

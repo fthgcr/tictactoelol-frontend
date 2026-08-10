@@ -132,6 +132,9 @@ export default class Utils {
     
     gameSessionDTO.secondPlayer = gameSession.secondPlayer;
     gameSessionDTO.turn = gameSession.turn;
+    // Carried over so a player who reloads after the watchdog ended the game still
+    // reads why it ended, not just that they won.
+    gameSessionDTO.endReason = (gameSession as any).endReason;
 
     
     return gameSessionDTO;
