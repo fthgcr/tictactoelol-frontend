@@ -1,5 +1,19 @@
 /* You can add global styles to this file, and also import other style files */
 
+@use 'tokens' as *;
+@use 'ui' as *;
+
+// Shared button, defined once here rather than as a mixin in every component.
+// A mixin would inline the same ~1 kB of rules into each stylesheet that used it;
+// as a global class the definition ships once and every screen points at it.
+// Angular does not scope global styles, so components just apply the class.
+.btn {
+  @include btn;
+
+  &.is-primary { @include btn-primary; }
+  &.is-ghost   { @include btn-ghost; }
+}
+
 @font-face {
 	font-family: "MyFont";
 	src: url("assets/fonts/Minecraft.ttf") format("truetype");

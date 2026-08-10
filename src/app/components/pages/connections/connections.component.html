@@ -4,10 +4,10 @@
 
     <div class="header">
       <h1>LoL Connections</h1>
-      <p class="subtitle">Create four groups of four champions that share a hidden trait!</p>
+      <p class="subtitle">Create four groups of four champions that share a hidden trait</p>
       <div class="mode-toggle">
-        <button [class.active]="mode === 'daily'" (click)="switchMode('daily')">Daily</button>
-        <button [class.active]="mode === 'unlimited'" (click)="switchMode('unlimited')">Unlimited</button>
+        <button type="button" [class.active]="mode === 'daily'" (click)="switchMode('daily')">Daily</button>
+        <button type="button" [class.active]="mode === 'unlimited'" (click)="switchMode('unlimited')">Unlimited</button>
       </div>
       <p class="daily-label" *ngIf="mode === 'daily' && puzzle?.puzzleId">Puzzle of {{ puzzle?.puzzleId }}</p>
     </div>
@@ -18,7 +18,7 @@
 
     <div *ngIf="loadFailed" class="center-box">
       <p>Could not load a puzzle. The server may be waking up.</p>
-      <app-pixel-button [buttonName]="'Retry'" (notify)="newGame()"></app-pixel-button>
+      <button type="button" class="btn is-primary" (click)="newGame()">Retry</button>
     </div>
 
     <div *ngIf="!loading && !loadFailed" class="board">
@@ -30,6 +30,7 @@
 
       <div class="tile-grid" *ngIf="tiles.length > 0">
         <button
+          type="button"
           *ngFor="let tile of tiles"
           class="tile"
           [class.selected]="isSelected(tile)"
@@ -54,11 +55,9 @@
       <div class="message" [class.visible]="message !== ''">{{ message }}</div>
 
       <div class="action-row" *ngIf="!gameOver">
-        <app-pixel-button [buttonName]="'Shuffle'" (notify)="shuffleTiles()"></app-pixel-button>
-        <app-pixel-button [buttonName]="'Deselect'" (notify)="deselectAll()"
-          [class.disabled-button]="selected.length === 0"></app-pixel-button>
-        <app-pixel-button [buttonName]="'Submit'" (notify)="submitGuess()"
-          [class.disabled-button]="selected.length !== 4"></app-pixel-button>
+        <button type="button" class="btn is-ghost" (click)="shuffleTiles()">Shuffle</button>
+        <button type="button" class="btn is-ghost" [disabled]="selected.length === 0" (click)="deselectAll()">Deselect</button>
+        <button type="button" class="btn is-primary" [disabled]="selected.length !== 4" (click)="submitGuess()">Submit</button>
       </div>
 
       <!-- Finished daily: summary with shareable emoji grid -->
@@ -71,9 +70,9 @@
         </div>
         <p class="come-back">Come back tomorrow for a new daily puzzle!</p>
         <div class="action-row">
-          <app-pixel-button [buttonName]="'Share'" (notify)="shareResult()"></app-pixel-button>
-          <app-pixel-button [buttonName]="'Play Unlimited'" (notify)="switchMode('unlimited')"></app-pixel-button>
-          <app-pixel-button [buttonName]="'Main Menu'" (notify)="redirectHomePage()"></app-pixel-button>
+          <button type="button" class="btn is-primary" (click)="shareResult()">Share</button>
+          <button type="button" class="btn" (click)="switchMode('unlimited')">Play Unlimited</button>
+          <button type="button" class="btn is-ghost" (click)="redirectHomePage()">Main Menu</button>
         </div>
       </div>
 
@@ -81,8 +80,8 @@
       <div class="game-over-box" *ngIf="gameOver && mode === 'unlimited'">
         <div class="game-over-text" [class.win]="won">{{ won ? 'You Won !' : 'You Lose !' }}</div>
         <div class="action-row">
-          <app-pixel-button [buttonName]="'New Puzzle'" (notify)="newGame()"></app-pixel-button>
-          <app-pixel-button [buttonName]="'Main Menu'" (notify)="redirectHomePage()"></app-pixel-button>
+          <button type="button" class="btn is-primary" (click)="newGame()">New Puzzle</button>
+          <button type="button" class="btn is-ghost" (click)="redirectHomePage()">Main Menu</button>
         </div>
       </div>
 
@@ -91,7 +90,7 @@
   </div>
 
   <div class="back-link" *ngIf="!gameOver">
-    <a (click)="redirectHomePage()">&larr; Main Menu</a>
+    <button type="button" class="btn is-ghost" (click)="redirectHomePage()">&larr; Main Menu</button>
   </div>
 
 </div>

@@ -6,8 +6,8 @@
       <h1>LoL Guess Who</h1>
       <p class="subtitle">Guess the secret champion! Each guess reveals which traits match.</p>
       <div class="mode-toggle">
-        <button [class.active]="mode === 'daily'" (click)="switchMode('daily')">Daily</button>
-        <button [class.active]="mode === 'unlimited'" (click)="switchMode('unlimited')">Unlimited</button>
+        <button type="button" [class.active]="mode === 'daily'" (click)="switchMode('daily')">Daily</button>
+        <button type="button" [class.active]="mode === 'unlimited'" (click)="switchMode('unlimited')">Unlimited</button>
       </div>
       <p class="daily-label" *ngIf="mode === 'daily' && puzzle?.puzzleId">Champion of {{ puzzle?.puzzleId }}</p>
     </div>
@@ -18,7 +18,7 @@
 
     <div *ngIf="loadFailed" class="center-box">
       <p>Could not load a puzzle. The server may be waking up.</p>
-      <app-pixel-button [buttonName]="'Retry'" (notify)="newGame()"></app-pixel-button>
+      <button type="button" class="btn is-primary" (click)="newGame()">Retry</button>
     </div>
 
     <div *ngIf="!loading && !loadFailed" class="board">
@@ -82,7 +82,7 @@
       </div>
 
       <div class="action-row" *ngIf="!gameOver && guesses.length > 0">
-        <app-pixel-button [buttonName]="'Give Up'" (notify)="giveUp()"></app-pixel-button>
+        <button type="button" class="btn is-ghost" (click)="giveUp()">Give Up</button>
       </div>
 
       <!-- Game over -->
@@ -101,10 +101,10 @@
             <div *ngFor="let row of dailyResult.guessRows">{{ row }}</div>
           </div>
           <p class="come-back">Come back tomorrow for a new champion!</p>
-          <app-pixel-button [buttonName]="'Share'" (notify)="shareResult()"></app-pixel-button>
+          <button type="button" class="btn is-primary" (click)="shareResult()">Share</button>
         </div>
 
-        <app-pixel-button *ngIf="mode === 'unlimited'" [buttonName]="'New Game'" (notify)="newGame()"></app-pixel-button>
+        <button type="button" class="btn is-primary" *ngIf="mode === 'unlimited'" (click)="newGame()">New Game</button>
       </div>
 
     </div>
@@ -112,7 +112,7 @@
   </div>
 
   <div class="home-row">
-    <app-pixel-button [buttonName]="'Main Menu'" (notify)="redirectHomePage()"></app-pixel-button>
+    <button type="button" class="btn is-ghost" (click)="redirectHomePage()">Main Menu</button>
   </div>
 
 </div>

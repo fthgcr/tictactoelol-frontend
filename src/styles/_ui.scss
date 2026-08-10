@@ -1,0 +1,153 @@
+// =============================================================================
+// Triple Kill — shared UI mixins
+// =============================================================================
+// Angular scopes component styles, so a shared "button" cannot live as one
+// global class without leaking. These mixins are the next best thing: the look
+// is defined once here, and each component applies it to its own markup.
+//
+//   @use 'ui' as *;
+//   .action-btn { @include btn; }
+//   .action-btn.is-primary { @include btn-primary; }
+// =============================================================================
+
+@use 'tokens' as *;
+
+/// Base button: shape, type and interaction. Everything else layers on top.
+@mixin btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: $space-2;
+  min-height: 2.5rem;
+  padding: $space-3 $space-6;
+  border: 1px solid $line-strong;
+  border-radius: $radius-md;
+  background: $panel-sunken;
+  color: $ink;
+  font-family: $font-sans;
+  font-size: $text-base;
+  font-weight: $weight-medium;
+  line-height: 1;
+  letter-spacing: 0.01em;
+  cursor: $cursor-link;
+  transition: background $duration-fast $ease-out,
+              border-color $duration-fast $ease-out,
+              transform $duration-fast $ease-out;
+
+  &:hover:not(:disabled) {
+    background: $panel-raised;
+    border-color: $teal-line;
+  }
+
+  // The 1px nudge stands in for the pixel button's old press animation - enough
+  // feedback to feel physical, without the 20px drop shadow it used to fake.
+  &:active:not(:disabled) {
+    transform: translateY(1px);
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: $focus-ring;
+  }
+
+  &:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+}
+
+/// The one action a screen wants you to take. At most one per view.
+@mixin btn-primary {
+  background: $teal;
+  border-color: $teal;
+  color: $ink-on-accent;
+  font-weight: $weight-bold;
+
+  &:hover:not(:disabled) {
+    background: $teal-soft;
+    border-color: $teal-soft;
+  }
+}
+
+/// Quiet button for secondary or destructive-but-reversible actions
+/// (Give Up, Main Menu): visible, but never the loudest thing on screen.
+@mixin btn-ghost {
+  background: transparent;
+  border-color: $line-strong;
+  color: $ink-dim;
+
+  &:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.06);
+    color: $ink;
+  }
+}
+
+/// The frosted navy panel every screen sits on.
+@mixin panel {
+  background: $panel;
+  backdrop-filter: blur(10px) saturate(115%);
+  -webkit-backdrop-filter: blur(10px) saturate(115%);
+  border: 1px solid $panel-border;
+  border-radius: $radius-xl;
+  box-shadow: $shadow-panel;
+}
+
+/// Page title: the retro voice, used only at display size.
+@mixin display-title {
+  margin: 0;
+  font-family: $font-display;
+  font-size: $text-2xl;
+  font-weight: $weight-regular;
+  letter-spacing: $tracking-display;
+  line-height: $leading-tight;
+  color: $ink;
+  text-shadow: 0 3px 0 rgba(0, 0, 0, 0.55);
+}
+
+/// Small uppercase label above a group of things.
+@mixin micro-label {
+  font-family: $font-sans;
+  font-size: $text-xs;
+  font-weight: $weight-bold;
+  letter-spacing: $tracking-wide;
+  text-transform: uppercase;
+  color: $ink-muted;
+}
+
+/// Segmented Daily / Unlimited switch, shared by both solo games.
+@mixin segmented {
+  display: inline-flex;
+  padding: 3px;
+  border: 1px solid $line-strong;
+  border-radius: $radius-md;
+  background: $panel-sunken;
+
+  button {
+    appearance: none;
+    border: 0;
+    border-radius: calc(#{$radius-md} - 3px);
+    padding: $space-2 $space-6;
+    background: transparent;
+    color: $ink-dim;
+    font-family: $font-sans;
+    font-size: $text-sm;
+    font-weight: $weight-medium;
+    cursor: $cursor-link;
+    transition: background $duration-fast $ease-out, color $duration-fast $ease-out;
+
+    &:hover:not(.active) {
+      color: $ink;
+    }
+
+    &.active {
+      background: $teal;
+      color: $ink-on-accent;
+      font-weight: $weight-bold;
+    }
+
+    &:focus-visible {
+      outline: none;
+      box-shadow: $focus-ring;
+    }
+  }
+}
