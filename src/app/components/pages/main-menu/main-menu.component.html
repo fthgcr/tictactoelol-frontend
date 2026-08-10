@@ -61,9 +61,8 @@
   </div>
 </div>
 
-<!-- Kept outside .menu-screen on purpose: .modal-dialog is position:absolute with
-     inset 0, so it must resolve against the viewport, not against the (relatively
-     positioned, taller-than-viewport on mobile) menu screen. -->
+<!-- Kept outside .menu-screen on purpose: nesting it inside would trap the overlay in
+     the menu's stacking context, where .menu-content (z-index 1) paints over it. -->
 <a #openModal href="#user-modal" style="visibility: hidden;"></a>
 
 <div #userModal id="user-modal" class="modal-dialog">

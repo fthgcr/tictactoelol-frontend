@@ -61,11 +61,17 @@ html {
 .modal-dialog {
 	visibility: hidden;
 	opacity: 0;
-	position: absolute;
+	// Fixed, not absolute: an absolute overlay is pinned to the top of the document,
+	// so on a page taller than the viewport it opens somewhere off screen.
+	position: fixed;
 	top: 0;
 	right: 0;
 	bottom: 0;
 	left: 0;
+	// Must sit above the page's own positioned layers - the menu content is z-index 1
+	// and its spinner 5, and without a z-index here they painted over the modal and
+	// swallowed its clicks. Kept under 1000 so a Material CDK overlay still wins.
+	z-index: 900;
 	display: flex;
 	align-items: center;
 	justify-content: center;
