@@ -11,12 +11,19 @@ export const WS_SIGNAL_HEALTH_CHECK = -1; // ask the server to re-broadcast its 
 export const WS_SIGNAL_SKIP_TURN = -3;    // current player's timer ran out
 export const WS_SIGNAL_REPLAY = -4;       // rematch: reset the session for both players
 
-export const PNG_URL = 'https://ddragon.leagueoflegends.com/cdn/14.3.1/img/champion/';
+// Data Dragon releases are immutable snapshots, so this version has to be new enough
+// to contain every champion in the game's data set. It was pinned at 14.3.1 (early
+// 2024), which predates Aurora, Ambessa, Mel, Yunara and Zaahen - their portraits
+// 404'd and the roster endpoint never listed them. Bump this whenever champions are
+// added; the champion list and the portraits both read it.
+export const DDRAGON_VERSION = '16.15.1';
+
+export const PNG_URL = `https://ddragon.leagueoflegends.com/cdn/${DDRAGON_VERSION}/img/champion/`;
 export const PNG_BORDER = "border: 0.5rem solid ";
 export const SPLASH_URL = 'https://ddragon.leagueoflegends.com/cdn/img/champion/splash/';
 
 // Champions whose Data Dragon image key cannot be derived from the display name
-// by stripping spaces/apostrophes/dots. Verified against Data Dragon 14.3.1.
+// by stripping spaces/apostrophes/dots. Verified against Data Dragon 16.15.1.
 export const CHAMPION_IMAGE_KEY_OVERRIDES: Record<string, string> = {
   "leblanc": "Leblanc",
   "wukong": "MonkeyKing",
