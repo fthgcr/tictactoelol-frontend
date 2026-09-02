@@ -98,7 +98,9 @@ export class MainMenuComponent{
 
   findMatch(){
     const dialogRef = this.matDialog.open(FindMatchComponent, {
-      panelClass:'icon-outside'
+      panelClass:'icon-outside',
+      width: '500px',
+      maxWidth: '94vw'
     });
   }
 }

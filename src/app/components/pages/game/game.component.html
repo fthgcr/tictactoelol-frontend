@@ -1,19 +1,58 @@
-<body>
-  <!-- <a href="/" id="homeButtonLink"><mat-icon style="transform: scale(1.5); color: black;">arrow_back_ios</mat-icon></a> -->
+<!-- The screen used to be wrapped in a literal <body> with three absolutely
+     positioned control clusters (left: 20px, right: 80px, right: 45%). Those
+     offsets are fine on a desktop and collide with the board on a phone, so the
+     page is now one column: a flex top bar, the board centred under it, and the
+     scoreboard in normal flow. -->
+<div class="game-screen">
 
-  <button mat-icon-button color="primary" class="icon-buttons" (click)="openDialogWithTemplateRef(confirmExit, 'Home')" style="left: 20px;">
-    <mat-icon style="transform: scale(1.5); color: black;">arrow_back_ios</mat-icon>
-  </button>
+  <header class="game-topbar">
 
-   <!-- <button mat-icon-button color="primary" class="icon-buttons" (click)="changeBackground(false)" style="right: 160px;" >
-    <mat-icon class="icon-display">close</mat-icon>
-  </button>  -->
+    <div class="topbar-side">
+      <button mat-icon-button color="primary" class="icon-buttons" aria-label="Leave game"
+        (click)="openDialogWithTemplateRef(confirmExit, 'Home')">
+        <mat-icon class="icon-display">arrow_back_ios</mat-icon>
+      </button>
+    </div>
 
-      <button mat-icon-button color="primary" class="icon-buttons" (click)="openChampionsGuide()" style="right: 80px;" *ngIf="this.gameModel.secondPlayer">
+    <div class="topbar-center">
+      <div *ngIf="!isSpectator && (!isTurn || !this.gameModel.secondPlayer) && this.gameModel.gameStatus === -1" class="status">
+        <div class="loading__bar"></div>
+        <h4>Waiting for opponent</h4>
+      </div>
+
+      <div class="status" *ngIf="(isTurn && this.gameModel.secondPlayer) && this.gameModel.gameStatus === -1">
+        <span class="breathe">Your Turn !</span>
+      </div>
+
+      <!-- Watchers: the seats are taken, so show whose turn it is instead of "waiting". -->
+      <div class="status" *ngIf="isSpectator && this.gameModel.gameStatus === -1">
+        <span class="breathe">Spectating &mdash; Player {{ currentTurnLabel }}'s turn</span>
+      </div>
+
+      <div class="status" *ngIf="this.gameModel.gameStatus !== -1">
+        <span class="gameOverText">{{this.gameOverText}}</span>
+      </div>
+
+      <div class="timer-countdown" *ngIf="(isTurn && this.gameModel.secondPlayer) && this.gameModel.gameStatus === -1">
+        <div class="box-4">
+          <div class="loader-4">
+            <p *ngIf="timer > 0" [ngStyle]="{'color': (timer < 6) ? 'red' : 'black', 'font-weight': 'bold'}">{{timer}}</p>
+            <p style="font-weight: bold; color: red;" *ngIf="timer < 1">0</p>
+            <div class="dbl-spin-1"></div>
+            <div class="dbl-spin-2"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="topbar-side topbar-actions">
+      <button mat-icon-button color="primary" class="icon-buttons" aria-label="Champions guide"
+        (click)="openChampionsGuide()" *ngIf="this.gameModel.secondPlayer">
         <mat-icon class="icon-display">notes</mat-icon>
       </button>
 
-      <button mat-icon-button color="primary" class="icon-buttons" [matMenuTriggerFor]="shareMenu" style="right: 80px;" *ngIf="!this.gameModel.secondPlayer">
+      <button mat-icon-button color="primary" class="icon-buttons" aria-label="Share game"
+        [matMenuTriggerFor]="shareMenu" *ngIf="!this.gameModel.secondPlayer">
         <mat-icon class="icon-display">share</mat-icon>
       </button>
 
@@ -28,88 +67,54 @@
         </button>
       </mat-menu>
 
-      <button mat-icon-button color="primary" class="icon-buttons" (click)="openDialogWithTemplateRef(confirmExit, 'Info')" style="right: 20px;">
+      <button mat-icon-button color="primary" class="icon-buttons" aria-label="How to play"
+        (click)="openDialogWithTemplateRef(confirmExit, 'Info')">
         <mat-icon class="icon-display">info</mat-icon>
       </button>
-
-        <div *ngIf="!isSpectator && (!isTurn || !this.gameModel.secondPlayer) && this.gameModel.gameStatus === -1" class="spinner">
-        <div class="loading__bar"></div> <br>
-        <h4>Waiting for opponent</h4>
-      </div>
-
-      <div class="spinner" *ngIf="(isTurn && this.gameModel.secondPlayer) && this.gameModel.gameStatus === -1">
-        <span class="breathe">Your Turn !</span>
-      </div>
-
-      <!-- Watchers: the seats are taken, so show whose turn it is instead of "waiting". -->
-      <div class="spinner" *ngIf="isSpectator && this.gameModel.gameStatus === -1">
-        <span class="breathe">Spectating &mdash; Player {{ currentTurnLabel }}'s turn</span>
-      </div>
-
-      <div class="spinner" *ngIf="this.gameModel.gameStatus !== -1">
-        <span class="gameOverText">{{this.gameOverText}}</span> 
-      </div>
-      
-
-      <div class="timer-countdown" *ngIf="(isTurn && this.gameModel.secondPlayer) && this.gameModel.gameStatus === -1">
-        <div class="frame">
-          <div class="container">
-            <div class="box-4">
-              <div class="loader-4" >
-                <p *ngIf="timer > 0" [ngStyle]="{'color': (timer < 6) ? 'red' : 'black', 'font-weight': 'bold'}">{{timer}}</p>
-                <p style="font-weight: bold; color: red;" *ngIf="timer < 1">0</p>
-                <div class="dbl-spin-1"></div>
-                <div class="dbl-spin-2"></div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-     <div class="board">
-        <div class="dropBox"></div>
-        <div class="dropBox header"><div class="rule"><span class="rule-name">{{splitRule(rules[0], true)}}</span><span class="rule-value">{{splitRule(rules[0], false)}}</span></div></div>
-        <div class="dropBox header"><div class="rule"><span class="rule-name">{{splitRule(rules[1], true)}}</span><span class="rule-value">{{splitRule(rules[1], false)}}</span></div></div>
-        <div class="dropBox header"><div class="rule"><span class="rule-name">{{splitRule(rules[2], true)}}</span><span class="rule-value">{{splitRule(rules[2], false)}}</span></div></div>
-        <div class="dropBox header"><div class="rule"><span class="rule-name">{{splitRule(rules[3], true)}}</span><span class="rule-value">{{splitRule(rules[3], false)}}</span></div></div>
-        <div class="dropBox" [ngStyle]="{'cursor': isCursorPointer ? 'url(/assets/cursor/extra_attack.cur), auto' : 'url(/assets/cursor/normal.cur), auto'}" (mouseenter)="setCursorCondition(true,0)" (mouseleave)="setCursorCondition(false,0)" (click)="gameAreaClick(0)"><img src={{this.images[0].source}} [ngStyle]="this.images[0].style"></div>
-        <div class="dropBox" [ngStyle]="{'cursor': isCursorPointer ? 'url(/assets/cursor/extra_attack.cur), auto' : 'url(/assets/cursor/normal.cur), auto'}" (mouseenter)="setCursorCondition(true,1)" (mouseleave)="setCursorCondition(false,1)" (click)="gameAreaClick(1)"><img src={{this.images[1].source}} [ngStyle]="this.images[1].style"></div>
-        <div class="dropBox" [ngStyle]="{'cursor': isCursorPointer ? 'url(/assets/cursor/extra_attack.cur), auto' : 'url(/assets/cursor/normal.cur), auto'}" (mouseenter)="setCursorCondition(true,2)" (mouseleave)="setCursorCondition(false,2)" (click)="gameAreaClick(2)"><img src={{this.images[2].source}} [ngStyle]="this.images[2].style"></div>
-        <div class="dropBox header"><div class="rule"><span class="rule-name">{{splitRule(rules[4], true)}}</span><span class="rule-value">{{splitRule(rules[4], false)}}</span></div></div>
-        <div class="dropBox" [ngStyle]="{'cursor': isCursorPointer ? 'url(/assets/cursor/extra_attack.cur), auto' : 'url(/assets/cursor/normal.cur), auto'}" (mouseenter)="setCursorCondition(true,3)" (mouseleave)="setCursorCondition(false,3)" (click)="gameAreaClick(3)"><img src={{this.images[3].source}} [ngStyle]="this.images[3].style"></div>
-        <div class="dropBox" [ngStyle]="{'cursor': isCursorPointer ? 'url(/assets/cursor/extra_attack.cur), auto' : 'url(/assets/cursor/normal.cur), auto'}" (mouseenter)="setCursorCondition(true,4)" (mouseleave)="setCursorCondition(false,4)" (click)="gameAreaClick(4)"><img src={{this.images[4].source}} [ngStyle]="this.images[4].style"></div>
-        <div class="dropBox" [ngStyle]="{'cursor': isCursorPointer ? 'url(/assets/cursor/extra_attack.cur), auto' : 'url(/assets/cursor/normal.cur), auto'}" (mouseenter)="setCursorCondition(true,5)" (mouseleave)="setCursorCondition(false,5)" (click)="gameAreaClick(5)"><img src={{this.images[5].source}} [ngStyle]="this.images[5].style"></div>
-        <div class="dropBox header"><div class="rule"><span class="rule-name">{{splitRule(rules[5], true)}}</span><span class="rule-value">{{splitRule(rules[5], false)}}</span></div></div>
-        <div class="dropBox" [ngStyle]="{'cursor': isCursorPointer ? 'url(/assets/cursor/extra_attack.cur), auto' : 'url(/assets/cursor/normal.cur), auto'}" (mouseenter)="setCursorCondition(true,6)" (mouseleave)="setCursorCondition(false,6)" (click)="gameAreaClick(6)"><img src={{this.images[6].source}} [ngStyle]="this.images[6].style"></div>
-        <div class="dropBox" [ngStyle]="{'cursor': isCursorPointer ? 'url(/assets/cursor/extra_attack.cur), auto' : 'url(/assets/cursor/normal.cur), auto'}" (mouseenter)="setCursorCondition(true,7)" (mouseleave)="setCursorCondition(false,7)" (click)="gameAreaClick(7)"><img src={{this.images[7].source}} [ngStyle]="this.images[7].style"></div>
-        <div class="dropBox" [ngStyle]="{'cursor': isCursorPointer ? 'url(/assets/cursor/extra_attack.cur), auto' : 'url(/assets/cursor/normal.cur), auto'}" (mouseenter)="setCursorCondition(true,8)" (mouseleave)="setCursorCondition(false,8)" (click)="gameAreaClick(8)"><img src={{this.images[8].source}} [ngStyle]="this.images[8].style"></div>
-
     </div>
 
-    <a #openModal (click)="navigate()" style="visibility: hidden;"></a>
+  </header>
 
-    <div #userModal id="user-modal" class="modal-dialog">
-        <app-user-name-dialog></app-user-name-dialog>
+  <div class="board-wrap">
+    <div class="board">
+      <div class="dropBox"></div>
+      <div class="dropBox header"><div class="rule"><span class="rule-name">{{splitRule(rules[0], true)}}</span><span class="rule-value">{{splitRule(rules[0], false)}}</span></div></div>
+      <div class="dropBox header"><div class="rule"><span class="rule-name">{{splitRule(rules[1], true)}}</span><span class="rule-value">{{splitRule(rules[1], false)}}</span></div></div>
+      <div class="dropBox header"><div class="rule"><span class="rule-name">{{splitRule(rules[2], true)}}</span><span class="rule-value">{{splitRule(rules[2], false)}}</span></div></div>
+      <div class="dropBox header"><div class="rule"><span class="rule-name">{{splitRule(rules[3], true)}}</span><span class="rule-value">{{splitRule(rules[3], false)}}</span></div></div>
+      <div class="dropBox" [ngStyle]="{'cursor': isCursorPointer ? 'url(/assets/cursor/extra_attack.cur), auto' : 'url(/assets/cursor/normal.cur), auto'}" (mouseenter)="setCursorCondition(true,0)" (mouseleave)="setCursorCondition(false,0)" (click)="gameAreaClick(0)"><img *ngIf="images[0].source" [src]="images[0].source" [ngStyle]="images[0].style" alt=""></div>
+      <div class="dropBox" [ngStyle]="{'cursor': isCursorPointer ? 'url(/assets/cursor/extra_attack.cur), auto' : 'url(/assets/cursor/normal.cur), auto'}" (mouseenter)="setCursorCondition(true,1)" (mouseleave)="setCursorCondition(false,1)" (click)="gameAreaClick(1)"><img *ngIf="images[1].source" [src]="images[1].source" [ngStyle]="images[1].style" alt=""></div>
+      <div class="dropBox" [ngStyle]="{'cursor': isCursorPointer ? 'url(/assets/cursor/extra_attack.cur), auto' : 'url(/assets/cursor/normal.cur), auto'}" (mouseenter)="setCursorCondition(true,2)" (mouseleave)="setCursorCondition(false,2)" (click)="gameAreaClick(2)"><img *ngIf="images[2].source" [src]="images[2].source" [ngStyle]="images[2].style" alt=""></div>
+      <div class="dropBox header"><div class="rule"><span class="rule-name">{{splitRule(rules[4], true)}}</span><span class="rule-value">{{splitRule(rules[4], false)}}</span></div></div>
+      <div class="dropBox" [ngStyle]="{'cursor': isCursorPointer ? 'url(/assets/cursor/extra_attack.cur), auto' : 'url(/assets/cursor/normal.cur), auto'}" (mouseenter)="setCursorCondition(true,3)" (mouseleave)="setCursorCondition(false,3)" (click)="gameAreaClick(3)"><img *ngIf="images[3].source" [src]="images[3].source" [ngStyle]="images[3].style" alt=""></div>
+      <div class="dropBox" [ngStyle]="{'cursor': isCursorPointer ? 'url(/assets/cursor/extra_attack.cur), auto' : 'url(/assets/cursor/normal.cur), auto'}" (mouseenter)="setCursorCondition(true,4)" (mouseleave)="setCursorCondition(false,4)" (click)="gameAreaClick(4)"><img *ngIf="images[4].source" [src]="images[4].source" [ngStyle]="images[4].style" alt=""></div>
+      <div class="dropBox" [ngStyle]="{'cursor': isCursorPointer ? 'url(/assets/cursor/extra_attack.cur), auto' : 'url(/assets/cursor/normal.cur), auto'}" (mouseenter)="setCursorCondition(true,5)" (mouseleave)="setCursorCondition(false,5)" (click)="gameAreaClick(5)"><img *ngIf="images[5].source" [src]="images[5].source" [ngStyle]="images[5].style" alt=""></div>
+      <div class="dropBox header"><div class="rule"><span class="rule-name">{{splitRule(rules[5], true)}}</span><span class="rule-value">{{splitRule(rules[5], false)}}</span></div></div>
+      <div class="dropBox" [ngStyle]="{'cursor': isCursorPointer ? 'url(/assets/cursor/extra_attack.cur), auto' : 'url(/assets/cursor/normal.cur), auto'}" (mouseenter)="setCursorCondition(true,6)" (mouseleave)="setCursorCondition(false,6)" (click)="gameAreaClick(6)"><img *ngIf="images[6].source" [src]="images[6].source" [ngStyle]="images[6].style" alt=""></div>
+      <div class="dropBox" [ngStyle]="{'cursor': isCursorPointer ? 'url(/assets/cursor/extra_attack.cur), auto' : 'url(/assets/cursor/normal.cur), auto'}" (mouseenter)="setCursorCondition(true,7)" (mouseleave)="setCursorCondition(false,7)" (click)="gameAreaClick(7)"><img *ngIf="images[7].source" [src]="images[7].source" [ngStyle]="images[7].style" alt=""></div>
+      <div class="dropBox" [ngStyle]="{'cursor': isCursorPointer ? 'url(/assets/cursor/extra_attack.cur), auto' : 'url(/assets/cursor/normal.cur), auto'}" (mouseenter)="setCursorCondition(true,8)" (mouseleave)="setCursorCondition(false,8)" (click)="gameAreaClick(8)"><img *ngIf="images[8].source" [src]="images[8].source" [ngStyle]="images[8].style" alt=""></div>
     </div>
+  </div>
 
-    <div class="scoreBoard" *ngIf="this.gameModel.secondPlayer && !isSpectator">
-      <h3 class="scoreBoardText">You : {{scoreBoard.user}} - {{scoreBoard.opponent}} : Opponent</h3>
-    </div>
+  <a #openModal (click)="navigate()" style="visibility: hidden;"></a>
 
-    <!-- Testttt -->
+  <div #userModal id="user-modal" class="modal-dialog">
+    <app-user-name-dialog></app-user-name-dialog>
+  </div>
 
-    <ng-template #confirmExit>
-      <h2 matDialogTitle style="font-family: 'MyFont';">Notice!</h2>
-      <mat-dialog-content>
-        <p>Are you sure you want to leave the game?</p>
-      </mat-dialog-content>
-      <mat-dialog-actions >
-        <!-- <button mat-button matDialogClose color="primary">Dismiss</button> -->
-        <app-pixel-button class="child-component" [buttonName]="'Stay'" (notify)="closeDialogs()"></app-pixel-button>
-        <app-pixel-button class="child-component" [buttonName]="'Leave'" (notify)="leavePage()"></app-pixel-button>
-      </mat-dialog-actions>
-    </ng-template>
+  <div class="scoreBoard" *ngIf="this.gameModel.secondPlayer && !isSpectator">
+    <h3 class="scoreBoardText">You : {{scoreBoard.user}} - {{scoreBoard.opponent}} : Opponent</h3>
+  </div>
 
-    
-</body>
+  <ng-template #confirmExit>
+    <h2 matDialogTitle style="font-family: 'MyFont';">Notice!</h2>
+    <mat-dialog-content>
+      <p>Are you sure you want to leave the game?</p>
+    </mat-dialog-content>
+    <mat-dialog-actions>
+      <app-pixel-button class="child-component" [buttonName]="'Stay'" (notify)="closeDialogs()"></app-pixel-button>
+      <app-pixel-button class="child-component" [buttonName]="'Leave'" (notify)="leavePage()"></app-pixel-button>
+    </mat-dialog-actions>
+  </ng-template>
 
+</div>

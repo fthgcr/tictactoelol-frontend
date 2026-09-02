@@ -1,93 +1,107 @@
 //// Your Turn Breathe
 
+// The animation used to grow the font from 24px to 25px, which reflows the whole
+// top bar twice a second. Scaling a fixed, viewport-aware size does the same
+// thing visually and costs no layout.
 .breathe {
+	display: inline-block;
 	font-weight: bold;
+	font-size: clamp(0.9rem, 4vw, 25px);
 	animation-name: breathe;
 	animation-duration: 2s;
 	animation-timing-function: ease-in-out;
 	animation-delay: 0;
 	animation-iteration-count: infinite;
 	animation-direction: alternate;
-	margin-right: 10px;
 	font-family: "MyFont";
-  }
-  
-  @keyframes breathe {
+}
+
+@keyframes breathe {
 	0% {
-		font-size: 25px;
+		transform: scale(1);
 		color: black;
 	}
-	
+
 	50% {
+		transform: scale(0.96);
 		color: #4b658496;
-		font-size: 24px;
 	}
-	
+
 	100% {
+		transform: scale(1);
 		color: black;
-		font-size: 25px;
 	}
-  }
+}
 
-  .gameOverText{
-	margin-right: 10px;
+@media (prefers-reduced-motion: reduce) {
+	.breathe {
+		animation: none;
+		color: black;
+	}
+}
+
+.gameOverText {
 	font-family: "MyFont";
-	font-size: 24px;
+	font-size: clamp(0.9rem, 4vw, 24px);
 	color: red;
-  }
-  
+}
 
-// Confirm Dialog
+
+// Confirm Dialog. The width is no longer set here: every dialog stylesheet in the
+// app used to declare its own !important width on this global container class, so
+// the last one loaded decided how wide an unrelated dialog was. The container
+// fills its panel and each open() call sets the panel width instead.
 ::ng-deep .mat-mdc-dialog-container {
-    border-radius: 4px;
-    position: relative;
-    //max-width: 90%;
-    //background: #fff;
-    background: transparent;
-    width: 75% !important;
-    margin: 2em auto;
-    box-shadow: -15px 0 0 0 black, 15px 0 0 0 black, 0 -15px 0 0 black,
-      0 15px 0 0 black;
-      
-  }
+	border-radius: 4px;
+	position: relative;
+	background: transparent;
+	width: 100% !important;
+	max-width: 100%;
+	box-sizing: border-box;
+	margin: 0 auto;
+	box-shadow: -15px 0 0 0 black, 15px 0 0 0 black, 0 -15px 0 0 black,
+		0 15px 0 0 black;
+}
 
-  ::ng-deep .mat-mdc-dialog-container {
-	width: 500px !important;
-  }
+// The confirm dialog holds two pixel buttons; on a narrow dialog they have to be
+// allowed to wrap instead of running past the edge.
+::ng-deep .mat-mdc-dialog-actions {
+	flex-wrap: wrap;
+	justify-content: center;
+	gap: 12px;
+	padding-bottom: 16px;
+}
 
-  .child-component {
-	margin-right: 20px; /* Adjust the value to set the desired space */
-  }
-  
-  /* If you want space on the left side of the first child component */
-  .child-component:first-child {
-	margin-left: 20px; /* Adjust the value to set the desired space */
-  }
+.child-component {
+	margin: 0;
+}
 
-  // Custom Background
-  .your-turn-background {
+// Custom Background
+.your-turn-background {
 	background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
 	background-size: 400% 400%;
 	animation: gradient 3s ease infinite;
 	height: 100vh;
-  }
-  
-  @keyframes gradient {
-	0% {
-	  background-position: 0% 50%;
-	}
-	50% {
-	  background-position: 100% 50%;
-	}
-	100% {
-	  background-position: 0% 50%;
-	}
-  }
+}
 
-  .default-body-background {
+@keyframes gradient {
+	0% {
+		background-position: 0% 50%;
+	}
+
+	50% {
+		background-position: 100% 50%;
+	}
+
+	100% {
+		background-position: 0% 50%;
+	}
+}
+
+.default-body-background {
 	display: flex;
 	justify-content: center;
 	align-items: center;
 	min-height: 100vh;
 	background-color: #00bfb3;
-  }
+}

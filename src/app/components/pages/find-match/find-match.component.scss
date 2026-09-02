@@ -1,20 +1,15 @@
+// See the note in game-second.scss: the container fills its panel and the panel
+// width comes from the open() config, so these global rules stop fighting.
 ::ng-deep .mat-mdc-dialog-container {
     border-radius: 4px;
     position: relative;
-    //max-width: 90%;
-    //background: #fff;
     background: transparent;
-    width: 75% !important;
-    margin: 2em auto;
+    width: 100% !important;
+    max-width: 100%;
+    box-sizing: border-box;
+    margin: 0 auto;
     box-shadow: -15px 0 0 0 black, 15px 0 0 0 black, 0 -15px 0 0 black,
         0 15px 0 0 black;
-
-}
-
-::ng-deep .mat-mdc-dialog-container {
-    //max-height: 300px; /* Set maximum height as needed */
-    width: 500px !important;
-
 }
 
 .container {

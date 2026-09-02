@@ -4,7 +4,10 @@
 }
 
 .example-card {
-  width: 300px; /* Set width of cards */
+  /* Was a hard 300px. The four cards sat in one non-wrapping row (~1360px), so on
+     a phone three of them were simply off screen. */
+  width: min(300px, calc(100vw - 70px));
+  box-sizing: border-box;
   margin: 20px; /* Add margin between cards */
   display: flex; /* Use flexbox layout */
   flex-direction: column; /* Stack child elements vertically */
@@ -25,12 +28,18 @@
   display: flex;
   justify-content: center; /* Align items horizontally in the center */
   align-items: center; /* Align items vertically in the center */
-  height: 100vh; /* Set height to viewport height for centering */
+  /* A fixed 100vh clipped the cards the moment they wrapped onto a second row. */
+  min-height: 100vh;
+  padding: 20px 10px 40px;
+  box-sizing: border-box;
 }
 
 .card-container {
   display: flex;
-  justify-content: space-between; /* Arrange cards with space in between */
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: stretch;
+  max-width: 1400px;
 }
 
 #homeButtonLink {
@@ -45,9 +54,10 @@ mat-card-actions{
 
 .icon-display{
   transform: scale(3.5);
-  padding-left: 20%;
-  padding-bottom: 15%;
-  margin-top: auto; 
+  /* Centred rather than nudged with a percentage padding, which drifted with the
+     card width once the card stopped being exactly 300px. */
+  align-self: center;
+  margin: 24px auto 32px;
 }
 
 .card-content {
@@ -73,4 +83,32 @@ mat-card-subtitle {
 
 mat-icon {
   font-weight: bold;
+}
+
+img[mat-card-image] {
+  width: 100%;
+  height: auto;
+}
+
+/* Between a phone and a wide desktop, four 300px cards do not fit on one line, so
+   pin the row to two and let them sit as a 2x2 block instead of 3 + 1. */
+@media (min-width: 700px) and (max-width: 1399px) {
+  .card-container {
+    max-width: 720px;
+  }
+}
+
+@media (max-width: 640px) {
+  .example-card {
+    margin: 20px 0 34px;
+  }
+
+  #homeButtonLink {
+    top: 16px;
+    left: 16px;
+  }
+
+  p {
+    font-size: 1rem;
+  }
 }

@@ -3,6 +3,8 @@
 }
 .button-container {
     display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
     justify-content: center;
     align-items: center;
     //margin-top: 20%;
@@ -29,32 +31,24 @@
     margin-right: 0;
   }
 
+  /* Spacing is the container's gap now - fixed side margins pushed the pair past
+     the dialog edge on a phone. */
   .child-component {
-    margin-right: 20px; /* Adjust the value to set the desired space */
-  }
-  
-  /* If you want space on the left side of the first child component */
-  .child-component:first-child {
-    margin-left: 20px; /* Adjust the value to set the desired space */
+    margin: 0;
   }
 
+  // See the note in game-second.scss: the container fills its panel and the panel
+  // width comes from the open() config.
   ::ng-deep .mat-mdc-dialog-container {
     border-radius: 4px;
     position: relative;
-    //max-width: 90%;
-    //background: #fff;
     background: transparent;
-    width: 75% !important;
-    margin: 2em auto;
+    width: 100% !important;
+    max-width: 100%;
+    box-sizing: border-box;
+    margin: 0 auto;
     box-shadow: -15px 0 0 0 black, 15px 0 0 0 black, 0 -15px 0 0 black,
       0 15px 0 0 black;
-      
-  }
-
-  ::ng-deep .mat-mdc-dialog-container {
-    //max-height: 300px; /* Set maximum height as needed */
-    width: 500px !important;
-
   }
 
   

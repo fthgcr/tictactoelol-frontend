@@ -1,45 +1,122 @@
 @import 'game-second.scss';
 
 ::ng-deep html {
- // background-image: url("/assets/photos/bg.jpg");
   background-color: #00bfb3;
   cursor: url('/assets/cursor/normal.cur'), auto;
 }
 
- body {
-   display: flex;
-   justify-content: center;
-   align-items: center;
-   min-height: 100vh;
-   background-color: #00bfb3;
-   cursor: url('/assets/cursor/normal.cur'), auto;
- }
+// -----------------------------------------------------------------------------
+// Screen shell
+// -----------------------------------------------------------------------------
+// One column: top bar, board, scoreboard. Nothing is absolutely positioned any
+// more, so the parts can never land on top of each other on a narrow viewport.
+
+.game-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+  // dvh tracks the mobile URL bar; vh above is the fallback for old browsers.
+  min-height: 100dvh;
+  box-sizing: border-box;
+  padding: 12px 8px 16px;
+  background-color: #00bfb3;
+  cursor: url('/assets/cursor/normal.cur'), auto;
+}
+
+// Full width on purpose: the back button belongs in the corner of the screen,
+// the way it did when it was pinned with left: 20px.
+.game-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  min-height: 56px;
+  padding: 0 6px;
+  box-sizing: border-box;
+}
+
+.topbar-side {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+// The status line and the countdown share the middle. min-width: 0 lets a long
+// label ("Spectating - Player 2's turn") shrink instead of pushing the buttons
+// off the edge.
+.topbar-center {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  text-align: center;
+}
+
+.board-wrap {
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 8px 0;
+}
+
+// -----------------------------------------------------------------------------
+// Board
+// -----------------------------------------------------------------------------
+// Cells were a fixed 140px, so the 4x4 grid needed ~660px and simply ran off a
+// phone. One custom property drives the whole board: it keeps the old desktop
+// size and shrinks to whatever the viewport can actually show.
 
 .board {
+  --cell: clamp(56px, calc((100vw - 22px) / 4), 160px);
+
   position: relative;
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  margin: 0 50px;
+  grid-template-columns: repeat(4, var(--cell));
+  margin: 0 auto;
 }
 
 .board .dropBox {
   position: relative;
-  width: 140px;
-  height: 140px;
-  padding: 10px;
+  box-sizing: border-box;
+  width: var(--cell);
+  height: var(--cell);
+  padding: clamp(3px, calc(var(--cell) * 0.07), 10px);
   display: flex;
   justify-content: center;
   align-items: center;
   border-radius: 2% 6% 5% 4% / 1% 1% 2% 4%;
+  // Stops the browser waiting for a double-tap before firing the click.
+  touch-action: manipulation;
 
   &::before {
     content: "";
-    border: 4px solid #000000;
+    box-sizing: border-box;
+    border: clamp(2px, calc(var(--cell) * 0.03), 4px) solid #000000;
     display: block;
-    width: 100%;
-    height: 100%;
     position: absolute;
+    inset: 0;
+    pointer-events: none;
   }
+}
+
+// The portrait fills its cell instead of relying on the champion image being
+// exactly 120px wide, which broke as soon as the cell stopped being 140px.
+.board .dropBox img {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  // The owner border comes in as an inline 0.5rem style, which would eat most of
+  // a phone-sized cell.
+  border-width: clamp(3px, calc(var(--cell) * 0.05), 8px) !important;
 }
 
 .board .dropBox:nth-child(4),
@@ -84,44 +161,19 @@
   &::before {
     border-top: none;
   }
-
 }
 
-// Bottom right area half border
-// .board .dropBox:nth-child(16){
-//   border: 1px solid transparent;
-//   position: relative;
-// }
-
-// .board .dropBox:nth-child(16)::before,
-// .board .dropBox:nth-child(16)::after {
-//   content: "";
-//   bottom: 0;
-//   right: 0;
-//   position: absolute;
-//   width: 30%;
-//   height: 30%;
-//   pointer-events: none; /* Prevent interaction with pseudo-elements */
-// }
-
-// .board .dropBox:nth-child(16)::before {
-//   bottom: 0;
-//   right: 0;
-//   border-right: 4px solid red; /* Adjust the border color and width as needed */
-//   border-bottom: 4px solid red; /* Adjust the border color and width as needed */
-// }
-
-// /Bottom right area half border
-
+// -----------------------------------------------------------------------------
+// Top bar controls
+// -----------------------------------------------------------------------------
 
 .icon-buttons {
-  position: absolute;
-  top: 10px;
   font-size: larger;
   color: black;
 }
 
-.icon-buttons, .icon-buttons .mat-icon {
+.icon-buttons,
+.icon-buttons .mat-icon {
   cursor: url('/assets/cursor/link.cur'), auto;
 }
 
@@ -129,22 +181,28 @@
   transform: scale(1.5);
 }
 
-.spinner {
-  position: absolute;
-  top: 25px;
-  right: 45%;
-  display: inherit;
+.status {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
 }
 
-.custom-spinner {
-  height: 50px !important;
-  width: 50px !important;
+// The global bar is nudged with left: 50% to sit under the old absolutely
+// positioned status block; inside a centred column it just needs to be centred.
+.game-screen .loading__bar {
+  left: 0;
+  margin: 0 auto;
+  width: min(12rem, 45vw);
 }
 
 h4 {
   font-family: "MyFont";
-  margin-top: -1%;
+  margin: 6px 0 0;
+  font-size: clamp(0.75rem, 3.2vw, 1rem);
   letter-spacing: .1rem;
+  white-space: nowrap;
 }
 
 p {
@@ -167,47 +225,131 @@ p {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: clamp(2px, calc(var(--cell) * 0.05), 8px);
   width: 100%;
   text-align: center;
   font-family: "MyFont";
-  letter-spacing: .1rem;
+  letter-spacing: .05rem;
   line-height: 1.2;
   overflow-wrap: anywhere;
 }
 
+// Sized from the cell rather than the viewport, so the label always keeps the
+// same proportion of the square it sits in.
 .rule-name {
-  font-size: 0.95rem;
+  font-size: clamp(7px, calc(var(--cell) * 0.135), 0.95rem);
   color: black;
 }
 
 .rule-value {
-  font-size: 1.05rem;
+  font-size: clamp(8px, calc(var(--cell) * 0.15), 1.05rem);
   color: white;
-
-  //background-image: linear-gradient(to bottom, rgba(130, 230, 223, 0.336), rgba(242, 255, 254, 0));
 }
+
+// -----------------------------------------------------------------------------
+// Countdown
+// -----------------------------------------------------------------------------
+// The global .box-4 reserves a 120px square and .loader-4 adds 44px of margin,
+// which was fine for a free-floating overlay but far too tall for a top bar.
 
 .timer-countdown {
-  position: absolute;
-  top: 25px;
-  right: 46%;
-  display: inherit;
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-// .top-header{
-//   position: absolute;
-//   top: -70px;
-// }
-
-// .left-header{
-//   position: absolute;
-//   left: -100px;
-// }
-
-#homeButtonLink {
-  position: absolute;
-  top: 30px;
-  left: 30px;
+.game-screen .box-4 {
+  height: auto;
+  width: auto;
 }
 
+.game-screen .loader-4 {
+  margin: 0;
+  height: 44px;
+  width: 44px;
+
+  .dbl-spin-1 {
+    height: 44px;
+    width: 44px;
+  }
+
+  .dbl-spin-2 {
+    height: 60px;
+    width: 60px;
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Scoreboard
+// -----------------------------------------------------------------------------
+// Global .scoreBoard pins itself to the bottom of the viewport; in this column
+// it is just the last row. The margin keeps the chunky pixel shadow off the edge.
+
+.game-screen .scoreBoard {
+  position: static;
+  margin: 14px auto 4px;
+  font-size: clamp(0.8rem, 3.5vw, 1.125rem);
+}
+
+.game-screen .scoreBoardText {
+  margin: 0 15px;
+  font-size: inherit;
+}
+
+// -----------------------------------------------------------------------------
+// Phones
+// -----------------------------------------------------------------------------
+
+@media (max-width: 640px) {
+  .game-topbar {
+    // Leaves room for the countdown ring, which is drawn 6px outside its own box.
+    min-height: 54px;
+    gap: 4px;
+    padding: 0 2px;
+  }
+
+  .topbar-center {
+    gap: 14px;
+  }
+
+  .icon-display {
+    transform: scale(1.15);
+  }
+
+  .board-wrap {
+    padding: 4px 0;
+  }
+
+  .game-screen .loader-4 {
+    height: 34px;
+    width: 34px;
+
+    .dbl-spin-1 {
+      height: 34px;
+      width: 34px;
+    }
+
+    .dbl-spin-2 {
+      height: 46px;
+      width: 46px;
+    }
+  }
+
+  // The pixel shadow is 10px on every side; halve it so the board keeps the width.
+  .game-screen .scoreBoard {
+    box-shadow: -6px 0 0 0 black, 6px 0 0 0 black, 0 -6px 0 0 black, 0 6px 0 0 black;
+  }
+
+  .game-screen .scoreBoardText {
+    margin: 0 8px;
+  }
+}
+
+// Landscape phones: the board has to share the height with the top bar, so cap
+// it against the viewport height as well as its width.
+@media (max-height: 520px) and (orientation: landscape) {
+  .board {
+    --cell: clamp(48px, calc((100dvh - 96px) / 4), 160px);
+  }
+}

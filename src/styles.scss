@@ -28,6 +28,32 @@ body {
 	cursor: url('/assets/cursor/normal.cur'), auto;
 }
 
+// Safari inflates text in landscape unless this is pinned, which silently breaks
+// every size that was tuned against the viewport.
+html {
+	-webkit-text-size-adjust: 100%;
+	text-size-adjust: 100%;
+}
+
+// iOS zooms the whole page when a focused field is under 16px. Every input in the
+// app is a Material field, so this only ever acts as a backstop.
+@media (max-width: 640px) {
+
+	input,
+	select,
+	textarea {
+		font-size: 16px;
+	}
+}
+
+// A Material dialog is opened with a pixel width (600px), and its own 80vw cap
+// still leaves the panel wider than a small phone once the pixel shadow is added.
+// (Global stylesheet: no ::ng-deep here - Angular only strips that inside a
+// component, and a browser drops the whole rule as an unknown pseudo-element.)
+.cdk-overlay-pane {
+	max-width: calc(100vw - 32px) !important;
+}
+
 html,
 body {
 	//height: 100%;
@@ -120,7 +146,7 @@ html {
 	left: 50%;
 	position: relative;
 	height: 5px;
-	width: 12rem;
+	width: min(12rem, 60vw);
 	background-color: #4b658496;
 	border-radius: 1em;
 	overflow: hidden;
@@ -227,6 +253,8 @@ $border: 2px solid $purple;
 .scoreBoard {
 	position: absolute;
 	bottom: 15px;
+	max-width: calc(100vw - 24px);
+	box-sizing: border-box;
 	font-size: larger;
 	color: black;
 	border-radius: 4px;

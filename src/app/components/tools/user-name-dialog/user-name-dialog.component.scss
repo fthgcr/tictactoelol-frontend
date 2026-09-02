@@ -43,15 +43,36 @@
 .modal__content {
   border-radius: 4px;
   position: relative;
-  max-width: 90%;
+  box-sizing: border-box;
+  // 75% of the viewport is fine on a desktop and leaves a phone with a ~270px
+  // card whose 15px pixel shadow then hangs off the screen. Cap it instead.
+  width: min(75%, 420px);
+  max-width: calc(100vw - 60px);
   background: #fff;
   padding: 1em 2em;
-  width: 75% !important;
   margin: 2em auto;
   box-shadow:   -15px 0 0 0 black,
                  15px 0 0 0 black,
                  0 -15px 0 0 black,
                  0 15px 0 0 black;
+
+  // The field defaults to a fixed ~180px, which looks lost in the card and
+  // cramped on a phone.
+  mat-form-field {
+    width: 100%;
+  }
+}
+
+@media (max-width: 640px) {
+  .modal__content {
+    padding: 1em;
+  }
+
+  // Pulled inside the card: hanging 35px off the right edge put it off screen.
+  .close-button {
+    top: -18px;
+    right: -18px;
+  }
 }
 
 .modal__footer {

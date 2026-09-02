@@ -1,40 +1,53 @@
+// These ::ng-deep rules are global once this component has been shown, and each
+// dialog stylesheet used to set its own container width - 75% here, 500px in the
+// game and replay dialogs - so whichever loaded last won. The container now just
+// fills the panel, and the actual size is set per dialog in the open() config.
 ::ng-deep .mat-mdc-dialog-container {
   border-radius: 4px;
   position: relative;
-  //max-width: 90%;
-  //background: #fff;
   background: transparent;
-  width: 75% !important;
-  margin: 2em auto;
+  width: 100% !important;
+  max-width: 100%;
+  box-sizing: border-box;
+  margin: 0 auto;
   box-shadow: -15px 0 0 0 black, 15px 0 0 0 black, 0 -15px 0 0 black,
     0 15px 0 0 black;
-    
-}
-
-::ng-deep .mat-mdc-dialog-container {
-  //max-height: 300px; /* Set maximum height as needed */
-  min-height: 95% !important;
-  min-height: 95% !important;
 }
 
 .example-card {
-  width: calc(33.33% - 20px); /* Adjust the width of each card as needed */
-  margin-bottom: 20px;
-  width: 10%; /* Set width of cards */
-  margin: 10px; /* Add margin between cards */
-  flex: 7 0 50px;
+  /* Was width: 10% with flex: 7 0 50px, so the column count swung with the number
+     of champions left on the last row. The grid below sizes them instead. */
+  width: auto;
+  margin: 0;
   background-color: #4b658496;
 }
 
 .card-grid-list {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
+  /* auto-fill keeps a sensible portrait size at every width: four-ish columns on a
+     desktop dialog, two on a phone, without a breakpoint per step. */
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
   gap: 10px;
-  overflow-y: auto; 
-  max-height: 600px;
+  padding: 10px;
+  box-sizing: border-box;
+  overflow-y: auto;
+  /* A flat 600px is taller than a phone screen, so the dialog could not scroll to
+     its own close button. */
+  max-height: min(600px, 70vh);
   background-color: #4b658496;
-  
+}
+
+.example-card img[mat-card-image] {
+  width: 100%;
+  height: auto;
+  margin: 0;
+}
+
+.example-card p {
+  font-size: 0.8rem;
+  text-align: center;
+  margin: 6px 0;
+  overflow-wrap: anywhere;
 }
 
 
@@ -125,7 +138,7 @@ $white : #fff;
 
 // ---- [ Close Button ] ---- //
 .close-button{
-  @include square(50px);
+  @include square(clamp(36px, 10vw, 50px));
   box-shadow : 0px 10 10px 10px rgba( 0, 0, 0, .25 );
   border-radius: 10px; 
   background : $black;

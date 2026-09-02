@@ -15,20 +15,28 @@
   
   
   /* ------------------- Button Grid styles ------------------- */
+  /* One variable drives the whole 20x11 pixel grid, so the button can shrink on a
+     phone (200px wide was too much for two of them side by side in a dialog)
+     without every cell size being restated. */
   .pixel-grid {
+    --px: 10px;
+    /* The label is absolutely positioned; without this it resolves against
+       whatever positioned ancestor it lands in (the dialog container), so two
+       buttons side by side both centred their text on the dialog. */
+    position: relative;
     display: grid;
     row-gap: 0;
     column-gap: 0;
-    grid-template-columns: repeat(20, 10px);
-    grid-template-rows: repeat(11, 10px);
+    grid-template-columns: repeat(20, var(--px));
+    grid-template-rows: repeat(11, var(--px));
     justify-content: center;
     text-align: center;
-    filter: drop-shadow(0 20px 0 #545454);
+    filter: drop-shadow(0 calc(var(--px) * 2) 0 #545454);
     cursor: url('/assets/cursor/link.cur'), auto;
   }
   
   .pixel-grid:active {
-    transform: translate(0, 20px);
+    transform: translate(0, calc(var(--px) * 2));
     filter: drop-shadow(0 0 0 #545454);
   }
   
@@ -36,32 +44,32 @@
   
   .transparent {
     background-color: transparent;
-    height: 10px;
-    width: 10px;
+    height: var(--px);
+    width: var(--px);
   }
   
   .black {
     background-color: black;
-    height: 10px;
-    width: 10px;
+    height: var(--px);
+    width: var(--px);
   }
   
   .lightg {
     background-color: #909090;
-    height: 10px;
-    width: 10px;
+    height: var(--px);
+    width: var(--px);
   }
   
   .white {
     background-color: white;
-    height: 10px;
-    width: 10px;
+    height: var(--px);
+    width: var(--px);
   }
   
   .grey {
     background-color: #545454;
-    height: 10px;
-    width: 10px;
+    height: var(--px);
+    width: var(--px);
   }
   
   /* ------------------- text styles ------------------- */
@@ -71,7 +79,7 @@
     display: block;
     z-index: 5;
     font-family: "MyFont";
-    font-size: 25px;
+    font-size: calc(var(--px) * 2.5);
     width: 100%;
     height: 50%;
     top: 25%;
@@ -113,6 +121,11 @@
       95% {transform: translate(190px, 0);} 
       100% {transform: translate(200px, 0);} 
     } */
-  
-  
-  
+
+  /* ------------------- phones ------------------- */
+
+  @media (max-width: 640px) {
+    .pixel-grid {
+      --px: 8px;
+    }
+  }

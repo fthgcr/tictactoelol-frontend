@@ -353,6 +353,9 @@
     min-height: 4.75rem;
     font-size: $text-xs;
     padding: $space-3 $space-1;
+    // The longest names (Blitzcrank, Cassiopeia) break mid-word in a 70px column,
+    // so let the browser hyphenate rather than orphan a single letter.
+    hyphens: auto;
 
     img,
     .img-fallback {

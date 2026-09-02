@@ -270,8 +270,12 @@ export class GameComponent implements OnInit, OnDestroy {
   gameAreaClick(index: number) {
     if (!this.images[index].isOpen || !this.isTurn || this.gameModel.gameStatus !== -1 || this.timer < 1)  return;
     var championSelectDialog = this.matDialog.open(InputDialogComponent, {
+      // maxWidth beats Material's 80vw default, so the picker keeps its full width
+      // on a desktop and still leaves a margin on a phone.
       width: '600px',
-      height: '9%',
+      maxWidth: '94vw',
+      // Height was pinned to 9% of the viewport, which is shorter than the input
+      // itself on a landscape phone. The dialog holds one field; let it size to it.
       data: this.filterChampion()
     });
     championSelectDialog.afterClosed().subscribe((result) => {
@@ -316,8 +320,8 @@ export class GameComponent implements OnInit, OnDestroy {
   navigate(){
     var championSelectDialog = this.matDialog.open(UserNameDialogComponent, {
       width: '600px',
+      maxWidth: '94vw',
       height: '35%',
-      
     });
     championSelectDialog.afterClosed().subscribe((result) => {
       if (result) {
@@ -388,7 +392,11 @@ export class GameComponent implements OnInit, OnDestroy {
 
   openChampionsGuide(){
     const dialogRef = this.matDialog.open(ChampionsOverviewComponent, {
+      // The panel carries the size; the dialog container stylesheet only fills it.
       panelClass:'icon-outside',
+      width: '860px',
+      maxWidth: '94vw',
+      maxHeight: '88vh',
     });
   }
 
@@ -456,6 +464,8 @@ export class GameComponent implements OnInit, OnDestroy {
     }
     this.gameOverDialogRef = this.matDialog.open(ReplayDialogComponent, {
       panelClass:'icon-outside',
+      width: '500px',
+      maxWidth: '94vw',
       data: this.gameId
     });
     this.gameOverDialogRef.afterClosed().subscribe((result: any) => {
@@ -481,7 +491,10 @@ export class GameComponent implements OnInit, OnDestroy {
   //Confirm Exit Game
   openDialogWithTemplateRef(templateRef: TemplateRef<any>, whichPage: String) {
     this.leavePageParameter = whichPage;
-    this.matDialog.open(templateRef);
+    this.matDialog.open(templateRef, {
+      width: '500px',
+      maxWidth: '94vw',
+    });
   }
 
   //Close all dialogs
