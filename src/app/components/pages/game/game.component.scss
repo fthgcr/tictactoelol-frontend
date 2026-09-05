@@ -1,3 +1,7 @@
+// Motion and duration values come from the shared token set, same as every other
+// screen - see src/styles/_tokens.scss (angular.json puts src/styles on the path).
+@use 'tokens' as *;
+
 @import 'game-second.scss';
 
 ::ng-deep html {
@@ -67,6 +71,55 @@
 }
 
 // -----------------------------------------------------------------------------
+// Whose turn it is
+// -----------------------------------------------------------------------------
+// The turn used to be stated only in a line of text at the top of the screen, while
+// the player is looking at the board. The board now carries the state itself: the
+// squares you can actually use are lit, and the whole grid is ringed.
+
+.board-wrap.is-turn .board {
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.55), 0 0 26px rgba(255, 255, 255, 0.35);
+}
+
+// One wake-up beat when the turn arrives, so a player who looked away sees that
+// something changed rather than finding the board already waiting.
+.board-wrap.is-turn.pulse .board {
+  animation: turn-wake 900ms $ease-out;
+}
+
+@keyframes turn-wake {
+  0% {
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.55), 0 0 26px rgba(255, 255, 255, 0.35);
+    transform: scale(1);
+  }
+  35% {
+    box-shadow: 0 0 0 7px rgba(255, 255, 255, 0.85), 0 0 46px rgba(255, 255, 255, 0.7);
+    transform: scale(1.012);
+  }
+  100% {
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.55), 0 0 26px rgba(255, 255, 255, 0.35);
+    transform: scale(1);
+  }
+}
+
+// Full-screen wash on the same beat. This is the effect changeBackground() used to
+// inject at runtime; as a class it costs nothing and is actually visible.
+.game-screen.turn-flash {
+  // #2b8a97 is the old #4b658496 (a 58% slate) resolved against the teal it used to sit
+  // on. Kept opaque on purpose: as a translucent wash it let the pixel-art map behind the
+  // page show through in patches, which read as a glitch rather than an announcement.
+  background: linear-gradient(-45deg, #2b8a97, #2b8a97, #00bfb3, #00bfb3);
+  background-size: 400% 400%;
+  animation: turn-flash-wash 3s ease infinite;
+}
+
+@keyframes turn-flash-wash {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+// -----------------------------------------------------------------------------
 // Board
 // -----------------------------------------------------------------------------
 // Cells were a fixed 140px, so the 4x4 grid needed ~660px and simply ran off a
@@ -104,6 +157,52 @@
     inset: 0;
     pointer-events: none;
   }
+}
+
+// An overlay ring, drawn inside the black frame rather than on top of it, so a cell
+// can report its state without the grid moving. ::before is the frame; this is ::after.
+.board .dropBox.cell::after {
+  content: "";
+  position: absolute;
+  inset: clamp(4px, calc(var(--cell) * 0.05), 8px);
+  border: 2px dashed transparent;
+  border-radius: 4px;
+  pointer-events: none;
+  transition: border-color $duration-base $ease-out, background-color $duration-base $ease-out;
+}
+
+// Only the squares you can actually play light up, and only while it is your move.
+// The wash is white rather than the teal accent because the board sits on teal.
+.board-wrap.is-turn .dropBox.cell.empty::after {
+  border-color: rgba(255, 255, 255, 0.85);
+  background: rgba(255, 255, 255, 0.22);
+}
+
+// What the opponent just did. Solid, and in a colour neither side owns, so it never
+// reads as ownership; it stays until the next move.
+.board .dropBox.cell.last-move::after {
+  border-style: solid;
+  border-color: #ffd23f;
+}
+
+.board .dropBox.cell.last-move.pop::after {
+  animation: move-land 600ms $ease-out;
+}
+
+.board .dropBox.cell.pop img {
+  animation: move-land-img 600ms $ease-out;
+}
+
+@keyframes move-land {
+  0%   { opacity: 0; transform: scale(1.35); }
+  55%  { opacity: 1; transform: scale(1); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes move-land-img {
+  0%   { transform: scale(0.82); }
+  60%  { transform: scale(1.03); }
+  100% { transform: scale(1); }
 }
 
 // The portrait fills its cell instead of relying on the champion image being
@@ -264,6 +363,35 @@ p {
   width: auto;
 }
 
+// The digit used to be the only thing that reacted, and only under 6 seconds. The ring
+// carries it too, in two steps, so the pressure is readable at a glance.
+.timer-value {
+  margin: 0;
+  font-weight: bold;
+  color: #10314a;
+}
+
+.timer-countdown.warn {
+  .timer-value { color: #b45f06; }
+
+  .dbl-spin-1 { border-top-color: rgba(224, 123, 31, 0.6); border-left-color: rgba(224, 123, 31, 0.6); }
+  .dbl-spin-2 { border-bottom-color: #e07b1f; border-left-color: #e07b1f; }
+}
+
+.timer-countdown.danger {
+  animation: timer-urgent 900ms $ease-out infinite;
+
+  .timer-value { color: #c0392b; }
+
+  .dbl-spin-1 { border-top-color: rgba(192, 57, 43, 0.6); border-left-color: rgba(192, 57, 43, 0.6); }
+  .dbl-spin-2 { border-bottom-color: #c0392b; border-left-color: #c0392b; }
+}
+
+@keyframes timer-urgent {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.08); }
+}
+
 .game-screen .loader-4 {
   margin: 0;
   height: 44px;
@@ -351,5 +479,26 @@ p {
 @media (max-height: 520px) and (orientation: landscape) {
   .board {
     --cell: clamp(48px, calc((100dvh - 96px) / 4), 160px);
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Motion opt-out
+// -----------------------------------------------------------------------------
+// The turn cues are announcements, not decoration, so the states stay - only the
+// movement goes.
+
+@media (prefers-reduced-motion: reduce) {
+
+  .board-wrap.is-turn.pulse .board,
+  .board .dropBox.cell.last-move.pop::after,
+  .board .dropBox.cell.pop img,
+  .timer-countdown.danger,
+  .game-screen.turn-flash {
+    animation: none;
+  }
+
+  .game-screen.turn-flash {
+    background-color: #4b9d9a;
   }
 }

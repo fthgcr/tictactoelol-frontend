@@ -185,7 +185,9 @@ $reveal-tile-ms: 520ms;
 }
 
 .guess-table {
-  min-width: 620px;
+  // Ten trait columns no longer fit a phone; .table-scroll already scrolls sideways,
+  // this just stops the tiles from being squeezed to nothing before it kicks in.
+  min-width: 880px;
   display: flex;
   flex-direction: column;
   gap: 0.4rem;
@@ -193,7 +195,9 @@ $reveal-tile-ms: 520ms;
   .guess-header,
   .guess-row {
     display: grid;
-    grid-template-columns: 1.5fr repeat(7, 1fr);
+    // Fallback only: the real track count is bound inline from the component, because
+    // the Skins column is dropped when the server has no skin data yet.
+    grid-template-columns: 1.5fr repeat(10, 1fr);
     gap: 0.4rem;
   }
 

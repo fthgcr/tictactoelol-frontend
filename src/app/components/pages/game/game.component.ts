@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnDestroy, OnInit, Renderer2, TemplateRef, ViewChild, inject } from '@angular/core';
+import { Component, ElementRef, OnDestroy, OnInit, TemplateRef, ViewChild, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { GetIpService } from '../../../services/get-ip.service';
 import { SessionService } from '../../../services/session.service';
@@ -39,11 +39,13 @@ export class GameComponent implements OnInit, OnDestroy {
   private messageSubscription: Subscription;
   private intervalSubscription: Subscription;
   private routeSubscription: Subscription;
-  private styleElement: HTMLStyleElement;
   // Status of the round we have already reacted to. Keeps the score to one point per
   // finished game and lets a rematch (finished -> active) be detected.
   private handledGameStatus: number = -1;
   private gameOverDialogRef?: MatDialogRef<ReplayDialogComponent>;
+  private turnPulseTimeout: any;
+  private movePopTimeout: any;
+  private screenFlashTimeout: any;
 
   constructor(
     private route: ActivatedRoute,
@@ -53,7 +55,6 @@ export class GameComponent implements OnInit, OnDestroy {
     private matDialog: MatDialog,
     private _snackBar: MatSnackBar,
     private lolChampionsExternalService: LolChampionsExternalService,
-    private renderer: Renderer2,
     private scoreBoardService : ScoreBoardService
   ) {}
 
@@ -71,10 +72,17 @@ export class GameComponent implements OnInit, OnDestroy {
   leavePageParameter : String = "";
   scoreBoard : ScoreBoard = new ScoreBoard("");
   isCursorPointer: boolean = false;
+  // The square filled by the most recent move. The board is redrawn from scratch on
+  // every broadcast, so without this nothing on screen says what the opponent just did.
+  lastMoveIndex: number = -1;
+  // One-shot flags for the "it is your turn now" cues. All three are edge triggered: a
+  // health check arriving while it is already our turn must not replay them.
+  movePop: boolean = false;
+  turnPulse: boolean = false;
+  screenFlash: boolean = false;
 
   ngOnInit() {
     //this.getUserName();
-    this.changeBackground(true);
     this.getChampions();
     this.setGameAreaEmpty();
     this.getParameter();
@@ -83,6 +91,9 @@ export class GameComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.sessionService.disconnect();
     this.stopInterval();
+    clearTimeout(this.turnPulseTimeout);
+    clearTimeout(this.movePopTimeout);
+    clearTimeout(this.screenFlashTimeout);
     if (this.messageSubscription) {
       this.messageSubscription.unsubscribe();
     }
@@ -186,6 +197,8 @@ export class GameComponent implements OnInit, OnDestroy {
             return;
           }
           const previousStatus = this.handledGameStatus;
+          const previousBoard = this.gameModel.playAreaArray ? [...this.gameModel.playAreaArray] : null;
+          const wasTurn = this.isTurn;
           this.gameModel = latest;
           // Re-read our seat from every session: someone who arrives while the two
           // seats are still filling can legitimately become a player, and everyone
@@ -247,10 +260,17 @@ export class GameComponent implements OnInit, OnDestroy {
                                                : "Time is up! Your Opponent's Turn.", 2500);
             }
           }
+          // Mark the square that changed before the board is repainted below.
+          this.markLastMove(previousBoard, this.gameModel.playAreaArray);
+
           //Change Turn - never our turn once the round is over
           this.isTurn = status === -1 && this.player === this.gameModel.turn;
           if(this.isTurn) {
-            this.changeBackground(false);
+            // Only on the transition. The old code announced on every message, so a
+            // health check re-fired the effect while you were already playing.
+            if(!wasTurn){
+              this.announceTurn();
+            }
             this.resetInterval();
           } else {
             this.stopInterval();
@@ -485,6 +505,8 @@ export class GameComponent implements OnInit, OnDestroy {
     }
     this.gameOverText = "";
     this.setGameAreaEmpty();
+    this.lastMoveIndex = -1;
+    this.movePop = false;
     this.timer = 30;
   }
 
@@ -512,39 +534,54 @@ export class GameComponent implements OnInit, OnDestroy {
     }
   }
 
-  //Body Background
-  changeBackground(isDefault : boolean){
-    if (!isDefault) {
-      const keyframes = `
-        @keyframes gradient {
-          0% { background-position: 0% 50%; }
-          50% { background-position: 100% 50%; }
-          100% { background-position: 0% 50%; }
+  // Everything that says "it is your turn now", in one place so the cues cannot drift
+  // apart. Called once per turn, from the transition only.
+  //
+  // This replaces changeBackground(), which injected a <style> painting `body`. Nothing
+  // on this page shows body any more - the screen is painted by .game-screen - so the
+  // flash had been invisible; it also appended a fresh <style> per websocket message and
+  // only ever removed the last one. The animation now lives in the stylesheet and is
+  // toggled with a class.
+  private announceTurn(){
+    this.screenFlash = true;
+    clearTimeout(this.screenFlashTimeout);
+    this.screenFlashTimeout = setTimeout(() => this.screenFlash = false, 3000);
+
+    this.turnPulse = true;
+    clearTimeout(this.turnPulseTimeout);
+    this.turnPulseTimeout = setTimeout(() => this.turnPulse = false, 1000);
+
+    // A phone face down on the table has nothing else to tell you. Absent on desktop and
+    // refused by some browsers without a prior gesture - neither is a failure.
+    const nav = navigator as any;
+    if(nav && typeof nav.vibrate === 'function'){
+      try { nav.vibrate(35); } catch { /* ignored on purpose */ }
+    }
+  }
+
+  // Finds the square that went from empty to played between two broadcasts. Only a real
+  // move updates the marker, so it survives the health checks that arrive in between.
+  private markLastMove(previous: String[] | null, current: String[] | undefined){
+    if(!previous || !current || previous.length !== current.length){
+      return;
+    }
+    let moved = -1;
+    for(let index = 0; index < current.length; index++){
+      if(previous[index] === "0" && current[index] !== "0"){
+        if(moved !== -1){
+          // Two squares changed at once: that is a resync or a reset, not a move.
+          return;
         }
-      `;
-
-      const background = `
-        body {
-          background: linear-gradient(-45deg, #4b658496, #4b658496, #00bfb3, #00bfb3);
-          background-size: 400% 400%;
-          animation: gradient 3s ease infinite;
-          height: 100vh;
-        }
-      `;
-
-      const styles = keyframes + background;
-
-      this.styleElement = this.renderer.createElement('style');
-      this.renderer.appendChild(this.styleElement, this.renderer.createText(styles));
-      this.renderer.appendChild(document.head, this.styleElement);
-      setTimeout(() => {
-        this.changeBackground(true);
-      },3000);
-    } else {
-      if (this.styleElement && this.styleElement.parentNode) { // Check parentNode existence before removal
-        this.renderer.removeChild(document.head, this.styleElement);
+        moved = index;
       }
     }
+    if(moved === -1){
+      return;
+    }
+    this.lastMoveIndex = moved;
+    this.movePop = true;
+    clearTimeout(this.movePopTimeout);
+    this.movePopTimeout = setTimeout(() => this.movePop = false, 700);
   }
 
   setCursorCondition(condition: boolean, index : number){

@@ -3,7 +3,7 @@
      offsets are fine on a desktop and collide with the board on a phone, so the
      page is now one column: a flex top bar, the board centred under it, and the
      scoreboard in normal flow. -->
-<div class="game-screen">
+<div class="game-screen" [class.turn-flash]="screenFlash">
 
   <header class="game-topbar">
 
@@ -33,11 +33,11 @@
         <span class="gameOverText">{{this.gameOverText}}</span>
       </div>
 
-      <div class="timer-countdown" *ngIf="(isTurn && this.gameModel.secondPlayer) && this.gameModel.gameStatus === -1">
+      <div class="timer-countdown" [class.warn]="timer <= 10 && timer > 5" [class.danger]="timer <= 5"
+        *ngIf="(isTurn && this.gameModel.secondPlayer) && this.gameModel.gameStatus === -1">
         <div class="box-4">
           <div class="loader-4">
-            <p *ngIf="timer > 0" [ngStyle]="{'color': (timer < 6) ? 'red' : 'black', 'font-weight': 'bold'}">{{timer}}</p>
-            <p style="font-weight: bold; color: red;" *ngIf="timer < 1">0</p>
+            <p class="timer-value">{{ timer > 0 ? timer : 0 }}</p>
             <div class="dbl-spin-1"></div>
             <div class="dbl-spin-2"></div>
           </div>
@@ -75,24 +75,25 @@
 
   </header>
 
-  <div class="board-wrap">
+  <div class="board-wrap" [class.is-turn]="isTurn && this.gameModel.gameStatus === -1"
+       [class.pulse]="turnPulse">
     <div class="board">
       <div class="dropBox"></div>
       <div class="dropBox header"><div class="rule"><span class="rule-name">{{splitRule(rules[0], true)}}</span><span class="rule-value">{{splitRule(rules[0], false)}}</span></div></div>
       <div class="dropBox header"><div class="rule"><span class="rule-name">{{splitRule(rules[1], true)}}</span><span class="rule-value">{{splitRule(rules[1], false)}}</span></div></div>
       <div class="dropBox header"><div class="rule"><span class="rule-name">{{splitRule(rules[2], true)}}</span><span class="rule-value">{{splitRule(rules[2], false)}}</span></div></div>
       <div class="dropBox header"><div class="rule"><span class="rule-name">{{splitRule(rules[3], true)}}</span><span class="rule-value">{{splitRule(rules[3], false)}}</span></div></div>
-      <div class="dropBox" [ngStyle]="{'cursor': isCursorPointer ? 'url(/assets/cursor/extra_attack.cur), auto' : 'url(/assets/cursor/normal.cur), auto'}" (mouseenter)="setCursorCondition(true,0)" (mouseleave)="setCursorCondition(false,0)" (click)="gameAreaClick(0)"><img *ngIf="images[0].source" [src]="images[0].source" [ngStyle]="images[0].style" alt=""></div>
-      <div class="dropBox" [ngStyle]="{'cursor': isCursorPointer ? 'url(/assets/cursor/extra_attack.cur), auto' : 'url(/assets/cursor/normal.cur), auto'}" (mouseenter)="setCursorCondition(true,1)" (mouseleave)="setCursorCondition(false,1)" (click)="gameAreaClick(1)"><img *ngIf="images[1].source" [src]="images[1].source" [ngStyle]="images[1].style" alt=""></div>
-      <div class="dropBox" [ngStyle]="{'cursor': isCursorPointer ? 'url(/assets/cursor/extra_attack.cur), auto' : 'url(/assets/cursor/normal.cur), auto'}" (mouseenter)="setCursorCondition(true,2)" (mouseleave)="setCursorCondition(false,2)" (click)="gameAreaClick(2)"><img *ngIf="images[2].source" [src]="images[2].source" [ngStyle]="images[2].style" alt=""></div>
+      <div class="dropBox cell" [class.empty]="!images[0].source" [class.last-move]="lastMoveIndex === 0" [class.pop]="movePop && lastMoveIndex === 0" [ngStyle]="{'cursor': isCursorPointer ? 'url(/assets/cursor/extra_attack.cur), auto' : 'url(/assets/cursor/normal.cur), auto'}" (mouseenter)="setCursorCondition(true,0)" (mouseleave)="setCursorCondition(false,0)" (click)="gameAreaClick(0)"><img *ngIf="images[0].source" [src]="images[0].source" [ngStyle]="images[0].style" alt=""></div>
+      <div class="dropBox cell" [class.empty]="!images[1].source" [class.last-move]="lastMoveIndex === 1" [class.pop]="movePop && lastMoveIndex === 1" [ngStyle]="{'cursor': isCursorPointer ? 'url(/assets/cursor/extra_attack.cur), auto' : 'url(/assets/cursor/normal.cur), auto'}" (mouseenter)="setCursorCondition(true,1)" (mouseleave)="setCursorCondition(false,1)" (click)="gameAreaClick(1)"><img *ngIf="images[1].source" [src]="images[1].source" [ngStyle]="images[1].style" alt=""></div>
+      <div class="dropBox cell" [class.empty]="!images[2].source" [class.last-move]="lastMoveIndex === 2" [class.pop]="movePop && lastMoveIndex === 2" [ngStyle]="{'cursor': isCursorPointer ? 'url(/assets/cursor/extra_attack.cur), auto' : 'url(/assets/cursor/normal.cur), auto'}" (mouseenter)="setCursorCondition(true,2)" (mouseleave)="setCursorCondition(false,2)" (click)="gameAreaClick(2)"><img *ngIf="images[2].source" [src]="images[2].source" [ngStyle]="images[2].style" alt=""></div>
       <div class="dropBox header"><div class="rule"><span class="rule-name">{{splitRule(rules[4], true)}}</span><span class="rule-value">{{splitRule(rules[4], false)}}</span></div></div>
-      <div class="dropBox" [ngStyle]="{'cursor': isCursorPointer ? 'url(/assets/cursor/extra_attack.cur), auto' : 'url(/assets/cursor/normal.cur), auto'}" (mouseenter)="setCursorCondition(true,3)" (mouseleave)="setCursorCondition(false,3)" (click)="gameAreaClick(3)"><img *ngIf="images[3].source" [src]="images[3].source" [ngStyle]="images[3].style" alt=""></div>
-      <div class="dropBox" [ngStyle]="{'cursor': isCursorPointer ? 'url(/assets/cursor/extra_attack.cur), auto' : 'url(/assets/cursor/normal.cur), auto'}" (mouseenter)="setCursorCondition(true,4)" (mouseleave)="setCursorCondition(false,4)" (click)="gameAreaClick(4)"><img *ngIf="images[4].source" [src]="images[4].source" [ngStyle]="images[4].style" alt=""></div>
-      <div class="dropBox" [ngStyle]="{'cursor': isCursorPointer ? 'url(/assets/cursor/extra_attack.cur), auto' : 'url(/assets/cursor/normal.cur), auto'}" (mouseenter)="setCursorCondition(true,5)" (mouseleave)="setCursorCondition(false,5)" (click)="gameAreaClick(5)"><img *ngIf="images[5].source" [src]="images[5].source" [ngStyle]="images[5].style" alt=""></div>
+      <div class="dropBox cell" [class.empty]="!images[3].source" [class.last-move]="lastMoveIndex === 3" [class.pop]="movePop && lastMoveIndex === 3" [ngStyle]="{'cursor': isCursorPointer ? 'url(/assets/cursor/extra_attack.cur), auto' : 'url(/assets/cursor/normal.cur), auto'}" (mouseenter)="setCursorCondition(true,3)" (mouseleave)="setCursorCondition(false,3)" (click)="gameAreaClick(3)"><img *ngIf="images[3].source" [src]="images[3].source" [ngStyle]="images[3].style" alt=""></div>
+      <div class="dropBox cell" [class.empty]="!images[4].source" [class.last-move]="lastMoveIndex === 4" [class.pop]="movePop && lastMoveIndex === 4" [ngStyle]="{'cursor': isCursorPointer ? 'url(/assets/cursor/extra_attack.cur), auto' : 'url(/assets/cursor/normal.cur), auto'}" (mouseenter)="setCursorCondition(true,4)" (mouseleave)="setCursorCondition(false,4)" (click)="gameAreaClick(4)"><img *ngIf="images[4].source" [src]="images[4].source" [ngStyle]="images[4].style" alt=""></div>
+      <div class="dropBox cell" [class.empty]="!images[5].source" [class.last-move]="lastMoveIndex === 5" [class.pop]="movePop && lastMoveIndex === 5" [ngStyle]="{'cursor': isCursorPointer ? 'url(/assets/cursor/extra_attack.cur), auto' : 'url(/assets/cursor/normal.cur), auto'}" (mouseenter)="setCursorCondition(true,5)" (mouseleave)="setCursorCondition(false,5)" (click)="gameAreaClick(5)"><img *ngIf="images[5].source" [src]="images[5].source" [ngStyle]="images[5].style" alt=""></div>
       <div class="dropBox header"><div class="rule"><span class="rule-name">{{splitRule(rules[5], true)}}</span><span class="rule-value">{{splitRule(rules[5], false)}}</span></div></div>
-      <div class="dropBox" [ngStyle]="{'cursor': isCursorPointer ? 'url(/assets/cursor/extra_attack.cur), auto' : 'url(/assets/cursor/normal.cur), auto'}" (mouseenter)="setCursorCondition(true,6)" (mouseleave)="setCursorCondition(false,6)" (click)="gameAreaClick(6)"><img *ngIf="images[6].source" [src]="images[6].source" [ngStyle]="images[6].style" alt=""></div>
-      <div class="dropBox" [ngStyle]="{'cursor': isCursorPointer ? 'url(/assets/cursor/extra_attack.cur), auto' : 'url(/assets/cursor/normal.cur), auto'}" (mouseenter)="setCursorCondition(true,7)" (mouseleave)="setCursorCondition(false,7)" (click)="gameAreaClick(7)"><img *ngIf="images[7].source" [src]="images[7].source" [ngStyle]="images[7].style" alt=""></div>
-      <div class="dropBox" [ngStyle]="{'cursor': isCursorPointer ? 'url(/assets/cursor/extra_attack.cur), auto' : 'url(/assets/cursor/normal.cur), auto'}" (mouseenter)="setCursorCondition(true,8)" (mouseleave)="setCursorCondition(false,8)" (click)="gameAreaClick(8)"><img *ngIf="images[8].source" [src]="images[8].source" [ngStyle]="images[8].style" alt=""></div>
+      <div class="dropBox cell" [class.empty]="!images[6].source" [class.last-move]="lastMoveIndex === 6" [class.pop]="movePop && lastMoveIndex === 6" [ngStyle]="{'cursor': isCursorPointer ? 'url(/assets/cursor/extra_attack.cur), auto' : 'url(/assets/cursor/normal.cur), auto'}" (mouseenter)="setCursorCondition(true,6)" (mouseleave)="setCursorCondition(false,6)" (click)="gameAreaClick(6)"><img *ngIf="images[6].source" [src]="images[6].source" [ngStyle]="images[6].style" alt=""></div>
+      <div class="dropBox cell" [class.empty]="!images[7].source" [class.last-move]="lastMoveIndex === 7" [class.pop]="movePop && lastMoveIndex === 7" [ngStyle]="{'cursor': isCursorPointer ? 'url(/assets/cursor/extra_attack.cur), auto' : 'url(/assets/cursor/normal.cur), auto'}" (mouseenter)="setCursorCondition(true,7)" (mouseleave)="setCursorCondition(false,7)" (click)="gameAreaClick(7)"><img *ngIf="images[7].source" [src]="images[7].source" [ngStyle]="images[7].style" alt=""></div>
+      <div class="dropBox cell" [class.empty]="!images[8].source" [class.last-move]="lastMoveIndex === 8" [class.pop]="movePop && lastMoveIndex === 8" [ngStyle]="{'cursor': isCursorPointer ? 'url(/assets/cursor/extra_attack.cur), auto' : 'url(/assets/cursor/normal.cur), auto'}" (mouseenter)="setCursorCondition(true,8)" (mouseleave)="setCursorCondition(false,8)" (click)="gameAreaClick(8)"><img *ngIf="images[8].source" [src]="images[8].source" [ngStyle]="images[8].style" alt=""></div>
     </div>
   </div>
 

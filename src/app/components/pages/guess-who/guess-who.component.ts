@@ -32,12 +32,14 @@ interface DailyResult {
 }
 
 const DAILY_RESULT_KEY = 'guesswho_daily_result';
-const COLUMNS = ['Gender', 'Role', 'Range', 'Region', 'Resource', 'Difficulty', 'Year'];
+// Order matters: these line up one-to-one with the cells built in buildGuessRow.
+const COLUMNS = ['Gender', 'Species', 'Role', 'Position', 'Range', 'Region', 'Resource', 'Difficulty', 'Year'];
+// Appended only when the server actually knows the skin counts (see skinDataAvailable).
+const SKIN_COLUMN = 'Skins';
 
 // Tile reveal animation timings; must stay in sync with the SCSS keyframes.
 const REVEAL_STAGGER_MS = 110; // gap between two neighbouring tiles
 const REVEAL_TILE_MS = 520;    // duration of a single tile flip
-const REVEAL_TOTAL_MS = (COLUMNS.length - 1) * REVEAL_STAGGER_MS + REVEAL_TILE_MS;
 
 const FEEDBACK_EMOJIS: Record<Feedback, string> = {
   correct: '\u{1F7E9}', // green
@@ -52,7 +54,11 @@ const FEEDBACK_EMOJIS: Record<Feedback, string> = {
 })
 export class GuessWhoComponent implements OnInit, OnDestroy {
 
-  columns: string[] = COLUMNS;
+  columns: string[] = [...COLUMNS];
+
+  // Skin counts come from Data Dragon at runtime, so the server may not have them yet.
+  // Rather than render a column full of blanks, the column is left out entirely.
+  skinDataAvailable: boolean = false;
 
   mode: 'daily' | 'unlimited' = 'daily';
   loading: boolean = true;
@@ -120,6 +126,9 @@ export class GuessWhoComponent implements OnInit, OnDestroy {
     request.subscribe({
       next: (puzzle) => {
         this.puzzle = puzzle;
+        this.skinDataAvailable = puzzle.champions.some(
+          (champion) => champion.skinCount !== null && champion.skinCount !== undefined);
+        this.columns = this.skinDataAvailable ? [...COLUMNS, SKIN_COLUMN] : [...COLUMNS];
         this.answerImgUrl = Utils.default.championImageURL(puzzle.answer);
         if (this.mode === 'daily') {
           const saved = this.loadDailyResult();
@@ -188,7 +197,7 @@ export class GuessWhoComponent implements OnInit, OnDestroy {
       if (row.correct) {
         this.finishGame(true);
       }
-    }, REVEAL_TOTAL_MS);
+    }, (this.columns.length - 1) * REVEAL_STAGGER_MS + REVEAL_TILE_MS);
   }
 
   // Per-tile delay so the traits open one after another, left to right.
@@ -204,13 +213,18 @@ export class GuessWhoComponent implements OnInit, OnDestroy {
   private buildGuessRow(guess: GuessWhoChampion, answer: GuessWhoChampion): GuessRow {
     const cells: GuessCell[] = [
       this.exactCell('Gender', guess.gender, answer.gender),
+      this.exactCell('Species', guess.species, answer.species),
       this.multiCell('Role', guess.role, answer.role),
+      this.multiCell('Position', guess.position, answer.position),
       this.multiCell('Melee/Ranged', guess.meleeRanged, answer.meleeRanged),
       this.exactCell('Region', guess.region, answer.region),
       this.exactCell('Resource', guess.abilityResource, answer.abilityResource),
       this.exactCell('Difficulty', guess.difficulty, answer.difficulty),
       this.yearCell(guess.releaseDate, answer.releaseDate),
     ];
+    if (this.skinDataAvailable) {
+      cells.push(this.numberCell('Skins', guess.skinCount, answer.skinCount));
+    }
     return {
       name: guess.name,
       imgUrl: Utils.default.championImageURL(guess.name),
@@ -243,17 +257,36 @@ export class GuessWhoComponent implements OnInit, OnDestroy {
   }
 
   private yearCell(guessYear: string, answerYear: string): GuessCell {
-    const guessed = parseInt(guessYear, 10);
-    const actual = parseInt(answerYear, 10);
-    if (isNaN(guessed) || isNaN(actual) || guessed === actual) {
-      return this.exactCell('Year', guessYear, answerYear);
+    return this.numberCell('Year', parseInt(guessYear, 10), parseInt(answerYear, 10), guessYear);
+  }
+
+  // Numeric attributes (release year, skin count): exact match or an arrow pointing
+  // at the answer, which is far more informative than a plain red tile.
+  private numberCell(
+    label: string,
+    guessValue: number | null,
+    answerValue: number | null,
+    display?: string
+  ): GuessCell {
+    const shown = display !== undefined ? display : (guessValue === null ? '?' : String(guessValue));
+    if (guessValue === null || answerValue === null || isNaN(guessValue) || isNaN(answerValue)) {
+      return { label: label, value: shown, feedback: 'wrong', arrow: '' };
+    }
+    if (guessValue === answerValue) {
+      return { label: label, value: shown, feedback: 'correct', arrow: '' };
     }
     return {
-      label: 'Year',
-      value: guessYear,
+      label: label,
+      value: shown,
       feedback: 'wrong',
-      arrow: actual > guessed ? 'up' : 'down', // answer released later / earlier
+      arrow: answerValue > guessValue ? 'up' : 'down', // the answer is higher / lower
     };
+  }
+
+  // "1.5fr repeat(10, 1fr)" - bound in the template so the grid always has exactly as
+  // many tracks as there are columns, however many the payload turned out to support.
+  get gridColumns(): string {
+    return `1.5fr repeat(${this.columns.length}, 1fr)`;
   }
 
   private splitValues(value: string): string[] {

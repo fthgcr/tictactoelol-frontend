@@ -9,6 +9,11 @@ export interface GuessWhoChampion {
   abilityResource: string;
   meleeRanged: string;     // may be multi-valued, comma separated
   gender: string;
+  position: string;        // lane, may be multi-valued, comma separated
+  species: string;         // lore species, single valued
+  // Skins excluding the base one. Null until the server's Data Dragon fetch lands,
+  // in which case the Skins column is dropped instead of showing an empty tile.
+  skinCount: number | null;
 }
 
 export interface GuessWhoPuzzle {

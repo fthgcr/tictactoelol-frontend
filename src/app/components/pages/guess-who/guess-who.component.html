@@ -53,11 +53,12 @@
       <!-- Guesses -->
       <div class="table-scroll" *ngIf="guesses.length > 0">
         <div class="guess-table">
-          <div class="guess-header">
+          <div class="guess-header" [style.grid-template-columns]="gridColumns">
             <div class="cell champ-cell">Champion</div>
             <div class="cell" *ngFor="let column of columns">{{ column }}</div>
           </div>
           <div class="guess-row"
+               [style.grid-template-columns]="gridColumns"
                *ngFor="let row of guesses"
                [class.revealing]="row.animate"
                [class.win-row]="row.correct && !row.animate">
