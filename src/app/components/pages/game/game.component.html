@@ -36,7 +36,7 @@
       <div class="timer-countdown" [class.warn]="timer <= 10 && timer > 5" [class.danger]="timer <= 5"
         *ngIf="(isTurn && this.gameModel.secondPlayer) && this.gameModel.gameStatus === -1">
         <div class="box-4">
-          <div class="loader-4">
+          <div class="loader-4" [style.--pct.deg]="(timer > 0 ? timer : 0) / 30 * 360">
             <p class="timer-value">{{ timer > 0 ? timer : 0 }}</p>
             <div class="dbl-spin-1"></div>
             <div class="dbl-spin-2"></div>
@@ -94,6 +94,11 @@
       <div class="dropBox cell" [class.empty]="!images[6].source" [class.last-move]="lastMoveIndex === 6" [class.pop]="movePop && lastMoveIndex === 6" [ngStyle]="{'cursor': isCursorPointer ? 'url(/assets/cursor/extra_attack.cur), auto' : 'url(/assets/cursor/normal.cur), auto'}" (mouseenter)="setCursorCondition(true,6)" (mouseleave)="setCursorCondition(false,6)" (click)="gameAreaClick(6)"><img *ngIf="images[6].source" [src]="images[6].source" [ngStyle]="images[6].style" alt=""></div>
       <div class="dropBox cell" [class.empty]="!images[7].source" [class.last-move]="lastMoveIndex === 7" [class.pop]="movePop && lastMoveIndex === 7" [ngStyle]="{'cursor': isCursorPointer ? 'url(/assets/cursor/extra_attack.cur), auto' : 'url(/assets/cursor/normal.cur), auto'}" (mouseenter)="setCursorCondition(true,7)" (mouseleave)="setCursorCondition(false,7)" (click)="gameAreaClick(7)"><img *ngIf="images[7].source" [src]="images[7].source" [ngStyle]="images[7].style" alt=""></div>
       <div class="dropBox cell" [class.empty]="!images[8].source" [class.last-move]="lastMoveIndex === 8" [class.pop]="movePop && lastMoveIndex === 8" [ngStyle]="{'cursor': isCursorPointer ? 'url(/assets/cursor/extra_attack.cur), auto' : 'url(/assets/cursor/normal.cur), auto'}" (mouseenter)="setCursorCondition(true,8)" (mouseleave)="setCursorCondition(false,8)" (click)="gameAreaClick(8)"><img *ngIf="images[8].source" [src]="images[8].source" [ngStyle]="images[8].style" alt=""></div>
+    </div>
+
+    <div class="win-banner" *ngIf="isVictoryBanner">
+      <span class="win-banner-title">Triple Kill</span>
+      <span class="win-banner-sub">{{gameOverText}}</span>
     </div>
   </div>
 

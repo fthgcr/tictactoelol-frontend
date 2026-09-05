@@ -1,7 +1,13 @@
+// Hextech theme, same recipe as the game screen and the rest of the app - see
+// src/styles/_tokens.scss.
+@use 'tokens' as *;
+
 // These ::ng-deep rules are global once this component has been shown, and each
 // dialog stylesheet used to set its own container width - 75% here, 500px in the
 // game and replay dialogs - so whichever loaded last won. The container now just
 // fills the panel, and the actual size is set per dialog in the open() config.
+// The box-shadow is kept identical to the one in game-second.scss on purpose:
+// both rules target the same global selector, so they have to agree.
 ::ng-deep .mat-mdc-dialog-container {
   border-radius: 4px;
   position: relative;
@@ -14,167 +20,165 @@
     0 15px 0 0 black;
 }
 
-.example-card {
-  /* Was width: 10% with flex: 7 0 50px, so the column count swung with the number
-     of champions left on the last row. The grid below sizes them instead. */
-  width: auto;
-  margin: 0;
-  background-color: #4b658496;
+::ng-deep .icon-outside .mat-dialog-container {
+  overflow: unset;
 }
 
-.card-grid-list {
-  /* auto-fill keeps a sensible portrait size at every width: four-ish columns on a
-     desktop dialog, two on a phone, without a breakpoint per step. */
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
-  gap: 10px;
-  padding: 10px;
-  box-sizing: border-box;
+.overview {
+  display: flex;
+  flex-direction: column;
+  max-height: min(680px, 88vh);
+  background:
+    radial-gradient(circle at 14% 4%, rgba(10, 200, 185, 0.16), transparent 42%),
+    radial-gradient(circle at 90% 96%, rgba(200, 170, 110, 0.14), transparent 46%),
+    $navy;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.overview-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 18px 20px 14px;
+  border-bottom: 1px solid $gold-line;
+  flex: 0 0 auto;
+}
+
+.overview-title {
+  margin: 0;
+  font-family: $font-display;
+  font-size: 20px;
+  font-weight: normal;
+  color: $gold;
+}
+
+.overview-count {
+  margin: 4px 0 0;
+  font-size: 12px;
+  letter-spacing: .06em;
+  color: $teal-soft;
+}
+
+.close-button {
+  flex: 0 0 auto;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1px solid rgba(159, 225, 203, 0.35);
+  background: rgba(10, 200, 185, 0.12);
+  color: $teal-soft;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: $cursor-link;
+  transition: background-color $duration-base $ease-out, border-color $duration-base $ease-out;
+
+  svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  &:hover {
+    background: rgba(10, 200, 185, 0.22);
+    border-color: $teal;
+  }
+}
+
+.overview-body {
+  flex: 1 1 auto;
   overflow-y: auto;
-  /* A flat 600px is taller than a phone screen, so the dialog could not scroll to
-     its own close button. */
-  max-height: min(600px, 70vh);
-  background-color: #4b658496;
+  padding: 16px 20px 20px;
 }
 
-.example-card img[mat-card-image] {
+.overview-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 40px 0;
+
+  p {
+    margin: 0;
+    font-family: $font-display;
+    font-size: 13px;
+    letter-spacing: .08em;
+    color: $teal-soft;
+  }
+}
+
+// auto-fill keeps a sensible tile size at every width: many columns on a desktop
+// dialog, fewer on a phone, without a breakpoint per step.
+.card-grid-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(84px, 1fr));
+  gap: 12px;
+}
+
+.champ-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.champ-frame {
+  position: relative;
   width: 100%;
-  height: auto;
-  margin: 0;
+  aspect-ratio: 1 / 1;
+  background: $panel-sunken;
+  border: 1px solid $panel-border;
+  // The same hextech chamfer used on the game board cells, so a champion tile
+  // reads as part of the same family wherever it shows up.
+  clip-path: polygon(
+    12% 0, 88% 0, 100% 12%,
+    100% 88%, 88% 100%, 12% 100%,
+    0 88%, 0 12%
+  );
+  overflow: hidden;
+  transition: border-color $duration-base $ease-out, transform $duration-base $ease-out,
+    box-shadow $duration-base $ease-out;
+
+  img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
 }
 
-.example-card p {
-  font-size: 0.8rem;
+.champ-tile:hover .champ-frame {
+  border-color: $teal;
+  box-shadow: 0 0 16px rgba(10, 200, 185, 0.45);
+  transform: translateY(-2px);
+}
+
+.champ-name {
+  margin: 0;
+  font-family: $font-display;
+  font-size: 11px;
+  letter-spacing: .03em;
   text-align: center;
-  margin: 6px 0;
+  color: $ink-dim;
   overflow-wrap: anywhere;
 }
 
+// ---- scrollbar ----
 
-mat-card-content {
-  display: flex;
-  justify-content: center; /* Horizontally center content */
-  align-items: center; /* Vertically center content */
-  height: 100%; /* Ensure full height for centering */
+.overview-body::-webkit-scrollbar {
+  width: 10px;
 }
 
-p {
-  font-family: "MyFont";
-  font-weight: bold;
-  letter-spacing: 1px;
+.overview-body::-webkit-scrollbar-track {
+  background: transparent;
 }
 
-///
-::-webkit-scrollbar {
-  width: 20px;
-}
-
-/* Track */
-::-webkit-scrollbar-track {
-  box-shadow: inset 0 0 5px grey; 
-  border-radius: 10px;
-}
- 
-/* Handle */
-::-webkit-scrollbar-thumb {
-  background: #4b658496; 
+.overview-body::-webkit-scrollbar-thumb {
+  background: rgba(159, 225, 203, 0.25);
   border-radius: 10px;
 }
 
-/* Handle on hover */
-::-webkit-scrollbar-thumb:hover {
-  background: #00bfb3; 
+.overview-body::-webkit-scrollbar-thumb:hover {
+  background: $teal;
 }
-
-
-::ng-deep .icon-outside .mat-dialog-container {
- overflow: unset
-}
-
-//Buttonnssss
-.icon-buttons {
-  position: absolute;
-  top: 10px; /* Adjust this value to move the button higher */
-  right: 20px;
-  font-size: larger;
-  color: white;
-  font-weight: bolder;
-  transform: rotate(180deg);
-  background-color: red;
-  z-index: 1;
-  display: block;
-}
-
-.icon-display {
-  transform: scale(1.5);
-  transform: rotate(180deg);
-  font-weight: bolder;
-}
-
-///Test
-/// 
-@mixin transition($prop: all, $time: 1s, $ease: ease-out){
-  -webkit-transition : $prop $time $ease;
-  -moz-transition    : $prop $time $ease;
-  -ms-transition     : $prop $time $ease;
-  -o-transition      : $prop $time $ease;
-  transition         : $prop $time $ease;
-}
-@mixin rotate($degrees){
-  -webkit-transform : rotate($degrees);
-  -moz-transform    : rotate($degrees);
-  -ms-transform     : rotate($degrees);
-  -o-transform      : rotate($degrees);
-  transform         : rotate($degrees);
-}
-
-@mixin square( $size ){
-  width: $size;
-  height: $size;
-}
-
-$black : #000;
-$white : #fff;
-
-// ---- [ Close Button ] ---- //
-.close-button{
-  @include square(clamp(36px, 10vw, 50px));
-  box-shadow : 0px 10 10px 10px rgba( 0, 0, 0, .25 );
-  border-radius: 10px; 
-  background : $black;
-  top: 10px; /* Adjust this value to move the button higher */
-  right: 20px;
-  margin-right: 10px;
-  position   : absolute;
-  display    : block;
-  z-index    : 200;
-  text-indent : -9999px;
-
-  &:before,
-  &:after{
-    content    : '';
-    width      : 55%;
-    height     : 2px;
-    background : $white;
-    position   : absolute;
-    top        : 48%;
-    left       : 22%;
-    @include rotate(-45deg);
-    @include transition( $time : 0.3s );
-  }
-
-  &:after{
-    @include rotate(45deg);
-    @include transition( $time : 0.3s );
-  }
-
-
-
-  &:hover{
-    &:before,
-    &:after{
-      @include rotate(180deg);
-    }
-  }
-}
-

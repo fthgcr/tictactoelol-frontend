@@ -64,14 +64,18 @@ export default class Utils {
     return SPLASH_URL + val + "_0.jpg";
   }
   
+  // Hextech theme: teal marks your own pieces, gold marks the opponent's - same
+  // accent pairing as the rest of the app (see src/styles/_tokens.scss).
   static placePngBorder(player: number) : any {
     if(player === 0){
       return {
-        'border': "0.5rem solid blue"
+        'border': "0.3rem solid #0ac8b9",
+        'box-shadow': "0 0 0 2px rgba(10, 200, 185, 0.35), 0 0 14px rgba(10, 200, 185, 0.55)"
       };
     } else {
       return {
-        'border': "0.5rem solid red"
+        'border': "0.3rem solid #c8aa6e",
+        'box-shadow': "0 0 0 2px rgba(200, 170, 110, 0.35), 0 0 14px rgba(200, 170, 110, 0.55)"
       };
     }
   }

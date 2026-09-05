@@ -4,8 +4,10 @@
 
 @import 'game-second.scss';
 
+// Hextech theme, same as the main menu / connections / guess-who screens: deep navy
+// with a soft teal + gold atmosphere instead of the old flat "#00bfb3" pixel-art teal.
 ::ng-deep html {
-  background-color: #00bfb3;
+  background-color: $navy;
   cursor: url('/assets/cursor/normal.cur'), auto;
 }
 
@@ -24,7 +26,11 @@
   min-height: 100dvh;
   box-sizing: border-box;
   padding: 12px 8px 16px;
-  background-color: #00bfb3;
+  color: $ink;
+  background:
+    radial-gradient(circle at 14% 6%, rgba(10, 200, 185, 0.18), transparent 42%),
+    radial-gradient(circle at 88% 92%, rgba(200, 170, 110, 0.14), transparent 46%),
+    $navy;
   cursor: url('/assets/cursor/normal.cur'), auto;
 }
 
@@ -36,16 +42,21 @@
   justify-content: space-between;
   gap: 8px;
   width: 100%;
+  max-width: $panel-max;
   min-height: 56px;
-  padding: 0 6px;
+  margin: 0 auto;
+  padding: 8px 14px;
   box-sizing: border-box;
+  background: rgba(4, 20, 40, 0.72);
+  border: 1px solid $gold-line;
+  border-radius: $radius-lg;
 }
 
 .topbar-side {
   flex: 0 0 auto;
   display: flex;
   align-items: center;
-  gap: 2px;
+  gap: 6px;
 }
 
 // The status line and the countdown share the middle. min-width: 0 lets a long
@@ -62,12 +73,13 @@
 }
 
 .board-wrap {
+  position: relative;
   flex: 1 1 auto;
   display: flex;
   align-items: center;
   justify-content: center;
   width: 100%;
-  padding: 8px 0;
+  padding: 18px 0;
 }
 
 // -----------------------------------------------------------------------------
@@ -75,10 +87,11 @@
 // -----------------------------------------------------------------------------
 // The turn used to be stated only in a line of text at the top of the screen, while
 // the player is looking at the board. The board now carries the state itself: the
-// squares you can actually use are lit, and the whole grid is ringed.
+// squares you can actually use are lit, and the whole panel is ringed in the
+// accent colour rather than a plain white wash.
 
 .board-wrap.is-turn .board {
-  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.55), 0 0 26px rgba(255, 255, 255, 0.35);
+  box-shadow: 0 0 0 3px rgba(10, 200, 185, 0.65), 0 0 30px rgba(10, 200, 185, 0.4);
 }
 
 // One wake-up beat when the turn arrives, so a player who looked away sees that
@@ -89,26 +102,24 @@
 
 @keyframes turn-wake {
   0% {
-    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.55), 0 0 26px rgba(255, 255, 255, 0.35);
+    box-shadow: 0 0 0 3px rgba(10, 200, 185, 0.65), 0 0 30px rgba(10, 200, 185, 0.4);
     transform: scale(1);
   }
   35% {
-    box-shadow: 0 0 0 7px rgba(255, 255, 255, 0.85), 0 0 46px rgba(255, 255, 255, 0.7);
+    box-shadow: 0 0 0 7px rgba(10, 200, 185, 0.9), 0 0 52px rgba(10, 200, 185, 0.75);
     transform: scale(1.012);
   }
   100% {
-    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.55), 0 0 26px rgba(255, 255, 255, 0.35);
+    box-shadow: 0 0 0 3px rgba(10, 200, 185, 0.65), 0 0 30px rgba(10, 200, 185, 0.4);
     transform: scale(1);
   }
 }
 
 // Full-screen wash on the same beat. This is the effect changeBackground() used to
-// inject at runtime; as a class it costs nothing and is actually visible.
+// inject at runtime; as a class it costs nothing and is actually visible. Recoloured
+// to the hextech navy/teal pairing so it reads as "this screen", not a random flash.
 .game-screen.turn-flash {
-  // #2b8a97 is the old #4b658496 (a 58% slate) resolved against the teal it used to sit
-  // on. Kept opaque on purpose: as a translucent wash it let the pixel-art map behind the
-  // page show through in patches, which read as a glitch rather than an announcement.
-  background: linear-gradient(-45deg, #2b8a97, #2b8a97, #00bfb3, #00bfb3);
+  background: linear-gradient(-45deg, #0f2a3e, #123a52, $navy, #0f2a3e);
   background-size: 400% 400%;
   animation: turn-flash-wash 3s ease infinite;
 }
@@ -125,6 +136,11 @@
 // Cells were a fixed 140px, so the 4x4 grid needed ~660px and simply ran off a
 // phone. One custom property drives the whole board: it keeps the old desktop
 // size and shrinks to whatever the viewport can actually show.
+//
+// The grid now sits inside a glass panel (same recipe as every other hextech
+// screen: translucent navy, gold hairline, soft drop shadow) instead of floating
+// directly on the page background, and cells are separated by hairlines instead
+// of a thick black frame.
 
 .board {
   --cell: clamp(56px, calc((100vw - 22px) / 4), 160px);
@@ -132,7 +148,13 @@
   position: relative;
   display: grid;
   grid-template-columns: repeat(4, var(--cell));
+  gap: 3px;
   margin: 0 auto;
+  padding: 12px;
+  background: rgba(24, 34, 52, 0.92);
+  border: 1px solid $gold-line;
+  border-radius: $radius-xl;
+  box-shadow: $shadow-panel;
 }
 
 .board .dropBox {
@@ -144,45 +166,51 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  border-radius: 2% 6% 5% 4% / 1% 1% 2% 4%;
+  background: #141d30;
+  // A soft chamfer on every corner - the "hextech" cut, used consistently across
+  // every cell so the grid reads as one shape rather than sixteen little rects.
+  clip-path: polygon(
+    10% 0, 90% 0, 100% 10%,
+    100% 90%, 90% 100%, 10% 100%,
+    0 90%, 0 10%
+  );
   // Stops the browser waiting for a double-tap before firing the click.
   touch-action: manipulation;
-
-  &::before {
-    content: "";
-    box-sizing: border-box;
-    border: clamp(2px, calc(var(--cell) * 0.03), 4px) solid #000000;
-    display: block;
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-  }
 }
 
-// An overlay ring, drawn inside the black frame rather than on top of it, so a cell
-// can report its state without the grid moving. ::before is the frame; this is ::after.
+.board .dropBox.corner {
+  background: transparent;
+}
+
+// An overlay ring, so a cell can report its state without the grid moving.
 .board .dropBox.cell::after {
   content: "";
   position: absolute;
   inset: clamp(4px, calc(var(--cell) * 0.05), 8px);
-  border: 2px dashed transparent;
+  border: 2px solid transparent;
   border-radius: 4px;
   pointer-events: none;
   transition: border-color $duration-base $ease-out, background-color $duration-base $ease-out;
 }
 
 // Only the squares you can actually play light up, and only while it is your move.
-// The wash is white rather than the teal accent because the board sits on teal.
 .board-wrap.is-turn .dropBox.cell.empty::after {
-  border-color: rgba(255, 255, 255, 0.85);
-  background: rgba(255, 255, 255, 0.22);
+  border-color: rgba(10, 200, 185, 0.75);
+  background: rgba(10, 200, 185, 0.14);
+  animation: cell-pulse 2.4s ease-in-out infinite;
 }
 
-// What the opponent just did. Solid, and in a colour neither side owns, so it never
-// reads as ownership; it stays until the next move.
+@keyframes cell-pulse {
+  0%, 100% { box-shadow: inset 0 0 10px rgba(10, 200, 185, 0.12); }
+  50%      { box-shadow: inset 0 0 20px rgba(10, 200, 185, 0.3); }
+}
+
+// What the opponent just did. Solid gold, and in a colour neither side owns, so it
+// never reads as ownership; it stays until the next move.
 .board .dropBox.cell.last-move::after {
   border-style: solid;
   border-color: #ffd23f;
+  box-shadow: 0 0 14px rgba(255, 210, 63, 0.5);
 }
 
 .board .dropBox.cell.last-move.pop::after {
@@ -213,53 +241,14 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  // The owner border comes in as an inline 0.5rem style, which would eat most of
-  // a phone-sized cell.
+  clip-path: polygon(
+    10% 0, 90% 0, 100% 10%,
+    100% 90%, 90% 100%, 10% 100%,
+    0 90%, 0 10%
+  );
+  // The owner border comes in as an inline style (see Consts.placePngBorder), which
+  // would eat most of a phone-sized cell.
   border-width: clamp(3px, calc(var(--cell) * 0.05), 8px) !important;
-}
-
-.board .dropBox:nth-child(4),
-.board .dropBox:nth-child(8),
-.board .dropBox:nth-child(12),
-.board .dropBox:nth-child(16) {
-  border-right: none;
-
-  &::before {
-    border-right: none;
-  }
-}
-
-.board .dropBox:nth-child(1),
-.board .dropBox:nth-child(5),
-.board .dropBox:nth-child(9),
-.board .dropBox:nth-child(13) {
-  border-left: none;
-
-  &::before {
-    border-left: none;
-  }
-}
-
-.board .dropBox:nth-child(13),
-.board .dropBox:nth-child(14),
-.board .dropBox:nth-child(15),
-.board .dropBox:nth-child(16) {
-  border-bottom: none;
-
-  &::before {
-    border-bottom: none;
-  }
-}
-
-.board .dropBox:nth-child(1),
-.board .dropBox:nth-child(2),
-.board .dropBox:nth-child(3),
-.board .dropBox:nth-child(4) {
-  border-top: none;
-
-  &::before {
-    border-top: none;
-  }
 }
 
 // -----------------------------------------------------------------------------
@@ -268,7 +257,10 @@
 
 .icon-buttons {
   font-size: larger;
-  color: black;
+  color: $teal-soft;
+  background: rgba(10, 200, 185, 0.12);
+  border: 1px solid rgba(159, 225, 203, 0.35);
+  border-radius: 50%;
 }
 
 .icon-buttons,
@@ -302,6 +294,7 @@ h4 {
   font-size: clamp(0.75rem, 3.2vw, 1rem);
   letter-spacing: .1rem;
   white-space: nowrap;
+  color: $ink;
 }
 
 p {
@@ -311,8 +304,7 @@ p {
 }
 
 .header {
-  color: white;
-  background-color: #4b658496;
+  background-color: $panel-sunken;
 }
 
 // Rule labels used to sit inside a <p>, which the global "display: ruby" rule
@@ -337,19 +329,22 @@ p {
 // same proportion of the square it sits in.
 .rule-name {
   font-size: clamp(7px, calc(var(--cell) * 0.135), 0.95rem);
-  color: black;
+  color: $ink-muted;
+  text-transform: uppercase;
 }
 
 .rule-value {
   font-size: clamp(8px, calc(var(--cell) * 0.15), 1.05rem);
-  color: white;
+  color: $gold;
+  font-weight: $weight-bold;
 }
 
 // -----------------------------------------------------------------------------
 // Countdown
 // -----------------------------------------------------------------------------
-// The global .box-4 reserves a 120px square and .loader-4 adds 44px of margin,
-// which was fine for a free-floating overlay but far too tall for a top bar.
+// The ring is a single conic-gradient sweep driven by --pct (set inline from the
+// timer value, see game.component.html), rather than two independently spinning
+// borders - it now reads as a shrinking pie of time left, in the accent colour.
 
 .timer-countdown {
   flex: 0 0 auto;
@@ -363,28 +358,50 @@ p {
   width: auto;
 }
 
-// The digit used to be the only thing that reacted, and only under 6 seconds. The ring
-// carries it too, in two steps, so the pressure is readable at a glance.
+.game-screen .loader-4 {
+  position: relative;
+  margin: 0;
+  height: 44px;
+  width: 44px;
+  border-radius: 50%;
+  background: conic-gradient(#0ac8b9 var(--pct, 360deg), rgba(255, 255, 255, 0.12) 0deg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background $duration-base linear;
+
+  // The old double-spinner rings are replaced by the conic-gradient sweep above.
+  .dbl-spin-1,
+  .dbl-spin-2 {
+    display: none;
+  }
+
+  // Punches the donut hole so the sweep reads as a ring, not a filled pie.
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 5px;
+    border-radius: 50%;
+    background: #101a2e;
+  }
+}
+
 .timer-value {
+  position: relative;
+  z-index: 1;
   margin: 0;
   font-weight: bold;
-  color: #10314a;
+  color: $ink;
 }
 
 .timer-countdown.warn {
-  .timer-value { color: #b45f06; }
-
-  .dbl-spin-1 { border-top-color: rgba(224, 123, 31, 0.6); border-left-color: rgba(224, 123, 31, 0.6); }
-  .dbl-spin-2 { border-bottom-color: #e07b1f; border-left-color: #e07b1f; }
+  .loader-4 { background: conic-gradient(#e07b1f var(--pct, 360deg), rgba(255, 255, 255, 0.12) 0deg); }
 }
 
 .timer-countdown.danger {
   animation: timer-urgent 900ms $ease-out infinite;
 
-  .timer-value { color: #c0392b; }
-
-  .dbl-spin-1 { border-top-color: rgba(192, 57, 43, 0.6); border-left-color: rgba(192, 57, 43, 0.6); }
-  .dbl-spin-2 { border-bottom-color: #c0392b; border-left-color: #c0392b; }
+  .loader-4 { background: conic-gradient(#c0392b var(--pct, 360deg), rgba(255, 255, 255, 0.12) 0deg); }
 }
 
 @keyframes timer-urgent {
@@ -392,37 +409,102 @@ p {
   50%      { transform: scale(1.08); }
 }
 
-.game-screen .loader-4 {
-  margin: 0;
-  height: 44px;
-  width: 44px;
+@media (max-width: 640px) {
+  // handled below, in the existing phones block - kept here would duplicate it.
+}
 
-  .dbl-spin-1 {
-    height: 44px;
-    width: 44px;
-  }
+// -----------------------------------------------------------------------------
+// Win moment
+// -----------------------------------------------------------------------------
+// The board is literally called "Triple Kill" - a win gets the same beat the
+// game's name promises, styled after the LoL multikill announcer: a gold sweep
+// across the panel with the existing gameOverText as the subtitle underneath, so
+// no new copy has to be maintained in two places.
 
-  .dbl-spin-2 {
-    height: 60px;
-    width: 60px;
-  }
+.win-banner {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 24px;
+  text-align: center;
+  border-radius: $radius-xl;
+  background: linear-gradient(180deg, rgba(10, 20, 35, 0.15), rgba(6, 12, 22, 0.85) 45%, rgba(6, 12, 22, 0.92));
+  pointer-events: none;
+}
+
+.win-banner-title {
+  font-family: "MyFont";
+  font-size: clamp(1.6rem, 8vw, 2.4rem);
+  letter-spacing: .08em;
+  background: linear-gradient(180deg, #f7ecca, $gold 55%, #8a6d3a);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: win-banner-pulse 1.8s ease-in-out infinite;
+}
+
+@keyframes win-banner-pulse {
+  0%, 100% { transform: scale(1); filter: drop-shadow(0 0 10px rgba(200, 170, 110, .35)); }
+  50%      { transform: scale(1.035); filter: drop-shadow(0 0 20px rgba(200, 170, 110, .65)); }
+}
+
+.win-banner-sub {
+  font-family: "MyFont";
+  font-size: clamp(0.8rem, 3.4vw, 1rem);
+  letter-spacing: .06em;
+  color: $teal-soft;
 }
 
 // -----------------------------------------------------------------------------
 // Scoreboard
 // -----------------------------------------------------------------------------
-// Global .scoreBoard pins itself to the bottom of the viewport; in this column
-// it is just the last row. The margin keeps the chunky pixel shadow off the edge.
+// A translucent gold-bordered card, same recipe as the top bar, instead of the
+// old chunky pixel-art shadow box. Small teal/gold dots flank the text so the
+// two sides read at a glance without needing new markup.
 
 .game-screen .scoreBoard {
   position: static;
-  margin: 14px auto 4px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 18px auto 4px;
+  padding: 10px 20px;
+  background: rgba(4, 20, 40, 0.72);
+  border: 1px solid $teal-line;
+  border-radius: $radius-lg;
   font-size: clamp(0.8rem, 3.5vw, 1.125rem);
+
+  &::before,
+  &::after {
+    content: "";
+    flex: 0 0 auto;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+  }
+
+  &::before {
+    background: $teal;
+    box-shadow: 0 0 8px rgba(10, 200, 185, 0.7);
+  }
+
+  &::after {
+    background: $gold;
+    box-shadow: 0 0 8px rgba(200, 170, 110, 0.7);
+  }
 }
 
 .game-screen .scoreBoardText {
-  margin: 0 15px;
+  margin: 0;
   font-size: inherit;
+  color: $ink;
+  font-family: "MyFont";
+  letter-spacing: .05rem;
 }
 
 // -----------------------------------------------------------------------------
@@ -434,7 +516,7 @@ p {
     // Leaves room for the countdown ring, which is drawn 6px outside its own box.
     min-height: 54px;
     gap: 4px;
-    padding: 0 2px;
+    padding: 8px 10px;
   }
 
   .topbar-center {
@@ -446,31 +528,24 @@ p {
   }
 
   .board-wrap {
-    padding: 4px 0;
+    padding: 10px 0;
+  }
+
+  .board {
+    padding: 8px;
   }
 
   .game-screen .loader-4 {
     height: 34px;
     width: 34px;
-
-    .dbl-spin-1 {
-      height: 34px;
-      width: 34px;
-    }
-
-    .dbl-spin-2 {
-      height: 46px;
-      width: 46px;
-    }
   }
 
-  // The pixel shadow is 10px on every side; halve it so the board keeps the width.
   .game-screen .scoreBoard {
-    box-shadow: -6px 0 0 0 black, 6px 0 0 0 black, 0 -6px 0 0 black, 0 6px 0 0 black;
+    padding: 8px 14px;
   }
 
   .game-screen .scoreBoardText {
-    margin: 0 8px;
+    margin: 0 4px;
   }
 }
 
@@ -493,12 +568,14 @@ p {
   .board-wrap.is-turn.pulse .board,
   .board .dropBox.cell.last-move.pop::after,
   .board .dropBox.cell.pop img,
+  .board-wrap.is-turn .dropBox.cell.empty::after,
   .timer-countdown.danger,
+  .win-banner-title,
   .game-screen.turn-flash {
     animation: none;
   }
 
   .game-screen.turn-flash {
-    background-color: #4b9d9a;
+    background-color: #123a52;
   }
 }

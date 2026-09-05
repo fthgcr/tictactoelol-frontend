@@ -1,14 +1,29 @@
-<!-- <button mat-icon-button color="primary" class="icon-buttons" style="right: 20px;" (click)="closeDialog()">
-  <mat-icon class="icon-display">close</mat-icon>
-</button> -->
-<a class="close-button" (click)="closeDialog()">Close</a>
-<div class="card-grid-list">
-  <mat-card class="example-card" *ngFor="let item of champions">
-    <!-- Splash art is heavy (~0.5mb each). Only the cards actually scrolled into
-         view are fetched, so opening the dialog no longer waits on ~168 images. -->
-    <img mat-card-image [src]="item.png" loading="lazy" decoding="async" />
-    <mat-card-content>
-      <p>{{ item.name }}</p>
-    </mat-card-content>
-  </mat-card>
+<div class="overview">
+
+  <header class="overview-header">
+    <div>
+      <h2 class="overview-title">Champions</h2>
+      <p class="overview-count" *ngIf="champions.length">{{ champions.length }} in the pool</p>
+    </div>
+    <button type="button" class="close-button" (click)="closeDialog()" aria-label="Close">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
+  </header>
+
+  <div class="overview-body">
+    <div class="overview-loading" *ngIf="!champions.length">
+      <div class="loading__bar"></div>
+      <p>Loading champions&hellip;</p>
+    </div>
+
+    <div class="card-grid-list" *ngIf="champions.length">
+      <div class="champ-tile" *ngFor="let item of champions">
+        <div class="champ-frame">
+          <img [src]="item.png" [alt]="item.name" loading="lazy" decoding="async" />
+        </div>
+        <p class="champ-name">{{ item.name }}</p>
+      </div>
+    </div>
+  </div>
+
 </div>

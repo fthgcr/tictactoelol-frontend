@@ -150,6 +150,12 @@ export class GameComponent implements OnInit, OnDestroy {
     return this.player === -1;
   }
 
+  // Gold "Triple Kill" celebration overlay: only for the player who actually won
+  // (not a spectator, not a draw, not the loser).
+  get isVictoryBanner(): boolean {
+    return !this.isSpectator && this.gameModel.gameStatus !== -1 && this.gameModel.gameStatus === this.player;
+  }
+
   // 1-based seat number for the spectator banner. turn is optional on the DTO, so the
   // arithmetic lives here rather than in the template, where strictTemplates rejects it.
   get currentTurnLabel(): number {
