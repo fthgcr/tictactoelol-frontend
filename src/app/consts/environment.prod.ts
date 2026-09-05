@@ -1,6 +1,6 @@
 export const environment = {
     production: true,
     name: "Prod",
-    apiURL : "https://tictactoelol-backend.onrender.com",
-    wsURL : "https://tictactoelol-backend.onrender.com/ws"
+    apiURL : "https://tictaclol-backend.fly.dev",
+    wsURL : "https://tictaclol-backend.fly.dev/ws"
 }
